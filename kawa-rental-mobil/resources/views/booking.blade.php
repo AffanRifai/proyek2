@@ -30,7 +30,7 @@
 
     <!-- banner Section -->
     <section class="hero" aria-label="Rental mobil cepat dan aman">
-        <img src="/kawa-rental-mobil/public/img/banner-kawa.png" alt="banner kawa rental mobil" />
+        <img src="/kawa-rental-mobil/public/img/kawa-banner.png" alt="banner kawa rental mobil" />
     </section>
 
     <!-- mobil Section -->
@@ -199,6 +199,14 @@
         document.getElementById(tabName).style.display = 'block';
         evt.currentTarget.classList.add('active');
     }
+
+    // Sembunyikan semua tab-content kecuali yang pertama saat halaman load
+    document.addEventListener("DOMContentLoaded", function() {
+        var tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(function(tab, idx) {
+            tab.style.display = (idx === 0) ? 'block' : 'none';
+        });
+    });
 </script>
 
 </body>

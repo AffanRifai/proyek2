@@ -1,0 +1,298 @@
+:root {
+    --bg: #f4f6fb;
+    --card: #fff;
+    --brand: #c62828;
+    --muted: #6b7280;
+    --line: #e6e9ef
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: var(--bg);
+    color: #17202a
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-family: inherit;
+}
+
+/* Navbar */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo img {
+    width: 120px;
+    height: auto;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2.2rem;
+    align-items: center;
+}
+
+nav li {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+nav li:hover {
+    color: #A62F19;
+}
+
+nav .search-container {
+    position: relative;
+}
+
+nav input[type="search"] {
+    padding: 0.3rem 1.2rem;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    width: 150px;
+    transition: width 0.3s ease;
+}
+
+nav input[type="search"]:focus {
+    width: 220px;
+    border-color: #A62F19;
+    outline: none;
+}
+
+nav button.login-btn {
+    background-color: #A62F19;
+    color: #fff;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+nav button.login-btn:hover {
+    background-color: #5d1a1a;
+}
+
+.title-badge {
+    background: var(--brand);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700
+}
+
+.wrap {
+    max-width: 1100px;
+    margin: 26px auto;
+    padding: 20px
+}
+
+.card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    box-shadow: 0 8px 30px rgba(10, 20, 40, 0.06)
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 18px
+}
+
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px
+}
+
+.three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px
+}
+
+h3 {
+    margin: 0 0 8px;
+    color: var(--brand)
+}
+
+label {
+    font-size: 13px;
+    color: #334;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px
+}
+
+textarea {
+    min-height: 80px
+}
+
+.section {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fbfdff
+}
+
+.section+.section {
+    margin-top: 12px
+}
+
+.small {
+    font-size: 13px;
+    color: var(--muted)
+}
+
+.file-preview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px
+}
+
+.file-preview img {
+    height: 86px;
+    border-radius: 6px;
+    border: 1px solid #ddd
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px
+}
+
+.checklist label {
+    font-weight: 500
+}
+
+.car-views {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px
+}
+
+.car-views svg {
+    width: 80px;
+    height: 48px;
+    opacity: 0.9
+}
+
+.summary {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px dashed var(--line);
+    background: #fff
+}
+
+.summary div {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #fafafa
+}
+
+.summary div:last-child {
+    border-bottom: 0
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 14px
+}
+
+.btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700
+}
+
+.btn-primary {
+    background: var(--brand);
+    color: #fff
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid var(--line)
+}
+
+.payment {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.payment .btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+}
+.payment .btn-primary {
+    background: var(--brand);
+    color: #fff;
+}
+.payment .btn-primary:hover {
+    background: #A62F19;
+}
+
+
+
+@media (max-width:1000px) {
+    .grid-2 {
+        grid-template-columns: 1fr
+    }
+
+    .brand img {
+        height: 36px
+    }
+}
