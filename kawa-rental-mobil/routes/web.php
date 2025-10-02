@@ -15,6 +15,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', fn () => view('auth.register'))->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/DaftarMobil', fn () => view('DaftarMobil'));
+
 Route::group(['middleware' => ['auth', 'check_role:customer']], function () {
     Route::get('/landingpage', fn () => view('landingpage'));
 });
