@@ -27,7 +27,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: url('../../public/img/header.jpg');
+            background-image: url('{{asset('img/header.jpg')}}');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
