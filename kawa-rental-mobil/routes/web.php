@@ -40,3 +40,5 @@ Route::get('/logout', [AuthController::class, 'logout']);
 
 
 Route::get('/booking', fn () => view('booking'));
+
+Route::get('/bookinghiace', fn () => view('bookinghiace'));
