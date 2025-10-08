@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VerificationController;
+use App\Models\Verification;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,6 +19,10 @@ Route::get('/register', fn () => view('auth.register'))->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::group(['middleware' => ['auth', 'check_role:customer']], function () {
+    Route::get('/verify', [VerificationController::class, 'index']);
+});
+
+Route::group(['middleware' => ['auth', 'check_role:customer', 'check_status']], function () {
     Route::get('/landingpage', fn () => view('landingpage'));
 });
 Route::group(['middleware' => ['auth', 'check_role:admin']], function () {
@@ -28,3 +35,6 @@ Route::group(['middleware' => ['auth', 'check_role:admin']], function () {
     // Route::get('/delete_mobil/{id}', [AdminController::class, 'delete_mobil']);
 });
 Route::get('/logout', [AuthController::class, 'logout']);
+
+
+Route::get('/booking', fn () => view('booking'));

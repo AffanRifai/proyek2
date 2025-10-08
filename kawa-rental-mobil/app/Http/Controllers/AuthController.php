@@ -29,7 +29,7 @@ class AuthController extends Controller
             'confirm_password' => 'required|max:50|same:password',
         ]);
 
-        $request['status'] = 'active';
+        $request['status'] = "verify";
         $user = \App\Models\User::create($request->all());
         Auth::login($user);
         return redirect('/landingpage');

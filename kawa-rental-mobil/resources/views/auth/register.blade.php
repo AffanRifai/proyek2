@@ -242,7 +242,7 @@
 
             <div class="social-buttons">
                 <div class="social-btn">
-                    <img src="../../public/img/google.png" alt="Google Logo">
+                    <img src="{{asset ('img/google.png')}}" alt="Google Logo">
                     Google
                 </div>
                 <div class="social-btn">
@@ -253,7 +253,7 @@
             <button type="submit" class="btn-register">Daftar</button>
         </form>
         <div class="link-group">
-            Sudah punya akun? <a href="">masuk</a>
+            Sudah punya akun? <a href="/login">masuk</a>
         </div>
     </div>
 </body>

@@ -27,7 +27,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: url('{{asset('img/header.jpg')}}');
+            background-image: url('{{asset('img/background-mobil.png')}}');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
@@ -42,7 +42,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.10);
             filter: brightness(0.1);
             z-index: -1;
         }
@@ -51,9 +51,10 @@
         .login-container {
             width: 90%;
             max-width: 400px;
-            background-color: var(--form-bg-color);
+            background-color: rgba(255, 255, 255, 0.3);
             padding: 40px;
             border-radius: 15px;
+            border: 2px solid rgba(0, 0, 0, 0.10);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
             position: relative;
@@ -71,16 +72,20 @@
         .input-group {
             margin-bottom: 20px;
         }
-
+        
         .input-group input {
+            background: rgba(0, 0, 0, 0.2);
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(0, 0, 0, 0.10);
             border-radius: 8px;
-            box-sizing: border-box;
-            background-color: var(--input-bg-color);
-            color: var(--text-color);
+            box-sizing: border-box;   
+            color: #fff;
             transition: border-color 0.3s ease;
+        }
+
+        ::placeholder {
+            color: #e5e5e5;
         }
 
         .input-group input:focus {

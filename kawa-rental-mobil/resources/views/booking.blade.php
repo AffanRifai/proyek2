@@ -5,14 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Rental Mobil Indramayu</title>
-    <link rel="stylesheet" href="/kawa-rental-mobil/public/css/booking.css">
+    <link rel="stylesheet" href="{{ asset('css/booking.css')}}" />
 </head>
 
 <body>
     <!-- Header Navbar -->
     <header>
         <a href="#" class="logo">
-            <img src="/kawa-rental-mobil/public/img/logo-kawa.png" alt="logo kawa rental mobil" />
+            <img src="{{asset('img/logo-kawa.png')}}" alt="logo kawa rental mobil" />
         </a>
         <nav>
             <ul>
@@ -30,14 +30,14 @@
 
     <!-- banner Section -->
     <section class="hero" aria-label="Rental mobil cepat dan aman">
-        <img src="/kawa-rental-mobil/public/img/kawa-banner.png" alt="banner kawa rental mobil" />
+        <img src="{{asset('img/kawa-banner.png')}}" alt="banner kawa rental mobil" />
     </section>
 
     <!-- mobil Section -->
     <main>
         <section class="product-detail" aria-label="Detail mobil Suzuki Ertiga">
             <div class="car-image">
-                <img src="/kawa-rental-mobil/public/img/pajero.png" alt="Mobil Suzuki Ertiga berwarna putih" />
+                <img src="{{asset('img/pajero.png')}}" alt="Mobil Suzuki Ertiga berwarna putih" />
             </div>
             <form class="car-info" aria-labelledby="carTitle">
                 <h2 id="carTitle">SUZUKI ERTIGA</h2>
@@ -109,7 +109,7 @@
         <section class="cars-container" aria-label="Daftar mobil tersedia">
 
             <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-                <img src="/kawa-rental-mobil/public/img/pajero.png" alt="Mobil Pick Up" />
+                <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
                 <h3>Pajero nih boss</h3>
                 <div class="price">Harga 350k / hari</div>
                 <div class="details">
@@ -120,7 +120,7 @@
             </article>
 
             <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-                <img src="/kawa-rental-mobil/public/img/pajero.png" alt="Mobil Pick Up" />
+                <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
                 <h3>Pajero nih boss</h3>
                 <div class="price">Harga 350k / hari</div>
                 <div class="details">
@@ -131,7 +131,7 @@
             </article>
 
             <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-                <img src="/kawa-rental-mobil/public/img/pajero.png" alt="Mobil Pick Up" />
+                <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
                 <h3>Pajero nih boss</h3>
                 <div class="price">Harga 350k / hari</div>
                 <div class="details">
@@ -150,7 +150,7 @@
         <div class="footer-container">
             <div class="footer-col">
                 <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
-                    <img src="/kawa-rental-mobil/public/img/logo-kawa.png" alt="logo kawa rental mobil" />
+                    <img src="{{asset('img/logo-kawa.png')}}" alt="logo kawa rental mobil" />
                 </a>
                 <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer" style="color:#00b894;">www.polindra.ac.id</a></small>
             </div>
