@@ -42,3 +42,10 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/booking', fn () => view('booking'));
 
 Route::get('/bookinghiace', fn () => view('bookinghiace'));
+Route::get('/bookingmobiliomanual', fn () => view('bookingmobiliomanual'));
+Route::get('/bookingbriomatic', fn () => view('bookingbriomatic'));
+Route::get('/bookingbriomanual', fn () => view('bookingbriomanual'));
+Route::get('/bookingavanzamanual', fn () => view('bookingavanzamanual'));
+Route::get('/bookingavanzaautomatic', fn () => view('bookingavanzaautomatic'));
+
+Route::get('/TentangKami', fn () => view('TentangKami'));

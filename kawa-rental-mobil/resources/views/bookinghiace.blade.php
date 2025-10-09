@@ -63,7 +63,7 @@
 
                 <div class="price-section" aria-live="polite" aria-atomic="true">
                     Harga <br>
-                    <strong id="priceDisplay">Konsultasikan dengan Admin</strong> 
+                    <strong id="priceDisplay" style="color: #A62F19;">Konsultasikan dengan Admin</strong> 
                 </div>
 
                 <button type="submit" class="booking-btn">Konsultasi Sekarang</button>

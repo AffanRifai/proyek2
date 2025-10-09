@@ -41,18 +41,18 @@
 
     <!-- mobil Section -->
     <main>
-        <section class="product-detail" aria-label="Detail mobil Avanza Manual">
+        <section class="product-detail" aria-label="Detail mobil Avanza AutoMatic">
             <div class="car-image">
-                <img src="{{asset('img/AvanzaMT.png')}}" alt="Mobil Avanza Manual Hitam" />
+                <img src="{{asset('img/AvanzaAT.png')}}" alt="Mobil Avanza AutoMatic Putih" />
             </div>
             <form class="car-info" aria-labelledby="carTitle">
-                <h2 id="carTitle">Avanza Manual</h2>
+                <h2 id="carTitle">Avanza AutoMatic</h2>
 
                 <div class="meta-icons" aria-label="Spesifikasi utama mobil">
                     <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <circle cx="12" cy="12" r="9" fill="none" stroke-width="2"></circle>
                             <circle cx="12" cy="12" r="4" fill="none" stroke-width="2"></circle>
-                        </svg> Manual</span>
+                        </svg> AutoMatic</span>
                     <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path d="M8 7h8M8 12h8M8 17h8" fill="none" stroke-width="2" stroke-linecap="round" />
                         </svg> 2022</span>
@@ -63,7 +63,7 @@
 
                 <div class="price-section" aria-live="polite" aria-atomic="true">
                     Harga <br>
-                    <strong id="priceDisplay">Rp. 400.000</strong> / hari
+                    <strong id="priceDisplay">Rp. 500.000</strong> / hari
                 </div>
 
                 <button type="submit" class="book-btn">Booking Now</button>
@@ -77,12 +77,13 @@
             <button class="tab-button active" onclick="openTab(event, 'deskripsi')">Deskripsi</button>
             <button class="tab-button" onclick="openTab(event, 'fasilitas')">Fasilitas</button>
             <button class="tab-button" onclick="openTab(event, 'syarat')">Syarat & Ketentuan</button>
+            <button class="tab-button" onclick="openTab(event, 'kebijakan')">Kebijakan</button>
         </div>
 
         <!-- Isi Konten Tab -->
         <div id="deskripsi" class="tab-content" style="display: block;">
     <p>
-        <strong>Toyota All New Avanza</strong> merupakan Low MPV generasi terbaru yang tangguh, irit bahan bakar, dan sangat mengutamakan kenyamanan. Mobil ini dikenal sebagai pilihan utama keluarga Indonesia, ideal untuk perjalanan dalam dan luar kota.
+        <strong>Toyota All New Avanza Automatic</strong> merupakan Low MPV generasi terbaru yang tangguh, lega, dan dirancang untuk memberikan kenyamanan maksimal saat berkendara di kemacetan perkotaan maupun perjalanan jauh. Mobil ini adalah pilihan utama keluarga Indonesia.
     </p>
     <div>
         Berikut keunggulan unit kami:
@@ -92,22 +93,22 @@
         <strong>1. Desain Eksterior & Dimensi</strong>
         <ul>
             <li><strong>Tampilan Gagah dan Modern:</strong> Avanza generasi terbaru memiliki desain yang lebih agresif, modern, dan kokoh (terutama pada bagian depan) yang memberikan kesan Premium dan Gagah.</li>
-            <li><strong>Dimensi Ideal MPV:</strong> Menawarkan dimensi yang proporsional untuk menampung banyak penumpang dan barang, namun tetap mudah dikendalikan di jalan perkotaan.
+            <li><strong>Dimensi Ideal MPV:</strong> Menawarkan dimensi yang proporsional untuk menampung banyak penumpang dan barang.
                 <ul>
                     <li>Panjang: Sekitar 4.395 mm</li>
                     <li>Lebar: Sekitar 1.730 mm</li>
                     <li>Tinggi: Sekitar 1.700 mm</li>
                 </ul>
             </li>
-            <li><strong>Ground Clearance Tinggi:</strong> Dirancang dengan jarak ke tanah yang tinggi, sangat andal untuk melintasi jalan bergelombang atau genangan air di berbagai daerah.</li>
+            <li><strong>Ground Clearance Tinggi:</strong> Memiliki jarak ke tanah yang tinggi, sangat andal untuk melintasi jalan bergelombang atau genangan air.</li>
         </ul>
     </div>
 
     <div style="margin-top: 10px;">
         <strong>2. Kenyamanan Interior & Kapasitas</strong>
         <ul>
-            <li><strong>Kabin Fleksibel 7 Penumpang:</strong> Avanza didesain untuk menampung tujuh penumpang (7-seater) dengan ruang yang lega, cocok untuk keluarga besar.</li>
-            <li><strong>Mode Sofa (Long Sofa Mode):</strong> Kursi baris kedua dan ketiga dapat diatur menjadi mode sofa panjang (Long Sofa Mode), memberikan fleksibilitas dan kenyamanan maksimal untuk bersantai saat perjalanan jauh atau macet.</li>
+            <li><strong>Kabin Lega 7 Penumpang:</strong> Avanza didesain untuk menampung tujuh penumpang (7-seater) dengan ruang yang lega, cocok untuk keluarga besar.</li>
+            <li><strong>Mode Sofa (Long Sofa Mode):</strong> Kursi baris kedua dan ketiga dapat diatur menjadi mode sofa panjang (*Long Sofa Mode*), memberikan kenyamanan ekstra selama perjalanan.</li>
             <li><strong>AC Double Blower:</strong> Dilengkapi dengan sistem pendingin udara Double Blower yang menjamin pendinginan merata dan cepat hingga ke penumpang baris ketiga.</li>
             <li><strong>Bagasi Luas dan Fleksibel:</strong> Kapasitas bagasi besar, dan dapat diperluas secara maksimal dengan melipat rata kursi baris kedua dan ketiga.</li>
         </ul>
@@ -116,16 +117,16 @@
     <div style="margin-top: 10px;">
         <strong>3. Performa Mesin & Transmisi</strong>
         <ul>
-            <li><strong>Mesin Irit dan Andal (Dual VVT-i):</strong> Ditenagai mesin bensin 4-silinder 1.3L atau 1.5L Dual VVT-i yang terkenal sangat efisien bahan bakar dan memiliki daya tahan mesin yang tinggi.
+            <li><strong>Mesin Irit dan Andal (Dual VVT-i):</strong> Ditenagai mesin bensin 4-silinder 1.3L atau 1.5L Dual VVT-i yang terkenal sangat efisien bahan bakar dan menghasilkan tenaga yang andal.
                 <ul>
                     <li>Kapasitas: Mulai dari 1.329 cc.</li>
                     <li>Tenaga Maksimal: Sekitar 98 PS (untuk 1.3L).</li>
                 </ul>
             </li>
-            <li><strong>Transmisi Manual 5-Percepatan:</strong>
+            <li><strong>Transmisi Otomatis CVT yang Halus:</strong>
                 <ul>
-                    <li><strong>Tangguh dan Responsif:</strong> Transmisi manual memberikan pengemudi kontrol penuh untuk mengoptimalkan akselerasi dan torsi, sangat ideal saat membawa beban penuh atau melintasi medan menanjak.</li>
-                    <li>Ketahanan Teruji: Transmisi manual Avanza dikenal sangat bandel dan minim masalah.</li>
+                    <li>Kenyamanan Maksimal: Transmisi jenis CVT (Continuously Variable Transmission) menawarkan perpindahan gigi yang sangat halus, mulus, dan tanpa hentakan, menjadikannya sangat nyaman untuk penggunaan harian di kota yang macet.</li>
+                    <li>Efisiensi BBM: Teknologi CVT membantu mengoptimalkan putaran mesin, sehingga berkontribusi pada efisiensi bahan bakar yang lebih baik.</li>
                 </ul>
             </li>
         </ul>
@@ -137,16 +138,16 @@
         <ul>
             <li><strong>Dual SRS Airbags</strong> (untuk pengemudi dan penumpang depan).</li>
             <li><strong>Anti-lock Braking System (ABS)</strong> dan <strong>Electronic Brake-force Distribution (EBD)</strong> untuk pengereman yang aman dan terkontrol.</li>
-            <li><strong>Struktur Bodi Kuat</strong>: Rangka bodi yang dirancang untuk memberikan perlindungan maksimal bagi seluruh penumpang.</li>
+            <li><strong>Hill Start Assist (HSA)</strong>: Fitur yang membantu mencegah mobil mundur saat mulai berjalan di tanjakan (tersedia pada varian tertentu).</li>
         </ul>
     </div>
 
     <div style="margin-top: 10px;">
-        Toyota All New Avanza Manual sangat ideal untuk disewa sebagai kendaraan:
+        Toyota All New Avanza Automatic sangat ideal untuk disewa sebagai kendaraan:
         <ul>
-            <li><strong>Kendaraan Harian Keluarga:</strong> Irit dan nyaman untuk segala aktivitas keluarga.</li>
-            <li><strong>Perjalanan Luar Kota/Mudik:</strong> Andal di berbagai medan dan kapasitas bagasi yang luas.</li>
-            <li><strong>Tugas Kantor atau Proyek Lapangan:</strong> Tangguh, hemat BBM, dan mampu membawa banyak penumpang/perlengkapan.</li>
+            <li><strong>Kendaraan Harian Keluarga:</strong> Sangat nyaman dan praktis untuk segala aktivitas keluarga di perkotaan.</li>
+            <li><strong>Perjalanan Jarak Jauh/Wisata:</strong> Kenyamanan transmisi otomatis mengurangi kelelahan saat mengemudi dalam waktu lama.</li>
+            <li><strong>Tugas Kantor atau Proyek:</strong> Handal, lega, dan mudah dikemudikan oleh siapa saja.</li>
         </ul>
     </div>
 </div>
@@ -168,6 +169,21 @@
                 <li style="margin-bottom: 5px;"><strong>Tanggung Jawab Kerusakan/Kehilangan:</strong> Segala resiko kerusakan, kecelakaan, dan kehilangan kendaraan adalah <strong>tanggung jawab</strong> Pihak Kedua (Penyewa).</li>
                 <li style="margin-bottom: 5px;"><strong>Tilang Elektronik (E-Tilang):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
                 <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui seluruh kesepakatan yang tertulis di atas.</li>
+            </ul>
+        </div>
+    </div>
+        
+        <div id="kebijakan" class="tab-content">
+            <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
+            <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin detail dari Surat Perjanjian Sewa antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
+    
+            <ul style="padding-left: 10px; margin-top: 0; margin-bottom: 0;">
+            <li style="margin-bottom: 5px;"><strong>PASAL 1 (Tanggung Jawab Pihak Pertama):</strong> Pihak Pertama tidak bertanggung jawab atas segala tindakan/perbuatan atau akibat yang ditimbulkan oleh Pihak Kedua sehubungan dengan kendaraan tersebut.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 2 (Pemindahan Kendaraan):</strong> Pihak Kedua tidak diperkenankan memindahkan atau menyerahkan kendaraan tersebut kepada orang lain.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 3 (Pengambilan Kendaraan Sepihak):</strong> Pihak Pertama berhak mengambil kembali kendaraan secara sepihak sebelum masa sewa berakhir jika kendaraan dianggap tidak terawat, digunakan untuk tindakan melawan hukum, atau dipindahtangankan kepada pihak lain.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 4 (Risiko & Perbaikan):</strong> Apabila terjadi musibah atau kelalaian Pihak Kedua yang menyebabkan kecelakaan, kehilangan, kerusakan, pergantian suku cadang, atau perlengkapan kendaraan, Pihak Kedua bertanggung jawab menanggung segala risikonya. Perbaikan atau perawatan harus atas persetujuan Pihak Pertama.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 5 (Tilang Elektronik):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 6 (Penyelesaian Masalah):</strong> Kedua belah pihak sepakat memilih penyelesaian di Kantor Panitera Pengadilan Negeri Kelas 1 Indramayu jika terjadi masalah yang berhubungan dengan Surat Perjanjian.</li>
             </ul>
         </div>
     </div>
