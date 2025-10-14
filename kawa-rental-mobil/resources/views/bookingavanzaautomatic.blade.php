@@ -162,7 +162,7 @@
         <div id="syarat" class="tab-content">
             <h3 style="margin-bottom: 5px;">Syarat & Ketentuan Sewa</h3>
             <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin kesepakatan antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
-            
+
             <ul style="padding-left: 20px; margin-top: 0; margin-bottom: 0;">
                 <li style="margin-bottom: 5px;"><strong>Perpanjangan Waktu (Overtime):</strong> Wajib dikonfirmasi minimal <strong>6 (enam)</strong> Jam sebelum masa sewa berakhir.</li>
                 <li style="margin-bottom: 5px;"><strong>Penyalahgunaan Kendaraan:</strong> Segala bentuk penyalahgunaan kendaraan diluar tanggung jawab Pihak Pertama (Kawa Car Rent).</li>
@@ -172,11 +172,11 @@
             </ul>
         </div>
     </div>
-        
+
         <div id="kebijakan" class="tab-content">
             <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
             <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin detail dari Surat Perjanjian Sewa antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
-    
+
             <ul style="padding-left: 10px; margin-top: 0; margin-bottom: 0;">
             <li style="margin-bottom: 5px;"><strong>PASAL 1 (Tanggung Jawab Pihak Pertama):</strong> Pihak Pertama tidak bertanggung jawab atas segala tindakan/perbuatan atau akibat yang ditimbulkan oleh Pihak Kedua sehubungan dengan kendaraan tersebut.</li>
             <li style="margin-bottom: 5px;"><strong>PASAL 2 (Pemindahan Kendaraan):</strong> Pihak Kedua tidak diperkenankan memindahkan atau menyerahkan kendaraan tersebut kepada orang lain.</li>
