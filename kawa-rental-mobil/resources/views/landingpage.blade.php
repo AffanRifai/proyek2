@@ -196,7 +196,7 @@
     <div class="footer-container">
       <div class="footer-col">
         <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
-          <img src="/kawa-rental-mobil/public/img/logo-kawa-stroke2.png" alt="logo kawa rental mobil" />
+          <img src="{{ asset('img/logo-kawa-stroke2.png')}} alt="logo kawa rental mobil" />
         </a>
         <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer" style="color:#00b894;">www.polindra.ac.id</a></small>
       </div>
