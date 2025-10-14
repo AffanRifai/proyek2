@@ -185,7 +185,6 @@
             <li style="margin-bottom: 5px;"><strong>PASAL 5 (Tilang Elektronik):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
             <li style="margin-bottom: 5px;"><strong>PASAL 6 (Penyelesaian Masalah):</strong> Kedua belah pihak sepakat memilih penyelesaian di Kantor Panitera Pengadilan Negeri Kelas 1 Indramayu jika terjadi masalah yang berhubungan dengan Surat Perjanjian.</li>
             </ul>
-        </div>
     </div>
 
 
