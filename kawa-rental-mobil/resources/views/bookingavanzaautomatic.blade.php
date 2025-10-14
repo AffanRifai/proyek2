@@ -171,7 +171,7 @@
                 <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui seluruh kesepakatan yang tertulis di atas.</li>
             </ul>
         </div>
-    </div>
+
 
         <div id="kebijakan" class="tab-content">
             <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
