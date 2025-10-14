@@ -51,7 +51,7 @@
       <div><span>Sistem</span><span>Lepas Kunci</span></div>
       <div><span>Tipe</span><span>Manual</span></div>
     </div>
-    <button type="button" aria-label="Sewa Mobilio Manual">Sewa mobil &gt;&gt;</button>
+    <a href="/bookingmobiliomanual"><button type="button" aria-label="Sewa Mobilio Manual">Sewa mobil &gt;&gt;</button></a>
   </article>
 
   <!-- Brio Matic -->
@@ -63,7 +63,7 @@
       <div><span>Sistem</span><span>Lepas Kunci</span></div>
       <div><span>Tipe</span><span>Matic</span></div>
     </div>
-    <button type="button" aria-label="Sewa Brio Matic">Sewa mobil &gt;&gt;</button>
+    <a href="/bookingbriomatic"><button type="button" aria-label="Sewa Brio Matic">Sewa mobil &gt;&gt;</button></a>
   </article>
 
   <!-- Brio Manual -->
@@ -75,7 +75,7 @@
       <div><span>Sistem</span><span>Lepas Kunci</span></div>
       <div><span>Tipe</span><span>Manual</span></div>
     </div>
-    <button type="button" aria-label="Sewa Brio Manual">Sewa mobil &gt;&gt;</button>
+    <a href="/bookingbriomanual"><button type="button" aria-label="Sewa Brio Manual">Sewa mobil &gt;&gt;</button></a>
   </article>
 
   <!-- New Avanza MT -->
@@ -87,7 +87,7 @@
       <div><span>Sistem</span><span>Lepas Kunci</span></div>
       <div><span>Tipe</span><span>Manual </span></div>
     </div>
-    <button type="button" aria-label="Sewa New Avanza MT">Sewa mobil &gt;&gt;</button>
+    <a href="/bookingavanzamanual"><button type="button" aria-label="Sewa New Avanza MT">Sewa mobil &gt;&gt;</button></a>
   </article>
 
   <!-- New Avanza AT -->
@@ -98,9 +98,9 @@
     <div class="details">
       <div><span>Sistem</span><span>Lepas Kunci</span></div>
       <div><span>Tipe</span><span>Automatic </span></div>
-      
+
     </div>
-    <button type="button" aria-label="Sewa New Avanza AT">Sewa mobil &gt;&gt;</button>
+    <a href="/bookingavanzaautomatic"><button type="button" aria-label="Sewa New Avanza AT">Sewa mobil &gt;&gt;</button></a>
   </article>
 
   <!-- Hiace -->
@@ -112,7 +112,7 @@
       <div><span>Sistem</span><span>Dengan Driver</span></div>
       <div><span>Tipe</span><span>Minibus</span></div>
     </div>
-    <button type="button" aria-label="Sewa Hiace">Sewa mobil &gt;&gt;</button>
+    <a href="/bookinghiace"><button type="button" aria-label="Sewa Hiace">Sewa mobil &gt;&gt;</button></a>
   </article>
 
 </section>
