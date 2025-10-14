@@ -77,6 +77,7 @@
             <button class="tab-button active" onclick="openTab(event, 'deskripsi')">Deskripsi</button>
             <button class="tab-button" onclick="openTab(event, 'fasilitas')">Fasilitas</button>
             <button class="tab-button" onclick="openTab(event, 'syarat')">Syarat & Ketentuan</button>
+            <button class="tab-button" onclick="openTab(event, 'kebijakan')">Kebijakan</button>
         </div>
 
         <!-- Isi Konten Tab -->
@@ -163,13 +164,27 @@
         <div id="syarat" class="tab-content">
             <h3 style="margin-bottom: 5px;">Syarat & Ketentuan Sewa</h3>
             <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin kesepakatan antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
-            
+
             <ul style="padding-left: 20px; margin-top: 0; margin-bottom: 0;">
                 <li style="margin-bottom: 5px;"><strong>Perpanjangan Waktu (Overtime):</strong> Wajib dikonfirmasi minimal <strong>6 (enam)</strong> Jam sebelum masa sewa berakhir.</li>
                 <li style="margin-bottom: 5px;"><strong>Penyalahgunaan Kendaraan:</strong> Segala bentuk penyalahgunaan kendaraan diluar tanggung jawab Pihak Pertama (Kawa Car Rent).</li>
                 <li style="margin-bottom: 5px;"><strong>Tanggung Jawab Kerusakan/Kehilangan:</strong> Segala resiko kerusakan, kecelakaan, dan kehilangan kendaraan adalah <strong>tanggung jawab</strong> Pihak Kedua (Penyewa).</li>
                 <li style="margin-bottom: 5px;"><strong>Tilang Elektronik (E-Tilang):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
                 <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui seluruh kesepakatan yang tertulis di atas.</li>
+            </ul>
+        </div>
+
+        <div id="kebijakan" class="tab-content">
+            <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
+            <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin detail dari Surat Perjanjian Sewa antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
+
+            <ul style="padding-left: 10px; margin-top: 0; margin-bottom: 0;">
+            <li style="margin-bottom: 5px;"><strong>PASAL 1 (Tanggung Jawab Pihak Pertama):</strong> Pihak Pertama tidak bertanggung jawab atas segala tindakan/perbuatan atau akibat yang ditimbulkan oleh Pihak Kedua sehubungan dengan kendaraan tersebut.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 2 (Pemindahan Kendaraan):</strong> Pihak Kedua tidak diperkenankan memindahkan atau menyerahkan kendaraan tersebut kepada orang lain.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 3 (Pengambilan Kendaraan Sepihak):</strong> Pihak Pertama berhak mengambil kembali kendaraan secara sepihak sebelum masa sewa berakhir jika kendaraan dianggap tidak terawat, digunakan untuk tindakan melawan hukum, atau dipindahtangankan kepada pihak lain.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 4 (Risiko & Perbaikan):</strong> Apabila terjadi musibah atau kelalaian Pihak Kedua yang menyebabkan kecelakaan, kehilangan, kerusakan, pergantian suku cadang, atau perlengkapan kendaraan, Pihak Kedua bertanggung jawab menanggung segala risikonya. Perbaikan atau perawatan harus atas persetujuan Pihak Pertama.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 5 (Tilang Elektronik):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
+            <li style="margin-bottom: 5px;"><strong>PASAL 6 (Penyelesaian Masalah):</strong> Kedua belah pihak sepakat memilih penyelesaian di Kantor Panitera Pengadilan Negeri Kelas 1 Indramayu jika terjadi masalah yang berhubungan dengan Surat Perjanjian.</li>
             </ul>
         </div>
     </div>
