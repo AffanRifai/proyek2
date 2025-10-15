@@ -41,24 +41,24 @@
 
     <!-- mobil Section -->
     <main>
-        <section class="product-detail" aria-label="Detail mobil Suzuki Ertiga">
+        <section class="product-detail" aria-label="Detail mobil Mobilio Manual">
             <div class="car-image">
-                <img src="{{asset('img/pajero.png')}}" alt="Mobil Suzuki Ertiga berwarna putih" />
+                <img src="{{asset('img/mobilio.png')}}" alt="Mobil Mobilio Manual Hitam" />
             </div>
             <form class="car-info" aria-labelledby="carTitle">
-                <h2 id="carTitle">SUZUKI ERTIGA</h2>
+                <h2 id="carTitle">Mobilio Manual</h2>
 
                 <div class="meta-icons" aria-label="Spesifikasi utama mobil">
                     <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <circle cx="12" cy="12" r="9" fill="none" stroke-width="2"></circle>
                             <circle cx="12" cy="12" r="4" fill="none" stroke-width="2"></circle>
-                        </svg> Matic</span>
+                        </svg> Manual</span>
                     <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path d="M8 7h8M8 12h8M8 17h8" fill="none" stroke-width="2" stroke-linecap="round" />
-                        </svg> 2022</span>
+                        </svg> 2017</span>
                     <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path d="M4 7h16M4 17h16" fill="none" stroke-width="2" stroke-linecap="round" />
-                        </svg> Kapasitas 6 orang</span>
+                        </svg> Kapasitas 7 orang</span>
                 </div>
 
                 <div class="price-section" aria-live="polite" aria-atomic="true">
@@ -81,26 +81,90 @@
 
         <!-- Isi Konten Tab -->
         <div id="deskripsi" class="tab-content" style="display: block;">
-            <p>Suzuki Ertiga 2022 Up adalah MPV praktis dan efisien, cocok untuk keluarga dan rombongan dengan fitur modern dan interior lapang.</p>
-        </div>
+    <p>
+        <strong>Honda Mobilio</strong> merupakan <strong>Low MPV</strong> yang lincah dan irit bahan bakar, dirancang untuk memberikan kenyamanan dan kepraktisan maksimal bagi keluarga serta kebutuhan sehari-hari.
+    </p>
+    <div>
+        Berikut keunggulan unit kami:
+    </div>
+
+    <div style="margin-top: 10px;">
+        <strong>1. Desain Eksterior & Dimensi</strong>
+        <ul>
+            <li><strong>Tampilan Modern dan Dinamis:</strong> Mobilio memiliki desain yang sporty dan modern, dengan garis bodi yang aerodinamis. Desain lampu depan (headlamp) yang tajam dan gril berlapis krom (pada beberapa varian) memberikan kesan elegan di kelasnya.</li>
+            <li><strong>Dimensi Kompak:</strong> Sebagai Low MPV, Mobilio menawarkan dimensi yang ideal untuk bermanuver di jalan perkotaan yang padat.
+                <ul>
+                    <li>Panjang: Sekitar 4.386 mm</li>
+                    <li>Lebar: Sekitar 1.683 mm</li>
+                    <li>Tinggi: Sekitar 1.603 mm</li>
+                </ul>
+            </li>
+            <li><strong>Ground Clearance Tinggi:</strong> Dengan jarak ke tanah yang cukup tinggi, Mobilio lebih percaya diri melintasi jalan bergelombang atau genangan air.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <strong>2. Kenyamanan Interior & Kapasitas</strong>
+        <ul>
+            <li><strong>Kabin Fleksibel 7 Penumpang:</strong> Mobilio didesain untuk menampung <strong>tujuh penumpang</strong> (7-seater) dengan konfigurasi kursi 2-3-2.</li>
+            <li><strong>Akses Mudah ke Baris Ketiga:</strong> Kursi baris kedua dapat dilipat dengan mudah (One-Touch Tumble) untuk memberikan akses yang praktis.</li>
+            <li><strong>AC Double Blower:</strong> Dilengkapi dengan sistem pendingin udara <strong>Double Blower</strong> yang memastikan pendinginan merata hingga ke belakang.</li>
+            <li><strong>Bagasi Luas:</strong> Ketika kursi baris ketiga dilipat, Mobilio menawarkan ruang bagasi yang sangat luas dan fleksibel, mampu menampung banyak barang bawaan.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <strong>3. Performa Mesin & Transmisi</strong>
+        <ul>
+            <li><strong>Mesin Irit dan Bertenaga (i-VTEC):</strong> Ditenagai mesin bensin 4-silinder <strong>1.5L SOHC i-VTEC</strong> yang terkenal efisien dan menghasilkan tenaga responsif.
+                <ul>
+                    <li>Kapasitas: 1.496 cc.</li>
+                    <li>Tenaga Maksimal: Sekitar 118 PS, salah satu yang terbesar di kelasnya.</li>
+                </ul>
+            </li>
+            <li><strong>Transmisi Manual yang Responsif:</strong> Unit dengan <strong>transmisi manual (biasanya 5 percepatan)</strong> memberikan pengemudi kontrol penuh atas akselerasi dan *engine braking*, ideal untuk pengalaman berkendara yang *sporty* dan efisien saat melintasi rute menanjak.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <strong>4. Fitur Keselamatan (Safety)</strong><br>
+        Mobilio dilengkapi dengan fitur keselamatan standar untuk melindungi penumpang:
+        <ul>
+            <li><strong>Dual SRS Airbags</strong> (untuk pengemudi dan penumpang depan).</li>
+            <li><strong>Anti-lock Braking System (ABS)</strong> dan <strong>Electronic Brake-force Distribution (EBD)</strong> untuk memastikan pengereman yang aman dan optimal, terutama dalam kondisi darurat.</li>
+            <li><strong>Struktur Rangka G-CON + ACE™:</strong> Struktur bodi yang dirancang untuk meredam energi benturan saat terjadi tabrakan.</li>
+            <li><strong>ISOFIX dan Tether:</strong> Tersedia fitur pengait kursi anak untuk keselamatan balita.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 10px;">
+        Honda Mobilio Manual sangat ideal untuk disewa sebagai kendaraan:
+        <ul>
+            <li><strong>Kendaraan Harian Keluarga:</strong> Irit dan praktis untuk mengantar anak sekolah atau berbelanja.</li>
+            <li><strong>Perjalanan Luar Kota Ringan:</strong> Mesin 1.5L yang bertenaga menjamin performa yang andal.</li>
+            <li><strong>Liburan Keluarga Kecil/Menengah:</strong> Kapasitas 7-seater memberikan fleksibilitas tanpa perlu kendaraan yang terlalu besar.</li>
+        </ul>
+    </div>
+</div>
 
         <div id="fasilitas" class="tab-content">
             <ul>
                 <li>AC otomatis dan ventilasi rear AC</li>
-                <li>Sistem infotainment layar sentuh 8 inch dengan Bluetooth dan USB</li>
-                <li>Airbag ganda dan ABS dengan EBD</li>
-                <li>Parkir sensor belakang dan Hill Hold Control</li>
-                <li>Remote keyless entry dan lampu depan LED</li>
+                <li>Radio/Tape/CD/MP3 Android</li>
+                <li>Charger</li>
             </ul>
         </div>
 
         <div id="syarat" class="tab-content">
-            <ul>
-                <li>Usia peminjam minimal 21 tahun</li>
-                <li>Menyertakan KTP dan SIM yang masih berlaku</li>
-                <li>Membayar uang muka sebelum peminjaman</li>
-                <li>Mobil wajib dikembalikan sesuai tanggal dan waktu yang disepakati</li>
-                <li>Tanggung jawab atas kerusakan selama masa peminjaman ditanggung penyewa</li>
+            <h3 style="margin-bottom: 5px;">Syarat & Ketentuan Sewa</h3>
+            <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin kesepakatan antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
+            
+            <ul style="padding-left: 20px; margin-top: 0; margin-bottom: 0;">
+                <li style="margin-bottom: 5px;"><strong>Perpanjangan Waktu (Overtime):</strong> Wajib dikonfirmasi minimal <strong>6 (enam)</strong> Jam sebelum masa sewa berakhir.</li>
+                <li style="margin-bottom: 5px;"><strong>Penyalahgunaan Kendaraan:</strong> Segala bentuk penyalahgunaan kendaraan diluar tanggung jawab Pihak Pertama (Kawa Car Rent).</li>
+                <li style="margin-bottom: 5px;"><strong>Tanggung Jawab Kerusakan/Kehilangan:</strong> Segala resiko kerusakan, kecelakaan, dan kehilangan kendaraan adalah <strong>tanggung jawab</strong> Pihak Kedua (Penyewa).</li>
+                <li style="margin-bottom: 5px;"><strong>Tilang Elektronik (E-Tilang):</strong> Apabila terkena E-Tilang, Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari Kepolisian.</li>
+                <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui seluruh kesepakatan yang tertulis di atas.</li>
             </ul>
         </div>
     </div>

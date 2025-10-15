@@ -22,10 +22,10 @@
     </a>
     <nav>
       <ul>
-        <li><a href="#">Beranda</a></li>
-        <li><a href="#">Daftar Mobil</a></li>
-        <li><a href="#">Kontak</a></li>
-        <li><a href="#">Tentang</a></li>
+        <li><a href="/landingpage">Beranda</a></li>
+        <li><a href="/DaftarMobil">Daftar Mobil</a></li>
+        <li><a href="/TentangKami">Kontak</a></li>
+        <li><a href="/TentangKami">Tentang</a></li>
         <li class="search-container">
           <input type="search" placeholder="Search" aria-label="Cari" />
         </li>
