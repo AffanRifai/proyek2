@@ -16,7 +16,7 @@
             --input-bg-color: #f0f0f0;
             --button-bg-color: #3f87b8;
             --button-hover-color: #2e6b8c;
-            --link-color: #3f87b8;
+            --link-color: #2078b2;
         }
 
         body {
@@ -31,7 +31,6 @@
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
-            color: var(--text-color);
             position: relative;
             overflow: hidden;
         }
@@ -42,7 +41,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.10);
+            background-color: rgba(0, 0, 0, 0.5);
             filter: brightness(0.1);
             z-index: -1;
         }
@@ -50,12 +49,14 @@
 
         .login-container {
             width: 90%;
-            max-width: 400px;
-            background-color: rgba(255, 255, 255, 0.3);
+            max-width: 350px;
             padding: 40px;
             border-radius: 15px;
-            border: 2px solid rgba(0, 0, 0, 0.10);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, .5);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+            color: #fff;
             text-align: center;
             position: relative;
             z-index: 1;
@@ -64,28 +65,33 @@
         .login-container h2 {
             margin-bottom: 25px;
             font-weight: 600;
-            color: var(--text-color);
+            color: white;
+            font-size: 36px;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
+        .checkbox-group label {
+            color: white;
+        }
+
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .input-group input {
-            background: rgba(0, 0, 0, 0.2);
+            background: transparent;
             width: 100%;
+            font-size: 16px;
             padding: 12px 15px;
-            border: 1px solid rgba(0, 0, 0, 0.10);
-            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
             box-sizing: border-box;   
-            color: #fff;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease;  
         }
 
-        ::placeholder {
-            color: #e5e5e5;
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 50);
         }
 
         .input-group input:focus {
@@ -129,11 +135,11 @@
         }
 
         .btn-login {
-            width: 100%;
-            padding: 12px;
+            width: 50%;
+            padding: 15px;
             border: none;
             border-radius: 8px;
-            background-color: var(--button-bg-color);
+            background-color: var(--primary-bg-color);
             color: white;
             font-size: 1.1em;
             font-weight: 600;
@@ -195,13 +201,13 @@
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" name="remember">
-                    <label for="remember-me">Remember me?</label>
+                    <label for="remember-me" style="color: white;">Remember me?</label>
                 </div>
                 <button type="submit" class="btn-login">Login</button>
             </form>
             <div class="link-group">
                 <a href="#">Lupa kata sandi?</a>
-                <p>Belum punya akun? <a href="/register">Daftar</a></p>
+                <p style="color: white;">Belum punya akun? <a href="/register">Daftar</a></p>
             </div>
         </div>
 </body>

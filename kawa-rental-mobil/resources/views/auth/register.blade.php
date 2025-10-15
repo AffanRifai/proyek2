@@ -15,14 +15,14 @@
 
 
         :root {
-            --primary-bg-color: #0b1a30;
-            --secondary-bg-color: #1a2a47;
+            --primary-bg-color: #ff0000a4;
+            --secondary-bg-color: #471a1a;
             --form-bg-color: #ffffff;
             --text-color: #0b1a30;
             --input-bg-color: #f0f0f0;
             --button-bg-color: #3f87b8;
             --button-hover-color: #2e6b8c;
-            --link-color: #3f87b8;
+            --link-color: #2078b2;
         }
 
         body {
@@ -33,8 +33,10 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: var(--primary-bg-color);
-            color: var(--text-color);
+            background-image: url('{{asset('img/background-mobil.png')}}');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
             position: relative;
             overflow: hidden;
         }
@@ -45,57 +47,57 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('{{ asset('img/header.jpg')}}');
-            background-repeat: no-repeat;
-            background-size: cover; 
-            background-position: center;
-            filter: brightness(0.8);
+            background-color: rgba(0, 0, 0, 0.5);
+            filter: brightness(0.1);
             z-index: -1;
-        }
-        
-        .background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.1);
         }
 
         .register-container {
             width: 90%;
-            max-width: 380px; 
-            background-color: var(--form-bg-color);
-            padding: 30px; 
+            max-width: 400px;
+            padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, .5);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+            color: #fff;
             text-align: center;
             position: relative;
-            z-index: 1;
+            z-index:
         }
 
         .register-container h2 {
-            margin-bottom: 20px; 
+            margin-bottom: 25px;
             font-weight: 600;
-            color: var(--text-color);
+            color: white;
+            font-size: 36px;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .input-group {
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
         }
 
         .input-group input {
+            background: transparent;
             width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            background-color: var(--input-bg-color);
-            color: var(--text-color);
-            transition: border-color 0.3s ease;
+            font-size: 16px;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
+            box-sizing: border-box;   
+            transition: border-color 0.3s 
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 50);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--button-bg-color);
         }
 
         .error-message {
@@ -104,11 +106,6 @@
             margin-bottom: 10px;
             display: block;
             text-align: left;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--button-bg-color);
         }
 
         .terms-group {
@@ -131,20 +128,21 @@
         }
 
         .btn-register {
-            width: 100%;
+            width: 50%;
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background-color: var(--button-bg-color);
+            background-color: var(--primary-bg-color);
             color: white;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
+            margin: 10px 0;
             transition: background-color 0.3s ease;
         }
 
         .btn-register:hover {
-            background-color: var(--button-hover-color);
+            background-color: var(--secondary-bg-color);
         }
 
         .social-buttons {
@@ -237,22 +235,24 @@
 
             <div class="terms-group">
                 <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms">Dengan mendaftar, saya menyetujui Syarat & ketentuan dan kebijakan privasi</label>
+                <label for="terms" style="color: white;">Dengan mendaftar, saya menyetujui Syarat & ketentuan dan kebijakan privasi</label>
             </div>
 
+            <p>- atau -</p>
+
             <div class="social-buttons">
-                <div class="social-btn">
+                <div class="social-btn" style="color: black;">
                     <img src="{{asset ('img/google.png')}}" alt="Google Logo">
                     Google
                 </div>
-                <div class="social-btn">
+                <div class="social-btn" style="color: black;">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook Logo">
                     Facebook
                 </div>
             </div>
             <button type="submit" class="btn-register">Daftar</button>
         </form>
-        <div class="link-group">
+        <div class="link-group" style="color: white;">
             Sudah punya akun? <a href="/login">masuk</a>
         </div>
     </div>

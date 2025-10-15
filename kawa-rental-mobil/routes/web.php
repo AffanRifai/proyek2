@@ -22,6 +22,9 @@ Route::get('/DaftarMobil', fn () => view('DaftarMobil'));
 
 Route::group(['middleware' => ['auth', 'check_role:customer']], function () {
     Route::get('/verify', [VerificationController::class, 'index']);
+    Route::post('/verify', [VerificationController::class, 'store']);
+    Route::get('/verify/{unique_id}', [VerificationController::class, 'show'])->name('verification.show')->middleware('auth');
+    Route::put('/verify/{unique_id}', [VerificationController::class, 'update']);
 });
 
 Route::group(['middleware' => ['auth', 'check_role:customer', 'check_status']], function () {
