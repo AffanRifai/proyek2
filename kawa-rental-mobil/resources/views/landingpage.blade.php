@@ -22,10 +22,10 @@
     </a>
     <nav>
       <ul>
-        <li><a href="#">Beranda</a></li>
-        <li><a href="#">Daftar Mobil</a></li>
-        <li><a href="#">Kontak</a></li>
-        <li><a href="#">Tentang</a></li>
+        <li><a href="/landingpage">Beranda</a></li>
+        <li><a href="/DaftarMobil">Daftar Mobil</a></li>
+        <li><a href="/TentangKami">Kontak</a></li>
+        <li><a href="/TentangKami">Tentang</a></li>
         <li class="search-container">
           <input type="search" placeholder="Search" aria-label="Cari" />
         </li>
@@ -122,7 +122,7 @@
       <h1>RENTAL</h1>
       <h4>Mobil terpopuler Indramayu</h4>
       <p>Booking sekarang juga dan dapatkan harga spesial untuk Anda!</p>
-      <a href="/kawa-rental-mobil/resources/views/booking.blade.php" class="btn">LIHAT MOBIL</a>
+      <a href="/DaftarMobil" class="btn">LIHAT MOBIL</a>
     </div>
   </section>
 
@@ -163,7 +163,7 @@
     </article>
 
   </section>
-  <button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya &gt;&gt;&gt;</button>
+  <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya &gt;&gt;&gt;</button></a>
 
 
   <!-- Testimoni -->

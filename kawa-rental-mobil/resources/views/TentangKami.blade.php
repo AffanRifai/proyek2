@@ -1,32 +1,19 @@
-<?php
-// tentang.php
-?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tentang Kami - Rental Mobil Indramayu</title>
-  <link rel="stylesheet" href="../../public/css/landingpage.css">
-  <style>
-    /* Tambahan CSS untuk accordion */
-    .accordion { max-width: 600px; margin: 20px auto; }
-    .accordion-btn {
-      width: 100%; text-align: left;
-      padding: 15px; margin: 5px 0;
-      background: #fff; border: 1px solid #ddd;
-      cursor: pointer; font-weight: bold;
-      display: flex; justify-content: space-between; align-items: center;
-      border-radius: 8px;
-    }
-    .accordion-btn.active { background: #f1f1f1; }
-    .accordion-content {
-      display: none; padding: 15px; border: 1px solid #ddd; border-top: none;
-      background: #fafafa; border-radius: 0 0 8px 8px;
-    }
-    .map iframe { width: 100%; border-radius: 12px; }
-  </style>
+  <title>Rental Mobil Indramayu</title>
+  <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}" />
+  <!-- poppins -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+  <!-- Montserrat -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:100,300,400,600,700&display=swap" rel="stylesheet">
+  <!-- Lato -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <!-- Header Navbar -->
   <header>
@@ -35,10 +22,10 @@
     </a>
     <nav>
       <ul>
-        <li><a href="landingpage.blade.php">Beranda</a></li>
-        <li><a href="daftar-mobil.php">Daftar Mobil</a></li>
-        <li><a href="kontak.php">Kontak</a></li>
-        <li><a href="tentang.php" class="active">Tentang</a></li>
+        <li><a href="/landingpage">Beranda</a></li>
+        <li><a href="/DaftarMobil">Daftar Mobil</a></li>
+        <li><a href="/TentangKami">Kontak</a></li>
+        <li><a href="/TentangKami">Tentang</a></li>
         <li class="search-container">
           <input type="search" placeholder="Search" aria-label="Cari" />
         </li>
@@ -101,28 +88,27 @@
     </div>
   </section>
 
+  <!-- Tombol WhatsApp Mengambang -->
+  <a href="https://wa.me/62812345678910" class="wa-float" target="_blank" aria-label="Chat WhatsApp">
+    <img src="/kawa-rental-mobil/public/img/wa.png" alt="WhatsApp" />
+  </a>
 
   <!-- Footer -->
   <footer>
     <div class="footer-container">
       <div class="footer-col">
-        <a href="index.php" class="footer-logo" aria-label="Rental Mobil Indramayu">
-          <img src="../../public/img/logo-kawa.png" alt="logo kawa rental mobil" />
+        <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
+          <img src="/kawa-rental-mobil/public/img/logo-kawa-stroke2.png" alt="logo kawa rental mobil" />
         </a>
-        <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by 
-          <a href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer" style="color:#00b894;">www.polindra.ac.id</a>
-        </small>
+        <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer" style="color:#00b894;">www.polindra.ac.id</a></small>
       </div>
-
       <div class="footer-col">
         <h4>Media Sosial</h4>
-        <div class="social-icons">
-          <a href="#">Ig</a> | 
-          <a href="#">Fb</a> | 
-          <a href="#">TT</a>
+        <div class="social-icons" role="navigation" aria-label="Media sosial">
+          <a href="#"><img src="/kawa-rental-mobil/public/img/instagram-icon.png" alt="Instagram" style="width:24px"></a>
+          <a href="#"><img src="/kawa-rental-mobil/public/img/fb.png" alt="Facebook" style="width:24px"></a>
         </div>
       </div>
-
       <div class="footer-col">
         <h4>Kontak</h4>
         <div class="contact-info">
@@ -131,7 +117,6 @@
           <div>+62 1234 5678 910</div>
         </div>
       </div>
-
       <div class="footer-col">
         <h4>Alamat</h4>
         <address>
@@ -142,21 +127,6 @@
       </div>
     </div>
   </footer>
-
-  <script>
-    // Accordion toggle
-    const acc = document.querySelectorAll(".accordion-btn");
-    acc.forEach(btn => {
-      btn.addEventListener("click", function() {
-        this.classList.toggle("active");
-        let panel = this.nextElementSibling;
-        if (panel.style.display === "block") {
-          panel.style.display = "none";
-        } else {
-          panel.style.display = "block";
-        }
-      });
-    });
-  </script>
 </body>
+
 </html>
