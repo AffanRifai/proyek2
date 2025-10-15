@@ -171,8 +171,6 @@
                 <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui seluruh kesepakatan yang tertulis di atas.</li>
             </ul>
         </div>
-    </div>
-        
         <div id="kebijakan" class="tab-content">
             <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
             <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin detail dari Surat Perjanjian Sewa antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
@@ -187,6 +185,7 @@
             </ul>
         </div>
     </div>
+        
 
 
     <div class="section-container">
