@@ -140,45 +140,44 @@
         </div>
     </section>
 
-    <!-- Cars Listing -->
-    <section class="cars-container" aria-label="Daftar mobil tersedia" id="daftar-mobil">
+  <!-- Cars Listing -->
+  <section class="cars-container" aria-label="Daftar mobil tersedia" id="daftar-mobil">
 
-        <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-            <img src="{{ asset('img/pajero.png') }}" alt="Mobil Pick Up" />
-            <h3>Pajero nih boss</h3>
-            <div class="price">Harga 350k / hari</div>
-            <div class="details">
-                <div><span>Supir dalam kota</span><span>200k</span></div>
-                <div><span>Supir luar kota</span><span>250k</span></div>
-            </div>
-            <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
-        </article>
+    <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
+      <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
+      <h3>Pajero nih boss</h3>
+      <div class="price">Harga 350k / hari</div>
+      <div class="details">
+        <div><span>Supir dalam kota</span><span>200k</span></div>
+        <div><span>Supir luar kota</span><span>250k</span></div>
+      </div>
+      <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
+    </article>
 
-        <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-            <img src="{{ asset('img/pajero.png') }}" alt="Mobil Pick Up" />
-            <h3>Pajero nih boss</h3>
-            <div class="price">Harga 350k / hari</div>
-            <div class="details">
-                <div><span>Supir dalam kota</span><span>200k</span></div>
-                <div><span>Supir luar kota</span><span>250k</span></div>
-            </div>
-            <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
-        </article>
+    <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
+      <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
+      <h3>Pajero nih boss</h3>
+      <div class="price">Harga 350k / hari</div>
+      <div class="details">
+        <div><span>Supir dalam kota</span><span>200k</span></div>
+        <div><span>Supir luar kota</span><span>250k</span></div>
+      </div>
+      <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
+    </article>
 
-        <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
-            <img src="{{ asset('img/pajero.png') }}" alt="Mobil Pick Up" />
-            <h3>Pajero nih boss</h3>
-            <div class="price">Harga 350k / hari</div>
-            <div class="details">
-                <div><span>Supir dalam kota</span><span>200k</span></div>
-                <div><span>Supir luar kota</span><span>250k</span></div>
-            </div>
-            <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
-        </article>
+    <article class="car-card" aria-label="Mobil Pick Up, harga 350 ribu per hari">
+      <img src="{{asset('img/pajero.png')}}" alt="Mobil Pick Up" />
+      <h3>Pajero nih boss</h3>
+      <div class="price">Harga 350k / hari</div>
+      <div class="details">
+        <div><span>Supir dalam kota</span><span>200k</span></div>
+        <div><span>Supir luar kota</span><span>250k</span></div>
+      </div>
+      <button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button>
+    </article>
 
-    </section>
-    <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya
-            &gt;&gt;&gt;</button></a>
+  </section>
+  <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya &gt;&gt;&gt;</button></a>
 
 
     <!-- Testimoni -->
