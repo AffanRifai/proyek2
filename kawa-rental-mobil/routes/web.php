@@ -6,6 +6,7 @@ use App\Http\Controllers\VerificationController;
 use App\Models\Verification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,12 @@ Route::group(['middleware' => ['auth', 'check_role:customer']], function () {
     Route::get('/verify/{unique_id}', [VerificationController::class, 'show'])->name('verification.show')->middleware('auth');
     Route::put('/verify/{unique_id}', [VerificationController::class, 'update']);
 });
+
+Route::get('/profile', function () {
+    return view('profile');
+})->name('profile')->middleware('auth');
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth', 'check_role:customer', 'check_status']], function () {
     Route::get('/landingpage', fn () => view('landingpage'));
