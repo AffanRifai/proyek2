@@ -183,44 +183,44 @@
         </div>
 
         <!-- Cars Listing -->
-            <!-- Mobilio Manual -->
-            <article class="car-card" aria-label="Mobilio Manual, harga 400 ribu per hari">
-                <img src="{{asset('img/mobilio.PNG')}}" alt="Mobilio Manual" />
+        <section class="cars-container" aria-label="Daftar mobil tersedia">
+
+            <article class="car-card" aria-label="Mobil Mobilio Manual">
+                <img src="{{asset('img/mobilio.png')}}" alt="Mobilio Manual" />
                 <h3>Mobilio Manual</h3>
-                <div class="price">Rp 400.000 / hari</div>
+                <div class="price">Harga 400.000 / hari</div>
                 <div class="details">
-                <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                <div><span>Tipe</span><span>Manual</span></div>
+                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
+                    <div><span>Tipe</span><span>Manual</span></div>
                 </div>
-                <button type="button" aria-label="Sewa Mobilio Manual">Sewa mobil &gt;&gt;</button>
+                <a href="/bookingmobiliomanual"><button type="button" aria-label="Sewa Mobilio Manual">Sewa mobil &gt;&gt;</button></a>
             </article>
 
-            <!-- Brio Matic -->
-            <article class="car-card" aria-label="Brio Matic, harga 400 ribu per hari">
-                <img src="{{asset('img/BrioMatic.PNG')}}" alt="Brio Matic" />
+            <article class="car-card" aria-label="Mobil Brio Matic">
+                <img src="{{asset('img/briomatic.png')}}" alt="Mobil Brio Matic" />
                 <h3>Brio Matic</h3>
-                <div class="price">Rp 400.000 / hari</div>
+                <div class="price">Harga 400.000 / hari</div>
                 <div class="details">
-                <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                <div><span>Tipe</span><span>Matic</span></div>
+                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
+                    <div><span>Tipe</span><span>Matic</span></div>
                 </div>
-                <button type="button" aria-label="Sewa Brio Matic">Sewa mobil &gt;&gt;</button>
+                <a href="/bookingbriomatic"><button type="button" aria-label="Sewa mobil Brio Matic">Sewa mobil &gt;&gt;</button></a>
             </article>
 
-            <!-- Brio Manual -->
-            <article class="car-card" aria-label="Brio Manual, harga 350 ribu per hari">
-                <img src="{{asset('img/Brio.PNG')}}" alt="Brio Manual" />
+            <article class="car-card" aria-label="Mobil Brio Manual">
+                <img src="{{asset('img/Brio.png')}}" alt="Mobil Brio Manual" />
                 <h3>Brio Manual</h3>
-                <div class="price">Rp 350.000 / hari</div>
+                <div class="price">Harga 350.000 / hari</div>
                 <div class="details">
-                <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                <div><span>Tipe</span><span>Manual</span></div>
+                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
+                    <div><span>Tipe</span><span>Manual</span></div>
                 </div>
-                <button type="button" aria-label="Sewa Brio Manual">Sewa mobil &gt;&gt;</button>
+                <a href="/bookingavanzaautomatic"><button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil &gt;&gt;</button></a>
             </article>
 
+        </section>
 
-        <a href="/DaftarMobil"></a><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya &gt;&gt;&gt;</button></a>
+        <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya &gt;&gt;&gt;</button></a>
     </div>
 
             <script>
