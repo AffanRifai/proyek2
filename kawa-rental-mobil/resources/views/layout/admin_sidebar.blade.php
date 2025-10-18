@@ -43,7 +43,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/manajemen" class="nav-link {{(request()->is('admin')) ? ' active' : '' }}">
+            <a href="/AdminManajemenBooking" class="nav-link {{(request()->is('admin')) ? ' active' : '' }}">
               <i class="nav-icon fa-solid fa-car"></i>
               <p>
                 Manajemen Mobil
