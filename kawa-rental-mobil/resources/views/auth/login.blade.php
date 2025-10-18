@@ -206,7 +206,7 @@
                 <button type="submit" class="btn-login">Login</button>
             </form>
             <div class="link-group">
-                <a href="#">Lupa kata sandi?</a>
+                <a href="{{ route('password.request') }}">Lupa kata sandi?</a>
                 <p style="color: white;">Belum punya akun? <a href="/register">Daftar</a></p>
             </div>
         </div>
