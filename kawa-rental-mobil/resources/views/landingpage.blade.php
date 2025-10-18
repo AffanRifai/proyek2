@@ -30,32 +30,33 @@
                 <li class="search-container">
                     <input type="search" placeholder="Search" aria-label="Cari" />
                 </li>
-                <li>
-                    @if (Auth::check())
-                        <!-- Kalau user sudah login -->
-                        <div class="dropdown">
-                            <button class="btn btn-outline-primary dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ Auth::user()->name }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('profile') }}">Profil</a></li>
-                                <li><a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        Logout
-                                    </a></li>
-                            </ul>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @auth
+                    <li class="dropdown">
+                        <div class="profile-container" id="profileToggle">
+                            <img src="{{ Auth::user()->profile_photo ?? asset('img/default-profile.png') }}" alt="Profile"
+                                class="profile-img" />
+                        </div>
+
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-header">
+                                <img src="{{ Auth::user()->profile_photo ?? asset('img/default-profile.png') }}"
+                                    alt="Profile" class="dropdown-profile-img" />
+                                <div class="dropdown-user-info">
+                                    <strong>{{ Auth::user()->name }}</strong><br>
+                                    <small>{{ Auth::user()->email }}</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <a href="/profile" class="dropdown-item">Profil Saya</a>
+                            <form action="{{ route('logout') }}" method="POST">
                                 @csrf
+                                <button type="submit" class="dropdown-item logout-btn">Keluar</button>
                             </form>
                         </div>
-                    @else
-                        <!-- Kalau belum login -->
-                        <a href="{{ route('login') }}" class="login-btn">Login</a>
-                    @endif
-
-                    {{-- <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a> --}}
-                </li>
+                    </li>
+                @else
+                    <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a>
+                @endauth
             </ul>
         </nav>
     </header>
@@ -276,5 +277,26 @@
         </div>
     </footer>
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const profileToggle = document.getElementById("profileToggle");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        if (profileToggle && dropdownMenu) {
+            // Klik profil → toggle dropdown
+            profileToggle.addEventListener("click", function (e) {
+                e.stopPropagation();
+                dropdownMenu.style.display =
+                    dropdownMenu.style.display === "block" ? "none" : "block";
+            });
+
+            // Klik di luar dropdown → tutup dropdown
+            document.addEventListener("click", function () {
+                dropdownMenu.style.display = "none";
+            });
+        }
+    });
+</script>
+
 
 </html>

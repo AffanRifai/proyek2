@@ -1,0 +1,165 @@
+body {
+    background: #f5f7fa;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.profile-wrapper {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.profile-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    padding: 30px 25px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.profile-card h2 {
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.alert.success {
+    background: #e8f5e9;
+    color: #388e3c;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.photo-section {
+    margin-bottom: 20px;
+}
+
+.photo-preview img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #a62f19;
+    margin-bottom: 10px;
+}
+
+.upload-btn {
+    background-color: #a62f19;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.upload-btn:hover {
+    background-color: #882513;
+}
+
+.form-group {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #a62f19;
+    outline: none;
+}
+
+.input-with-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-btn input {
+    width: 100%;
+    padding-right: 46px;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #0f172a;
+    border: 1px solid #667386;
+    transition: all 0.3s ease;
+}
+
+.input-with-btn input:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 50%;
+    padding: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-password:hover {
+    color: #ffd700;
+    /* warna emas */
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.toggle-password.active {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, rgba(30, 41, 59, 0.9) 80%);
+}
+
+.toggle-password i {
+    display: inline-block;
+    transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.save-btn {
+    width: 100%;
+    background: #a62f19;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.save-btn:hover {
+    background: #922311;
+}
