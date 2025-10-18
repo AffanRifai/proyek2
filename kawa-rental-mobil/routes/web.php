@@ -12,7 +12,10 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landingpage');
+});
+Route::get('/landingpage', function () {
+    return view('landingpage');
 });
 
 
