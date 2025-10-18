@@ -94,4 +94,4 @@ Route::get('/bookingbriomanual', fn() => view('bookingbriomanual'));
 Route::get('/bookingavanzamanual', fn() => view('bookingavanzamanual'));
 Route::get('/bookingavanzaautomatic', fn() => view('bookingavanzaautomatic'));
 
-Route::get('/TentangKami', fn() => view('TentangKami'));
+Route::get('/TentangKami', fn () => view('TentangKami'));
