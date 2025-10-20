@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\GoogleController;
 
 Route::get('/', function () {
     return view('landingpage');
@@ -24,6 +25,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/register', fn() => view('auth.register'))->name('register');
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('/auth-google-callback', [GoogleController::class, 'callback']);
+
 
 Route::get('/DaftarMobil', fn() => view('DaftarMobil'));
 
@@ -84,11 +89,33 @@ Route::group(['middleware' => ['auth', 'check_role:admin']], function () {
     // Route::get('/delete_mobil/{id}', [AdminController::class, 'delete_mobil']);
 });
 
+use App\Http\Controllers\BookingController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
+});
+
+
+use App\Http\Controllers\CarController;
+
+
+Route::get('/daftar-mobil', [CarController::class, 'daftar'])->name('daftar.mobil');
+Route::get('/detail-mobil/{id}', [CarController::class, 'detail'])->name('detail.mobil');
+Route::get('/form-booking/{id}', [BookingController::class, 'create'])->name('form.booking');
+Route::post('/form-booking', [BookingController::class, 'store'])->name('booking.store');
+
+
+
+
+
+
+
 
 Route::get('/logout', [AuthController::class, 'logout']);
 
 
 Route::get('/booking', fn() => view('booking'));
+Route::get('/form', fn() => view('formrental'));
 
 Route::get('/bookinghiace', fn() => view('bookinghiace'));
 Route::get('/bookingmobiliomanual', fn() => view('bookingmobiliomanual'));

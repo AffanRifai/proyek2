@@ -24,13 +24,19 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => [
-                'required', 'email', 'max:100',
+                'required',
+                'email',
+                'max:100',
                 Rule::unique('users')->ignore($user->id),
             ],
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'current_password' => 'nullable|string',
             'new_password' => 'nullable|string|min:6|confirmed',
         ]);
+
+        if (Auth::user()->provider === 'google') {
+            return back()->with('error', 'Akun Google tidak dapat mengubah password.');
+        }
 
         // === HANDLE FOTO PROFIL ===
         if ($request->hasFile('profile_photo')) {

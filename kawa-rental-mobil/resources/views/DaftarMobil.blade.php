@@ -39,6 +39,8 @@
     <img src="{{ asset('img/kawa-banner.png')}}" alt="banner kawa rental mobil" />
   </section>
 
+<h1 style="align-items: center; justify-content: center; margin: 30px 0px 20px 20px; text-align: center;">Daftar Mobil</h1>
+
   <!-- Cars Listing -->
 <section class="cars-container" aria-label="Daftar mobil tersedia" id="daftar-mobil">
 
