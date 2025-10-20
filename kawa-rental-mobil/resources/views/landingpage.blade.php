@@ -1,66 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layout.app')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rental Mobil Indramayu</title>
-    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}" />
-    <!-- poppins -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
-        rel="stylesheet">
-    <!-- Montserrat -->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,300,400,600,700&display=swap" rel="stylesheet">
-    <!-- Lato -->
-    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700&display=swap" rel="stylesheet">
-</head>
+@section('title', 'Beranda - KAWA Rental Mobil')
 
-<body>
-    <!-- Navbar -->
-    <header>
-        <a href="#" class="logo">
-            <img src="{{ asset('img/logo-kawa.png') }}" alt="logo kawa rental mobil" />
-        </a>
-        <nav>
-            <ul>
-                <li><a href="/landingpage">Beranda</a></li>
-                <li><a href="/DaftarMobil">Daftar Mobil</a></li>
-                <li><a href="/TentangKami">Kontak</a></li>
-                <li><a href="/TentangKami">Tentang</a></li>
-                <li class="search-container">
-                    <input type="search" placeholder="Search" aria-label="Cari" />
-                </li>
-                @auth
-                    <li class="dropdown">
-                        <div class="profile-container" id="profileToggle">
-                            <img src="{{ Auth::user()->profile_photo ?? asset('img/default-profile.png') }}" alt="Profile"
-                                class="profile-img" />
-                        </div>
-
-                        <div class="dropdown-menu" id="dropdownMenu">
-                            <div class="dropdown-header">
-                                <img src="{{ Auth::user()->profile_photo ?? asset('img/default-profile.png') }}"
-                                    alt="Profile" class="dropdown-profile-img" />
-                                <div class="dropdown-user-info">
-                                    <strong>{{ Auth::user()->name }}</strong><br>
-                                    <small>{{ Auth::user()->email }}</small>
-                                </div>
-                            </div>
-                            <hr>
-                            <a href="/profile" class="dropdown-item">Profil Saya</a>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="dropdown-item logout-btn">Keluar</button>
-                            </form>
-                        </div>
-                    </li>
-                @else
-                    <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a>
-                @endauth
-            </ul>
-        </nav>
-    </header>
-
+@section('content')
     <!-- Banner Section -->
     <section class="banner" aria-label="Rental mobil cepat dan aman">
         <img src="{{ asset('img/kawa-banner.png') }}" alt="banner kawa rental mobil" />
@@ -236,67 +178,4 @@
     <a href="https://wa.me/62812345678910" class="wa-float" target="_blank" aria-label="Chat WhatsApp">
         <img src="{{ asset('/img/whatsapp.png') }}" alt="WhatsApp" />
     </a>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-container">
-            <div class="footer-col">
-                <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
-                    <img src="{{ asset('img/logo-kawa-stroke2.png') }}" alt="logo kawa rental mobil" />
-                </a>
-                <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a
-                        href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer"
-                        style="color:#00b894;">www.polindra.ac.id</a></small>
-            </div>
-            <div class="footer-col">
-                <h4>Media Sosial</h4>
-                <div class="social-icons" role="navigation" aria-label="Media sosial">
-                    <a href="#"><img src="{{ asset('/img/instagram-icon.png') }}" alt="Instagram"
-                            style="width:30px"></a>
-                    <a href="#"><img src="{{ asset('/img/Facebook.png') }}" alt="facebook"
-                            style="width:30px">
-                    </a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Kontak</h4>
-                <div class="contact-info">
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Alamat</h4>
-                <address>
-                    Jl. Raya Lohbener No.08,<br />
-                    Lohbener, Kec. Indramayu,<br />
-                    Kabupaten Indramayu, Jawa Barat 45252
-                </address>
-            </div>
-        </div>
-    </footer>
-</body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const profileToggle = document.getElementById("profileToggle");
-        const dropdownMenu = document.getElementById("dropdownMenu");
-
-        if (profileToggle && dropdownMenu) {
-            // Klik profil → toggle dropdown
-            profileToggle.addEventListener("click", function (e) {
-                e.stopPropagation();
-                dropdownMenu.style.display =
-                    dropdownMenu.style.display === "block" ? "none" : "block";
-            });
-
-            // Klik di luar dropdown → tutup dropdown
-            document.addEventListener("click", function () {
-                dropdownMenu.style.display = "none";
-            });
-        }
-    });
-</script>
-
-
-</html>
+@endsection

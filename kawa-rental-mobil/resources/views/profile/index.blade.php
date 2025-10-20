@@ -29,7 +29,6 @@
             background-position: center;
         }
 
-        
         .background {
             position: absolute;
             top: 0;
@@ -272,33 +271,42 @@
                 <input type="email" name="email" value="{{ old('email', $user->email) }}" readonly>
             </div>
 
-            <hr>
-            <h4 style="margin-bottom: 1rem; color:#444;">Ubah Password (opsional)</h4>
+            {{-- Kalau provider-nya manual, tampilkan ubah password --}}
+            @if ($user->provider === 'manual' || $user->provider === null)
+                <hr>
+                <h4 style="margin-bottom: 1rem; color:#444;">Ubah Password (opsional)</h4>
 
-            @php
-                $passwordFields = [
-                    ['id' => 'current_password', 'label' => 'Password Saat Ini', 'name' => 'current_password'],
-                    ['id' => 'new_password', 'label' => 'Password Baru', 'name' => 'new_password'],
-                    [
-                        'id' => 'new_password_confirmation',
-                        'label' => 'Konfirmasi Password Baru',
-                        'name' => 'new_password_confirmation',
-                    ],
-                ];
-            @endphp
+                @php
+                    $passwordFields = [
+                        ['id' => 'current_password', 'label' => 'Password Saat Ini', 'name' => 'current_password'],
+                        ['id' => 'new_password', 'label' => 'Password Baru', 'name' => 'new_password'],
+                        [
+                            'id' => 'new_password_confirmation',
+                            'label' => 'Konfirmasi Password Baru',
+                            'name' => 'new_password_confirmation',
+                        ],
+                    ];
+                @endphp
 
-            @foreach ($passwordFields as $field)
-                <div class="form-group">
-                    <label for="{{ $field['id'] }}">{{ $field['label'] }}</label>
-                    <div class="input-with-btn">
-                        <input id="{{ $field['id'] }}" type="password" name="{{ $field['name'] }}"
-                            placeholder="Masukkan {{ strtolower($field['label']) }}">
-                        <button type="button" class="toggle-password" data-target="{{ $field['id'] }}">
-                            <i class="fa-solid fa-lock"></i>
-                        </button>
+                @foreach ($passwordFields as $field)
+                    <div class="form-group">
+                        <label for="{{ $field['id'] }}">{{ $field['label'] }}</label>
+                        <div class="input-with-btn">
+                            <input id="{{ $field['id'] }}" type="password" name="{{ $field['name'] }}"
+                                placeholder="Masukkan {{ strtolower($field['label']) }}">
+                            <button type="button" class="toggle-password" data-target="{{ $field['id'] }}">
+                                <i class="fa-solid fa-lock"></i>
+                            </button>
+                        </div>
                     </div>
+                @endforeach
+            @else
+                {{-- Kalau login via Google --}}
+                <div class="alert" style="background:#e0f2fe;color:#0369a1;">
+                    Anda login menggunakan akun <strong>Google</strong>.<br>
+                    Fitur ubah password dan lupa password tidak tersedia.
                 </div>
-            @endforeach
+            @endif
 
             <button type="submit" class="save-btn">
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
@@ -307,8 +315,10 @@
 
         <div class="action-links">
             <a href="/landingpage"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
-            <a href="{{ route('password.request') }}"><i class="fa-solid fa-key"></i> Lupa Password?</a>
 
+            @if ($user->provider === 'manual' || $user->provider === null)
+                <a href="{{ route('password.request') }}"><i class="fa-solid fa-key"></i> Lupa Password?</a>
+            @endif
         </div>
     </div>
 
