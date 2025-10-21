@@ -512,16 +512,17 @@
     /* Cars listing */
     .cars-container {
       max-width: 1100px;
-      margin: 8rem auto 4rem;
+      margin: 8rem auto 3rem;
       padding: 0 1rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 0));
+      grid-template-columns: repeat(auto-fit, minmax(265px, 0));
       gap: 1.5rem;
       justify-content: center;
       align-items: start;
     }
 
     .car-card {
+      height: 400px;
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 1rem 1.2rem 1.6rem;
