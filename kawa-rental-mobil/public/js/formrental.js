@@ -17,6 +17,14 @@
         return el;
     }
 
+    function $query(selector) {
+        return document.querySelector(selector);
+    }
+
+    function $queryAll(selector) {
+        return document.querySelectorAll(selector);
+    }
+
     // waktu helpers
     function pad(n) {
         return String(n).padStart(2, '0');
@@ -49,84 +57,160 @@
         return dateStr;
     }
 
-    // --- prefill vehicle (dengan fallback) ---
-    function prefillVehicle() {
+    // format datetime untuk display
+    function formatDateTimeDisplay(dateStr, timeStr) {
+        if (!dateStr) return '-';
+        const datePart = formatTanggalDisplay(dateStr);
+        return timeStr ? `${datePart} ${timeStr}` : datePart;
+    }
+
+    // --- Availability Check ---
+    async function checkAvailability() {
+        const carId = $id('car_id')?.value || $query('input[name="car_id"]')?.value;
+        const mulaiTgl = $id('mulai_tgl')?.value;
+        const selTgl = $id('sel_tgl')?.value;
+
+        if (!carId || !mulaiTgl || !selTgl) {
+            updateAvailabilityStatus('info', 'Masukkan tanggal mulai dan selesai untuk memeriksa ketersediaan');
+            return;
+        }
+
+        // Validasi tanggal
+        const mulaiDT = parseDateTime(mulaiTgl, '00:00');
+        const selDT = parseDateTime(selTgl, '00:00');
+        
+        if (!mulaiDT || !selDT) {
+            updateAvailabilityStatus('error', 'Format tanggal tidak valid');
+            return;
+        }
+
+        if (selDT <= mulaiDT) {
+            updateAvailabilityStatus('error', 'Tanggal selesai harus setelah tanggal mulai');
+            return;
+        }
+
+        const sekarang = new Date();
+        if (mulaiDT < sekarang) {
+            updateAvailabilityStatus('error', 'Tanggal mulai tidak boleh di masa lalu');
+            return;
+        }
+
         try {
-            let veh = null;
-            const raw = localStorage.getItem('selectedVehicle');
-            if (raw) {
-                try {
-                    veh = JSON.parse(raw);
-                } catch (e) {
-                    warn('selectedVehicle JSON parse err', e);
-                }
+            updateAvailabilityStatus('loading', 'Memeriksa ketersediaan...');
+            
+            const response = await fetch('/booking/check-availability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $query('meta[name="csrf-token"]')?.getAttribute('content')
+                },
+                body: JSON.stringify({
+                    car_id: carId,
+                    mulai_tgl: mulaiTgl,
+                    sel_tgl: selTgl
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.available) {
+                updateAvailabilityStatus('success', data.message || 'Mobil tersedia untuk tanggal yang dipilih');
+            } else {
+                updateAvailabilityStatus('error', data.message || 'Mobil tidak tersedia untuk tanggal yang dipilih');
             }
-            if (!veh) {
-                const q = new URLSearchParams(window.location.search);
-                if (q.get('merk')) {
-                    veh = {
-                        merk: q.get('merk'),
-                        model: q.get('model') || '',
-                        warna: q.get('warna') || '',
-                        tahun: q.get('tahun') || '',
-                        rangka: q.get('rangka') || '',
-                        mesin: q.get('mesin') || '',
-                        polisi: q.get('polisi') || '',
-                        stnk: q.get('stnk') || '',
-                        biaya: q.get('biaya') || ''
-                    };
-                }
-            }
-            if (!veh) return;
-            const setIf = (id, val) => {
-                const el = $id(id);
-                if (el) el.value = val || '';
-            };
-            setIf('veh_merk', (veh.merk || '') + (veh.type ? ' ' + veh.type : ''));
-            setIf('veh_model', veh.model || '');
-            setIf('veh_warna', veh.warna || '');
-            setIf('veh_tahun', veh.tahun || '');
-            setIf('veh_rangka', veh.rangka || '');
-            setIf('veh_mesin', veh.mesin || '');
-            setIf('veh_polisi', veh.polisi || '');
-            setIf('veh_stnk', veh.stnk || '');
-            if (veh.biaya) {
-                const b = $id('biaya_harian');
-                if (b) b.value = veh.biaya;
-            }
-            const sumMobil = $id('sum_mobil');
-            if (sumMobil) sumMobil.innerText = ((veh.merk || '') + ' ' + (veh.model || '')).trim() || '-';
-        } catch (e) {
-            err('prefillVehicle error', e);
+        } catch (error) {
+            console.error('Availability check error:', error);
+            updateAvailabilityStatus('error', 'Gagal memeriksa ketersediaan. Silakan coba lagi.');
         }
     }
 
-    // --- file preview ---
-    function previewFile(input, previewId) {
+    function updateAvailabilityStatus(type, message) {
+        const availabilityEl = $id('availability-check');
+        if (!availabilityEl) return;
+
+        availabilityEl.className = `availability-status ${type}`;
+        availabilityEl.innerHTML = `<p>${message}</p>`;
+    }
+
+    // --- file preview & validation ---
+    function previewImage(event, previewId) {
         try {
             const preview = $id(previewId);
             if (!preview) return;
+            
             preview.innerHTML = '';
-            const file = input && input.files && input.files[0];
+            const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Ukuran file terlalu besar (maks 5MB)');
-                input.value = '';
+
+            // Validasi ukuran file (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar (maks 2MB)');
+                event.target.value = '';
                 return;
             }
+
+            // Validasi tipe file
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.');
+                event.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = e => {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxWidth = '150px';
-                img.style.border = '1px solid #ccc';
-                img.style.borderRadius = '8px';
-                preview.appendChild(img);
+                if (file.type === 'application/pdf') {
+                    // Untuk PDF, tampilkan icon
+                    preview.innerHTML = `
+                        <div class="file-preview-pdf">
+                            <span>📄 ${file.name}</span>
+                            <small>PDF Document</small>
+                        </div>
+                    `;
+                } else {
+                    // Untuk gambar, tampilkan thumbnail
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Preview dokumen';
+                    img.style.maxWidth = '150px';
+                    img.style.maxHeight = '150px';
+                    img.style.borderRadius = '8px';
+                    img.style.objectFit = 'cover';
+                    preview.appendChild(img);
+                }
             };
             reader.readAsDataURL(file);
         } catch (e) {
-            err('previewFile error', e);
+            err('previewImage error', e);
         }
+    }
+
+    function validateFile(input, errorId) {
+        const errorEl = $id(errorId);
+        if (!errorEl) return;
+
+        if (!input.files[0]) {
+            errorEl.textContent = 'File harus diupload';
+            return false;
+        }
+
+        const file = input.files[0];
+        
+        // Validasi ukuran
+        if (file.size > 2 * 1024 * 1024) {
+            errorEl.textContent = 'Ukuran file maksimal 2MB';
+            return false;
+        }
+
+        // Validasi tipe
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            errorEl.textContent = 'Format harus JPG, PNG, atau PDF';
+            return false;
+        }
+
+        errorEl.textContent = '';
+        return true;
     }
 
     // --- format IDR ---
@@ -134,205 +218,196 @@
         return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
     }
 
-    // --- update ringkasan dengan TAMBAHAN selesai rental ---
-    function updateSummary(biaya, hari, total) {
-        const sumB = $id('sum_biaya');
-        if (sumB) sumB.innerText = formatIDR(biaya);
-        
-        const sumT = $id('sum_total');
-        if (sumT) sumT.innerText = formatIDR(total);
-        
-        const sumL = $id('sum_lama');
-        if (sumL) sumL.innerText = hari + ' hari';
-        
-        const sumN = $id('sum_nama');
-        if (sumN) sumN.innerText = ($id('nama_penyewa')?.value) || '-';
-        
-        const merk = $id('veh_merk')?.value || '';
-        const model = $id('veh_model')?.value || '';
-        const sumM = $id('sum_mobil');
-        if (sumM) sumM.innerText = (merk + ' ' + model).trim() || '-';
-        
-        // Update tanggal mulai di summary
-        const sumMulai = $id('sum_mulai');
-        if (sumMulai) {
+    // --- update ringkasan lengkap ---
+    function updateSummary() {
+        const biaya = Number($id('biaya_harian')?.value) || 0;
+        const hari = Number($id('lama_hari')?.value) || 0;
+        const total = biaya * hari;
+
+        // Update summary display
+        const sumNama = $id('sum_nama');
+        if (sumNama) {
+            const nama = $id('nama_penyewa')?.value || '-';
+            sumNama.textContent = nama;
+        }
+
+        const sumPeriode = $id('sum_periode');
+        if (sumPeriode) {
             const mulaiTgl = $id('mulai_tgl')?.value;
-            const mulaiPkl = $id('mulai_pkl')?.value;
-            sumMulai.innerText = mulaiTgl ? (formatTanggalDisplay(mulaiTgl) + ' ' + (mulaiPkl || '')) : '-';
+            const selTgl = $id('sel_tgl')?.value;
+            if (mulaiTgl && selTgl) {
+                sumPeriode.textContent = `${formatTanggalDisplay(mulaiTgl)} - ${formatTanggalDisplay(selTgl)}`;
+            } else {
+                sumPeriode.textContent = '-';
+            }
         }
-        
-        // TAMBAHAN: Update tanggal selesai di summary
-        const sumSelesai = $id('sum_selesai');
-        if (sumSelesai) {
-            const selesaiTgl = $id('sel_tgl')?.value;
-            const selesaiPkl = $id('sel_pkl')?.value;
-            sumSelesai.innerText = selesaiTgl ? (formatTanggalDisplay(selesaiTgl) + ' ' + (selesaiPkl || '')) : '-';
-        }
+
+        const sumLama = $id('sum_lama');
+        if (sumLama) sumLama.textContent = hari > 0 ? `${hari} hari` : '-';
+
+        const sumBiaya = $id('sum_biaya');
+        if (sumBiaya) sumBiaya.textContent = formatIDR(biaya);
+
+        const sumTotal = $id('sum_total');
+        if (sumTotal) sumTotal.textContent = formatIDR(total);
+
+        // Update payment amounts
+        const dpAmount = $id('dp_amount');
+        if (dpAmount) dpAmount.textContent = formatIDR(total * 0.5);
+
+        const fullAmount = $id('full_amount');
+        if (fullAmount) fullAmount.textContent = formatIDR(total);
     }
 
-    // --- kalkulasi utama TANPA fitur otomatis mulai/selesai pukul ---
+    // --- kalkulasi utama dengan validasi lengkap ---
     function calculateAll() {
         try {
             const biayaEl = $id('biaya_harian');
-            const hariEl = $id('lama_hari');
-            if (!biayaEl || !hariEl) return;
-
-            const biaya = Number(biayaEl.value) || 0;
-            const hari = Number(hariEl.value) || 1;
-
             const mulaiTglEl = $id('mulai_tgl');
             const selTglEl = $id('sel_tgl');
+            const lamaHariEl = $id('lama_hari');
+            const lamaHariDisplay = $id('lama_hari_display');
 
-            const mulaiTgl = mulaiTglEl ? mulaiTglEl.value : '';
+            if (!biayaEl || !mulaiTglEl) return;
 
-            // RESET dulu tanggal selesai jika tidak ada tanggal mulai
-            if (selTglEl && !mulaiTgl) {
-                selTglEl.value = '';
+            const biaya = Number(biayaEl.value) || 0;
+            const mulaiTgl = mulaiTglEl.value;
+            const selTgl = selTglEl?.value;
+
+            let hari = 1;
+
+            // Hitung hari berdasarkan tanggal jika tersedia
+            if (mulaiTgl && selTgl) {
+                const mulaiDT = parseDateTime(mulaiTgl, '00:00');
+                const selDT = parseDateTime(selTgl, '00:00');
+                
+                if (mulaiDT && selDT) {
+                    const diffTime = selDT - mulaiDT;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    hari = Math.max(1, diffDays);
+                }
+            } else if (lamaHariEl) {
+                // Fallback ke input manual
+                hari = Number(lamaHariEl.value) || 1;
             }
 
-            if (!mulaiTgl) {
-                // Update summary tanpa tanggal selesai
-                updateSummary(biaya, hari, biaya * hari);
-                return;
-            }
+            // Update display
+            if (lamaHariDisplay) lamaHariDisplay.value = `${hari} hari`;
+            if (lamaHariEl) lamaHariEl.value = hari;
 
-            const mulaiDT = parseDateTime(mulaiTgl, '00:00'); // Hanya butuh tanggal untuk validasi
-            if (!mulaiDT) {
-                updateSummary(biaya, hari, biaya * hari);
-                return;
-            }
-
-            const sekarang = now();
-            const hariIni = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate());
-            const mulaiHari = new Date(mulaiDT.getFullYear(), mulaiDT.getMonth(), mulaiDT.getDate());
-            
-            // VALIDASI: Jika tanggal mulai di masa lalu
-            if (mulaiHari.getTime() < hariIni.getTime()) {
-                alert('Tanggal mulai tidak boleh di masa lalu. Pilih tanggal yang valid.');
-                if (mulaiTglEl) mulaiTglEl.value = '';
-                if (selTglEl) selTglEl.value = '';
-                updateSummary(biaya, hari, biaya * hari);
-                return;
-            }
-
-            // HANYA JIKA VALIDASI BERHASIL, hitung tanggal selesai
-            const selesaiDate = new Date(mulaiDT);
-            selesaiDate.setDate(selesaiDate.getDate() + hari);
-            const selesaiTgl = selesaiDate.toISOString().split('T')[0];
-            
-            if (selTglEl) selTglEl.value = selesaiTgl;
-
-            // Hitung total
             const total = biaya * hari;
             const totalEl = $id('total_pembayaran');
             if (totalEl) totalEl.value = total;
 
-            updateSummary(biaya, hari, total);
+            updateSummary();
 
         } catch (e) {
             err('calculateAll error', e);
         }
     }
 
-    // --- reset / bayar / submit ---
+    // --- validasi form sebelum submit ---
+    function validateForm() {
+        const requiredFields = [
+            { id: 'nama_penyewa', name: 'Nama Penyewa' },
+            { id: 'no_telp', name: 'No. Telepon' },
+            { id: 'alamat', name: 'Alamat' },
+            { id: 'tujuan', name: 'Tujuan' },
+            { id: 'mulai_tgl', name: 'Tanggal Mulai' },
+            { id: 'sel_tgl', name: 'Tanggal Selesai' },
+            { id: 'bentuk_jaminan', name: 'Bentuk Jaminan' },
+            { id: 'posisi_bbm', name: 'Posisi BBM' }
+        ];
+
+        for (const field of requiredFields) {
+            const element = $id(field.id);
+            if (!element?.value) {
+                alert(`${field.name} harus diisi`);
+                element?.focus();
+                return false;
+            }
+        }
+
+        // Validasi file upload
+        if (!validateFile($id('file_ktp'), 'ktp_error')) return false;
+        if (!validateFile($id('file_sim'), 'sim_error')) return false;
+
+        const bentukJaminan = $id('bentuk_jaminan')?.value;
+        if (bentukJaminan === 'stnk_motor') {
+            if (!validateFile($id('file_stnk_motor'), 'stnk_error')) return false;
+        }
+
+        // Validasi tanggal
+        const mulaiTgl = $id('mulai_tgl')?.value;
+        const selTgl = $id('sel_tgl')?.value;
+        
+        if (mulaiTgl && selTgl) {
+            const mulaiDT = parseDateTime(mulaiTgl, '00:00');
+            const selDT = parseDateTime(selTgl, '00:00');
+            const sekarang = new Date();
+
+            if (mulaiDT < sekarang) {
+                alert('Tanggal mulai tidak boleh di masa lalu');
+                return false;
+            }
+
+            if (selDT <= mulaiDT) {
+                alert('Tanggal selesai harus setelah tanggal mulai');
+                return false;
+            }
+        }
+
+        // Validasi terms & conditions
+        const agreeTerms = $id('agree_terms');
+        if (agreeTerms && !agreeTerms.checked) {
+            alert('Anda harus menyetujui Syarat & Ketentuan');
+            return false;
+        }
+
+        return true;
+    }
+
+    // --- reset form ---
     function resetForm() {
-        if (!confirm('Reset seluruh form?')) return;
-        const f = $id('rentalForm');
-        if (f) f.reset();
+        if (!confirm('Apakah Anda yakin ingin mereset seluruh form?')) return;
+        
+        const form = $id('bookingForm');
+        if (form) form.reset();
+
+        // Reset previews
         ['preview_ktp', 'preview_sim', 'preview_stnk'].forEach(id => {
             const el = $id(id);
             if (el) el.innerHTML = '';
         });
-        const defaults = {
-            sum_nama: '-',
-            sum_mobil: '-',
-            sum_mulai: '-',
-            sum_selesai: '-', // TAMBAHAN: reset selesai juga
-            sum_lama: '-',
-            sum_biaya: 'Rp 0',
-            sum_total: 'Rp 0'
-        };
-        Object.keys(defaults).forEach(k => {
-            const el = $id(k);
-            if (el) el.innerText = defaults[k];
+
+        // Reset error messages
+        $queryAll('.error-message').forEach(el => {
+            el.textContent = '';
         });
-        if ($id('total_pembayaran')) $id('total_pembayaran').value = '';
-        if ($id('sel_tgl')) $id('sel_tgl').value = '';
-    }
 
-    function bayarMuka() {
-        calculateAll();
-        const total = Number($id('total_pembayaran')?.value || 0);
-        alert('Bayar muka: ' + formatIDR(total / 2));
-    }
-
-    function bayarPenuh() {
-        calculateAll();
-        const total = Number($id('total_pembayaran')?.value || 0);
-        alert('Bayar penuh: ' + formatIDR(total));
-    }
-
-    function handleSubmit(ev) {
-        ev.preventDefault();
-        calculateAll();
+        // Reset summary
+        updateSummary();
         
-        // Validasi wajib
-        const requiredFields = ['nama_penyewa', 'no_telp', 'tujuan', 'mulai_tgl'];
-        for (const field of requiredFields) {
-            if (!$id(field)?.value) {
-                alert(`Field ${field} harus diisi`);
-                $id(field)?.focus();
-                return;
-            }
-        }
-
-        // Validasi tanggal mulai tidak di masa lalu
-        const mulaiTgl = $id('mulai_tgl')?.value;
-        if (mulaiTgl) {
-            const mulaiDT = parseDateTime(mulaiTgl, '00:00');
-            const sekarang = now();
-            const hariIni = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate());
-            const mulaiHari = new Date(mulaiDT.getFullYear(), mulaiDT.getMonth(), mulaiDT.getDate());
-            
-            if (mulaiHari.getTime() < hariIni.getTime()) {
-                alert('Tanggal mulai tidak boleh di masa lalu.');
-                return;
-            }
-        }
-
-        // Validasi file upload berdasarkan bentuk jaminan
-        const bentukJaminan = $id('bentuk_jaminan')?.value;
-        if (bentukJaminan === 'ktp' && !$id('file_ktp')?.files[0]) {
-            alert('Harap upload foto KTP karena Anda memilih KTP sebagai jaminan.');
-            return;
-        }
-        if (bentukJaminan === 'sim' && !$id('file_sim')?.files[0]) {
-            alert('Harap upload foto SIM karena Anda memilih SIM sebagai jaminan.');
-            return;
-        }
-        if (bentukJaminan === 'stnk_motor' && !$id('file_stnk_motor')?.files[0]) {
-            alert('Harap upload foto STNK motor karena Anda memilih motor sebagai jaminan.');
-            return;
-        }
-
-        // Jika semua valid, proses submit
-        if (confirm('Apakah data sudah benar? Pastikan semua informasi sudah terisi dengan benar.')) {
-            // Simulasi proses submit
-            alert('Form berhasil disubmit! Data akan diproses oleh admin.');
-        }
+        log('Form reset successfully');
     }
 
     // --- init on load ---
-    window.addEventListener('load', function() {
+    window.addEventListener('DOMContentLoaded', function() {
         try {
-            prefillVehicle();
-
-            // minimal tanggal mulai = hari ini
+            // Set minimum dates
             const today = new Date().toISOString().split('T')[0];
-            if ($id('mulai_tgl')) $id('mulai_tgl').setAttribute('min', today);
+            const mulaiTglEl = $id('mulai_tgl');
+            if (mulaiTglEl) {
+                mulaiTglEl.setAttribute('min', today);
+            }
 
-            // attach listeners
-            const watchIds = ['biaya_harian', 'lama_hari', 'nama_penyewa', 'tujuan', 'mulai_tgl', 'mulai_pkl', 'sel_pkl'];
+            // Attach event listeners
+            const watchIds = [
+                'biaya_harian', 'nama_penyewa', 'no_telp', 'alamat', 
+                'tujuan', 'mulai_tgl', 'sel_tgl', 'mulai_pkl', 'sel_pkl',
+                'bentuk_jaminan', 'posisi_bbm'
+            ];
+
             watchIds.forEach(id => {
                 const el = $id(id);
                 if (el) {
@@ -341,53 +416,55 @@
                 }
             });
 
-            // file preview
-            const f1 = $id('file_ktp');
-            if (f1) f1.addEventListener('change', function() {
-                previewFile(this, 'preview_ktp');
-            });
-            const f2 = $id('file_sim');
-            if (f2) f2.addEventListener('change', function() {
-                previewFile(this, 'preview_sim');
-            });
-            const f3 = $id('file_stnk_motor');
-            if (f3) f3.addEventListener('change', function() {
-                previewFile(this, 'preview_stnk');
+            // Date-specific listeners for availability check
+            const dateFields = ['mulai_tgl', 'sel_tgl'];
+            dateFields.forEach(id => {
+                const el = $id(id);
+                if (el) {
+                    el.addEventListener('change', checkAvailability);
+                }
             });
 
-            // form submit
-            const form = $id('rentalForm');
+            // File upload listeners
+            const fileFields = ['file_ktp', 'file_sim', 'file_stnk_motor'];
+            fileFields.forEach(id => {
+                const el = $id(id);
+                if (el) {
+                    const previewId = `preview_${id.split('_')[1]}`;
+                    el.addEventListener('change', (e) => {
+                        previewImage(e, previewId);
+                        validateFile(e.target, `${id.split('_')[1]}_error`);
+                    });
+                }
+            });
+
+            // Form submission
+            const form = $id('bookingForm');
             if (form) {
-                form.addEventListener('submit', handleSubmit);
+                form.addEventListener('submit', function(e) {
+                    if (!validateForm()) {
+                        e.preventDefault();
+                    }
+                });
             }
 
-            // attach buttons
-            const btnReset = document.querySelector('button[onclick*="resetForm"]');
-            if (btnReset) btnReset.addEventListener('click', resetForm);
-            
-            const btnHitung = document.querySelector('button[onclick*="calculateAll"]');
-            if (btnHitung) btnHitung.addEventListener('click', calculateAll);
-
-            // Bayar buttons
-            const btnBayarMuka = document.querySelector('button[onclick*="bayarMuka"]');
-            if (btnBayarMuka) btnBayarMuka.addEventListener('click', bayarMuka);
-            
-            const btnBayarPenuh = document.querySelector('button[onclick*="bayarPenuh"]');
-            if (btnBayarPenuh) btnBayarPenuh.addEventListener('click', bayarPenuh);
-
+            // Initial calculations
             calculateAll();
-            log('Initialization complete');
+            checkAvailability();
+            
+            log('Rental form initialization complete');
+
         } catch (e) {
-            err('init error', e);
+            err('Initialization error', e);
         }
     });
 
-    // expose some funcs for debug (optional)
-    window.__rental_debug = {
+    // Expose functions for global access
+    window.RentalForm = {
         calculateAll,
-        previewFile,
-        prefillVehicle,
-        handleSubmit,
+        checkAvailability,
+        validateForm,
+        resetForm,
         updateSummary
     };
 

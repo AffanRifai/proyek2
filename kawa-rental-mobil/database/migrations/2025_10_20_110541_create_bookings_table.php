@@ -11,6 +11,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('car_id')->constrained()->onDelete('cascade');
+            $table->string('merk')->nullable();
+            $table->string('model')->nullable();
             $table->string('nama_penyewa');
             $table->string('no_telp');
             $table->text('alamat')->nullable();
@@ -24,6 +26,7 @@ return new class extends Migration {
             $table->integer('lama_hari');
             $table->decimal('biaya_harian', 10, 2);
             $table->decimal('total_pembayaran', 12, 2);
+            $table->enum('tipe_pembayaran', ['dp', 'bayar_penuh']);
             $table->string('bentuk_jaminan')->nullable();
             $table->string('posisi_bbm')->nullable();
             $table->string('file_ktp')->nullable();

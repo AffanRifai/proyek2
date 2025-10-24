@@ -1,40 +1,10 @@
-{{-- <!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Detail Mobil - {{ $car->merk }} {{ $car->model }}</title>
-    <link rel="stylesheet" href="{{ asset('css/detail-mobil.css') }}">
-</head>
-
-<body>
-    <a href="{{ route('daftar.mobil') }}">← Kembali</a>
-
-    <div class="detail-container">
-        <img src="{{ asset($car->gambar) }}" alt="{{ $car->merk }}">
-        <h2>{{ $car->merk }} {{ $car->model }}</h2>
-        <p><strong>Tahun:</strong> {{ $car->tahun }}</p>
-        <p><strong>Warna:</strong> {{ $car->warna }}</p>
-        <p><strong>Harga per Hari:</strong> Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}</p>
-        <p><strong>Deskripsi:</strong> {{ $car->deskripsi }}</p>
-        <p><strong>Fasilitas:</strong> {{ $car->fasilitas }}</p>
-        <p><strong>Syarat:</strong> {{ $car->syarat }}</p>
-        <p><strong>Kebijakan:</strong> {{ $car->kebijakan }}</p>
-
-        <a href="{{ route('form.booking', $car->id) }}" class="btn-booking">Sewa Sekarang</a>
-
-    </div>
-</body>
-
-</html> --}}
-
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detail Mobil - {{ $car->merk }} {{ $car->model }}</title>
+    <title>Detail Mobil - {{ $car->merk }} {{ $car->model }} {{ $car->tahun }} - KAWA Car Rent</title>
     <link rel="stylesheet" href="{{ asset('css/booking.css') }}" />
     <!-- poppins -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
@@ -48,7 +18,7 @@
 <body>
     <!-- Navbar -->
     <header>
-        <a href="#" class="logo">
+        <a href="/" class="logo">
             <img src="{{ asset('img/logo-kawa.png') }}" alt="logo kawa rental mobil" />
         </a>
         <nav>
@@ -60,47 +30,119 @@
                 <li class="search-container">
                     <input type="search" placeholder="Search" aria-label="Cari" />
                 </li>
-                <li><a href="/login"><button class="login-btn" aria-label="Login">Login</button></a></li>
+                <li>
+                    @auth
+                        <a href="/dashboard"><button class="login-btn" aria-label="Dashboard">Dashboard</button></a>
+                    @else
+                        <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a>
+                    @endauth
+                </li>
             </ul>
         </nav>
     </header>
 
-    <!-- banner Section -->
-    <section class="hero" aria-label="Rental mobil cepat dan aman">
-        <img src="{{ asset('img/kawa-banner.png') }}" alt="banner kawa rental mobil" />
-    </section>
+    <!-- Status Alert -->
+    @if($car->status != 'tersedia')
+        <div class="status-alert {{ $car->status }}">
+            <strong>Perhatian:</strong> Mobil saat ini 
+            @if($car->status == 'disewa')
+                sedang disewa
+            @else
+                dalam perawatan
+            @endif
+        </div>
+    @endif
 
     <!-- mobil Section -->
     <main>
-        <section class="product-detail" aria-label="Detail mobil Mobilio Manual">
+        <section class="product-detail" aria-label="Detail mobil {{ $car->merk }} {{ $car->model }}">
             <div class="car-image">
-                <img src="{{ asset($car->gambar) }}" alt="{{ $car->merk }}">
+                <img src="{{ asset($car->gambar) }}" 
+                     alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
+                     onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
             </div>
-            <form class="car-info" aria-labelledby="carTitle">
-                <h2>{{ $car->merk }} {{ $car->model }}</h2>
+            
+            <div class="car-info" aria-labelledby="carTitle">
+                <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
+
+                <!-- Status Badge -->
+                <div class="status-badge {{ $car->status }}">
+                    {{ ucfirst($car->status) }}
+                </div>
 
                 <div class="meta-icons" aria-label="Spesifikasi utama mobil">
-                    <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" fill="none" stroke-width="2"></circle>
-                            <circle cx="12" cy="12" r="4" fill="none" stroke-width="2"></circle>
-                        </svg> Manual</span>
-                    <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path d="M8 7h8M8 12h8M8 17h8" fill="none" stroke-width="2" stroke-linecap="round" />
+                    <span>
+                        <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="none" stroke-width="2"/>
                         </svg>
-                        <p><strong>Tahun:</strong> {{ $car->tahun }}</p>
+                        {{ ucfirst($car->transmisi ?? 'Manual') }}
                     </span>
-                    <span><svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path d="M4 7h16M4 17h16" fill="none" stroke-width="2" stroke-linecap="round" />
-                        </svg> Kapasitas 7 orang</span>
+                    <span>
+                        <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2"/>
+                        </svg>
+                        {{ $car->tahun }}
+                    </span>
+                    <span>
+                        <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2"/>
+                        </svg>
+                        {{ $car->kapasitas_penumpang }} Penumpang
+                    </span>
+                    <span>
+                        <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke-width="2"/>
+                        </svg>
+                        {{ $car->warna ?? 'Various' }}
+                    </span>
+                </div>
+
+                <!-- Additional Specifications -->
+                <div class="specifications">
+                    <h3>Spesifikasi Teknis</h3>
+                    <div class="spec-grid">
+                        <div><strong>No. Polisi:</strong> {{ $car->no_polisi }}</div>
+                        <div><strong>No. Rangka:</strong> {{ $car->no_rangka ?? '-' }}</div>
+                        <div><strong>No. Mesin:</strong> {{ $car->no_mesin ?? '-' }}</div>
+                        <div><strong>STNK Atas Nama:</strong> {{ $car->stnk_atas_nama ?? '-' }}</div>
+                    </div>
                 </div>
 
                 <div class="price-section" aria-live="polite" aria-atomic="true">
-                    Harga <br>
-                    <strong id="priceDisplay">Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}</strong> / hari
+                    <span class="price-label">Harga Sewa</span><br>
+                    <strong id="priceDisplay" class="price-amount">
+                        Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}
+                    </strong> 
+                    <span class="price-period">/ hari</span>
                 </div>
-                <a href="{{ route('form.booking', $car->id) }}">Sewa Sekarang</a>
 
-            </form>
+                @if($car->status == 'tersedia')
+                    <a href="{{ route('form.booking', $car->id) }}" class="rent-button">
+                        Sewa Sekarang
+                    </a>
+                @else
+                    <button class="rent-button disabled" disabled>
+                        @if($car->status == 'disewa')
+                            Sedang Disewa
+                        @else
+                            Dalam Perawatan
+                        @endif
+                    </button>
+                    <p class="availability-notice">
+                        Silakan hubungi kami untuk informasi ketersediaan lebih lanjut.
+                    </p>
+                @endif
+
+                <!-- Quick Contact -->
+                <div class="quick-contact">
+                    <p>Butuh bantuan? Hubungi kami:</p>
+                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}" 
+                       class="whatsapp-contact" target="_blank">
+                        <img src="{{ asset('img/whatsapp.png') }}" alt="WhatsApp" style="width: 20px; margin-right: 8px;">
+                        Chat via WhatsApp
+                    </a>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -114,126 +156,75 @@
         </div>
 
         <!-- Isi Konten Tab -->
-        <div id="deskripsi" class="tab-content" style="display: block;">
-            <p>{{ $car->deskripsi }}</p>
+        <div id="deskripsi" class="tab-content active">
+            <div style="white-space: pre-line;">{{ $car->deskripsi}}</div>
         </div>
 
         <div id="fasilitas" class="tab-content">
-            <ul>
-                <li>AC otomatis dan ventilasi rear AC</li>
-                <li>Radio/Tape/CD/MP3 Android</li>
-                <li>Charger</li>
-            </ul>
+            <div style="white-space: pre-line;">{{ $car->fasilitas ?? 'Informasi fasilitas tidak tersedia.' }}</div>
         </div>
 
         <div id="syarat" class="tab-content">
-            <h3 style="margin-bottom: 5px;">Syarat & Ketentuan Sewa</h3>
-            <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin kesepakatan antara <strong>Pihak
-                    Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
-
-            <ul style="padding-left: 20px; margin-top: 0; margin-bottom: 0;">
-                <li style="margin-bottom: 5px;"><strong>Perpanjangan Waktu (Overtime):</strong> Wajib dikonfirmasi
-                    minimal <strong>6 (enam)</strong> Jam sebelum masa sewa berakhir.</li>
-                <li style="margin-bottom: 5px;"><strong>Penyalahgunaan Kendaraan:</strong> Segala bentuk penyalahgunaan
-                    kendaraan diluar tanggung jawab Pihak Pertama (Kawa Car Rent).</li>
-                <li style="margin-bottom: 5px;"><strong>Tanggung Jawab Kerusakan/Kehilangan:</strong> Segala resiko
-                    kerusakan, kecelakaan, dan kehilangan kendaraan adalah <strong>tanggung jawab</strong> Pihak Kedua
-                    (Penyewa).</li>
-                <li style="margin-bottom: 5px;"><strong>Tilang Elektronik (E-Tilang):</strong> Apabila terkena
-                    E-Tilang,
-                    Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari
-                    Kepolisian.</li>
-                <li style="margin-bottom: 5px;"><strong>Persetujuan:</strong> Penyewa telah membaca dan menyetujui
-                    seluruh kesepakatan yang tertulis di atas.</li>
-            </ul>
+            <div style="white-space: pre-line;">{{ $car->syarat ?? 'Syarat dan ketentuan tidak tersedia.' }}</div>
         </div>
 
         <div id="kebijakan" class="tab-content">
-            <h3 style="margin-bottom: 5px;">Kebijakan (Detail Perjanjian)</h3>
-            <p style="margin-top: 0; margin-bottom: 10px;">Berikut adalah poin-poin detail dari Surat Perjanjian Sewa
-                antara <strong>Pihak Pertama (Kawa Car Rent)</strong> dan <strong>Pihak Kedua (Penyewa)</strong>:</p>
-
-            <ul style="padding-left: 10px; margin-top: 0; margin-bottom: 0;">
-                <li style="margin-bottom: 5px;"><strong>PASAL 1 (Tanggung Jawab Pihak Pertama):</strong> Pihak Pertama
-                    tidak bertanggung jawab atas segala tindakan/perbuatan atau akibat yang ditimbulkan oleh Pihak Kedua
-                    sehubungan dengan kendaraan tersebut.</li>
-                <li style="margin-bottom: 5px;"><strong>PASAL 2 (Pemindahan Kendaraan):</strong> Pihak Kedua tidak
-                    diperkenankan memindahkan atau menyerahkan kendaraan tersebut kepada orang lain.</li>
-                <li style="margin-bottom: 5px;"><strong>PASAL 3 (Pengambilan Kendaraan Sepihak):</strong> Pihak Pertama
-                    berhak mengambil kembali kendaraan secara sepihak sebelum masa sewa berakhir jika kendaraan dianggap
-                    tidak terawat, digunakan untuk tindakan melawan hukum, atau dipindahtangankan kepada pihak lain.
-                </li>
-                <li style="margin-bottom: 5px;"><strong>PASAL 4 (Risiko & Perbaikan):</strong> Apabila terjadi musibah
-                    atau kelalaian Pihak Kedua yang menyebabkan kecelakaan, kehilangan, kerusakan, pergantian suku
-                    cadang, atau perlengkapan kendaraan, Pihak Kedua bertanggung jawab menanggung segala risikonya.
-                    Perbaikan atau perawatan harus atas persetujuan Pihak Pertama.</li>
-                <li style="margin-bottom: 5px;"><strong>PASAL 5 (Tilang Elektronik):</strong> Apabila terkena E-Tilang,
-                    Pihak Kedua wajib membayar denda e-Tilang jika Pihak Pertama menerima data/surat tilang dari
-                    Kepolisian.</li>
-                <li style="margin-bottom: 5px;"><strong>PASAL 6 (Penyelesaian Masalah):</strong> Kedua belah pihak
-                    sepakat memilih penyelesaian di Kantor Panitera Pengadilan Negeri Kelas 1 Indramayu jika terjadi
-                    masalah yang berhubungan dengan Surat Perjanjian.</li>
-            </ul>
+            <div style="white-space: pre-line;">{{ $car->kebijakan ?? 'Kebijakan tidak tersedia.' }}</div>
         </div>
     </div>
 
-
+    <!-- Related Cars -->
     <div class="section-container">
         <div class="lainnya">
-            <h3>Lihat juga unit lainnya</h3>
+            <h3>Mobil Lainnya</h3>
         </div>
 
         <!-- Cars Listing -->
-        <section class="cars-container" aria-label="Daftar mobil tersedia">
+        <section class="cars-container" aria-label="Daftar mobil lainnya">
+            @php
+                $relatedCars = \App\Models\Car::where('id', '!=', $car->id)
+                    ->where('status', 'tersedia')
+                    ->inRandomOrder()
+                    ->limit(3)
+                    ->get();
+            @endphp
 
-            <article class="car-card" aria-label="Mobil Mobilio Manual">
-                <img src="{{ asset('img/mobilio.png') }}" alt="Mobilio Manual" />
-                <h3>Mobilio Manual</h3>
-                <div class="price">Harga 400.000 / hari</div>
-                <div class="details">
-                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                    <div><span>Tipe</span><span>Manual</span></div>
-                </div>
-                <a href="/bookingmobiliomanual"><button type="button" aria-label="Sewa Mobilio Manual">Sewa mobil
-                        &gt;&gt;</button></a>
-            </article>
-
-            <article class="car-card" aria-label="Mobil Brio Matic">
-                <img src="{{ asset('img/briomatic.png') }}" alt="Mobil Brio Matic" />
-                <h3>Brio Matic</h3>
-                <div class="price">Harga 400.000 / hari</div>
-                <div class="details">
-                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                    <div><span>Tipe</span><span>Matic</span></div>
-                </div>
-                <a href="/bookingbriomatic"><button type="button" aria-label="Sewa mobil Brio Matic">Sewa mobil
-                        &gt;&gt;</button></a>
-            </article>
-
-            <article class="car-card" aria-label="Mobil Brio Manual">
-                <img src="{{ asset('img/Brio.png') }}" alt="Mobil Brio Manual" />
-                <h3>Brio Manual</h3>
-                <div class="price">Harga 350.000 / hari</div>
-                <div class="details">
-                    <div><span>Sistem</span><span>Lepas Kunci</span></div>
-                    <div><span>Tipe</span><span>Manual</span></div>
-                </div>
-                <a href="/bookingavanzaautomatic"><button type="button" aria-label="Sewa mobil Pick Up">Sewa mobil
-                        &gt;&gt;</button></a>
-            </article>
-
+            @foreach($relatedCars as $relatedCar)
+                <article class="car-card" aria-label="{{ $relatedCar->merk }} {{ $relatedCar->model }}">
+                    <img src="{{ asset($relatedCar->gambar) }}" 
+                         alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
+                         onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+                    <h3>{{ $relatedCar->merk }} {{ $relatedCar->model }}</h3>
+                    <div class="price">Rp{{ number_format($relatedCar->biaya_harian, 0, ',', '.') }}/hari</div>
+                    <div class="details">
+                        <div><span>Transmisi</span><span>{{ ucfirst($relatedCar->transmisi)}}</span></div>
+                        <div><span>Kapasitas</span><span>{{ $relatedCar->kapasitas_penumpang }} Penumpang</span></div>
+                    </div>
+                    <a href="{{ route('detail.mobil', $relatedCar->id) }}">
+                        <button type="button" aria-label="Sewa {{ $relatedCar->merk }} {{ $relatedCar->model }}">
+                            Sewa mobil &gt;&gt;
+                        </button>
+                    </a>
+                </article>
+            @endforeach
         </section>
 
-        <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya
-                &gt;&gt;&gt;</button></a>
+        <a href="/DaftarMobil" class="btn-load-more">
+            Lihat Semua Mobil &gt;&gt;&gt;
+        </a>
     </div>
+
+    <!-- Tombol WhatsApp Mengambang -->
+    <a href="https://wa.me/6281234567890" class="wa-float" target="_blank" aria-label="Chat WhatsApp">
+        <img src="{{ asset('img/wa.png') }}" alt="WhatsApp" />
+    </a>
 
     <script>
         function openTab(evt, tabName) {
             // Sembunyikan semua tab-content
             var tabcontent = document.getElementsByClassName("tab-content");
             for (var i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove('active');
             }
 
             // Hapus class "active" dari semua tombol
@@ -243,17 +234,26 @@
             }
 
             // Tampilkan tab yang dipilih
-            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add("active");
         }
+
+        function changeMainImage(src) {
+            document.querySelector('.car-image img').src = src;
+        }
+
+        // Initialize first tab as active
+        document.addEventListener('DOMContentLoaded', function() {
+            openTab(event, 'deskripsi');
+        });
     </script>
 
     <!-- Footer -->
     <footer>
         <div class="footer-container">
             <div class="footer-col">
-                <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
-                    <img src="/kawa-rental-mobil/public/img/logo-kawa-stroke2.png" alt="logo kawa rental mobil" />
+                <a href="/" class="footer-logo" aria-label="Rental Mobil Indramayu">
+                    <img src="{{ asset('img/logo-kawa-stroke2.png') }}" alt="logo kawa rental mobil" />
                 </a>
                 <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a
                         href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer"
@@ -262,9 +262,9 @@
             <div class="footer-col">
                 <h4>Media Sosial</h4>
                 <div class="social-icons" role="navigation" aria-label="Media sosial">
-                    <a href="#"><img src="/kawa-rental-mobil/public/img/instagram-icon.png" alt="Instagram"
+                    <a href="#"><img src="{{ asset('img/instagram-icon.png') }}" alt="Instagram"
                             style="width:24px"></a>
-                    <a href="#"><img src="/kawa-rental-mobil/public/img/fb.png" alt="Facebook"
+                    <a href="#"><img src="{{ asset('img/fb.png') }}" alt="Facebook"
                             style="width:24px"></a>
                 </div>
             </div>
