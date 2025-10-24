@@ -15,6 +15,8 @@ class Car extends Model
         'model',
         'warna',
         'tahun',
+        'transmisi',
+        'kapasitas_penumpang',
         'no_rangka',
         'no_mesin',
         'no_polisi',
@@ -27,6 +29,26 @@ class Car extends Model
         'syarat',
         'kebijakan'
     ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function isAvailable($startDate, $endDate)
+    {
+        return !$this->bookings()
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('mulai_tgl', [$startDate, $endDate])
+                    ->orWhereBetween('sel_tgl', [$startDate, $endDate])
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('mulai_tgl', '<=', $startDate)
+                            ->where('sel_tgl', '>=', $endDate);
+                    });
+            })
+            ->whereIn('status', ['pending', 'approved'])
+            ->exists();
+    }
 
     // (opsional) cast untuk biaya jadi numeric
     protected $casts = [

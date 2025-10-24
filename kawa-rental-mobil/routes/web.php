@@ -11,12 +11,23 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\CarController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminBookingController;
 
 Route::get('/', function () {
-    return view('landingpage');
+    return view('landingpage')->name('home');
 });
 Route::get('/landingpage', function () {
-    return view('landingpage');
+    return view('landingpage')->name('landingpage');
+});
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+Route::get('/cek-tabel', function () {
+    $columns = DB::select('DESCRIBE bookings');
+    return response()->json($columns);
 });
 
 
@@ -89,26 +100,20 @@ Route::group(['middleware' => ['auth', 'check_role:admin']], function () {
     // Route::get('/delete_mobil/{id}', [AdminController::class, 'delete_mobil']);
 });
 
-use App\Http\Controllers\BookingController;
+
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/{id}', [BookingController::class, 'create'])->name('booking.create');
+    Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
 });
-
-
-use App\Http\Controllers\CarController;
-
 
 Route::get('/daftar-mobil', [CarController::class, 'daftar'])->name('daftar.mobil');
 Route::get('/detail-mobil/{id}', [CarController::class, 'detail'])->name('detail.mobil');
 Route::get('/form-booking/{id}', [BookingController::class, 'create'])->name('form.booking');
 Route::post('/form-booking', [BookingController::class, 'store'])->name('booking.store');
-
-
-
-
-
-
+// Di routes/web.php tambahkan:
+Route::post('/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('booking.check-availability');
 
 
 Route::get('/logout', [AuthController::class, 'logout']);
@@ -124,6 +129,21 @@ Route::get('/bookingbriomanual', fn() => view('bookingbriomanual'));
 Route::get('/bookingavanzamanual', fn() => view('bookingavanzamanual'));
 Route::get('/bookingavanzaautomatic', fn() => view('bookingavanzaautomatic'));
 
-Route::get('/TentangKami', fn () => view('TentangKami'));
+Route::get('/TentangKami', fn() => view('TentangKami'));
 
-Route::get('/AdminManajemenBooking', fn () => view('AdminManajemenBooking'));
+Route::get('/AdminManajemenBooking', fn() => view('AdminManajemenBooking'));
+
+// Admin Booking Management Routes
+Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Bookings
+    Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/{id}', [AdminBookingController::class, 'show'])->name('bookings.show');
+    Route::post('/bookings/{id}/approve', [AdminBookingController::class, 'approve'])->name('bookings.approve');
+    Route::post('/bookings/{id}/reject', [AdminBookingController::class, 'reject'])->name('bookings.reject');
+    Route::post('/bookings/{id}/complete', [AdminBookingController::class, 'complete'])->name('bookings.complete');
+    Route::delete('/bookings/{id}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
+    
+    // File View & Download
+    Route::get('/bookings/{id}/file/{type}', [AdminBookingController::class, 'viewFile'])->name('bookings.view-file');
+    Route::get('/bookings/{id}/download/{type}', [AdminBookingController::class, 'downloadFile'])->name('bookings.download-file');
+});

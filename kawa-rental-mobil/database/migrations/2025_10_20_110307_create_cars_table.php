@@ -13,6 +13,8 @@ return new class extends Migration {
             $table->string('model');
             $table->string('warna')->nullable();
             $table->string('tahun')->nullable();
+            $table->string('transmisi')->nullable();
+            $table->string('kapasitas_penumpang')->nullable();
             $table->string('no_rangka')->nullable();
             $table->string('no_mesin')->nullable();
             $table->string('no_polisi')->unique();
