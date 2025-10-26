@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class Booking extends Model
@@ -36,7 +37,12 @@ class Booking extends Model
         'file_jaminan',
         'file_stnk_motor',
         'status',
-        'catatan_admin'
+        'catatan_admin',
+        'hari_terlambat',
+        'denda_terlambat',
+        'actual_sel_tgl',
+        'keterangan_terlambat',
+        'status_mobil'
     ];
 
     protected $casts = [
@@ -44,6 +50,8 @@ class Booking extends Model
         'sel_tgl' => 'date',
         'biaya_harian' => 'decimal:2',
         'total_pembayaran' => 'decimal:2',
+        'actual_sel_tgl' => 'date',
+        'denda_terlambat' => 'decimal:2',
     ];
 
     // Scope untuk filter status
@@ -65,6 +73,18 @@ class Booking extends Model
     public function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    // Scope untuk booking yang sudah lewat tanggal selesai (hanya informasi)
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'approved')
+            ->where('sel_tgl', '<', Carbon::today());
     }
 
     // Boot method untuk generate id_transaksi otomatis
@@ -91,6 +111,136 @@ class Booking extends Model
         } while (static::where('id_transaksi', $id_transaksi)->exists());
 
         return $id_transaksi;
+    }
+
+    // ✅ METHOD BARU: Hitung saran hari terlambat (hanya referensi untuk admin)
+    public function calculateSuggestedHariTerlambat($actualSelTgl = null)
+    {
+        if (!$actualSelTgl) {
+            return 0;
+        }
+
+        $selTgl = Carbon::parse($this->sel_tgl);
+        $actualSelTgl = Carbon::parse($actualSelTgl);
+
+        // Keterlambatan hanya jika actual_sel_tgl > sel_tgl
+        if ($actualSelTgl->lte($selTgl)) {
+            return 0;
+        }
+
+        // Hitung selisih hari
+        return $selTgl->diffInDays($actualSelTgl, false);
+    }
+
+    // ✅ METHOD BARU: Hitung saran denda (150% per hari) - hanya referensi
+    public function calculateSuggestedDenda($actualSelTgl = null)
+    {
+        $hariTerlambat = $this->calculateSuggestedHariTerlambat($actualSelTgl);
+        return $hariTerlambat * ($this->biaya_harian * 1.5);
+    }
+
+    // ✅ METHOD BARU: Proses pengembalian manual dengan denda flexible
+    public function prosesPengembalianManual($actualSelTgl, $hariTerlambat, $dendaTerlambat, $catatan = null)
+    {
+        DB::transaction(function () use ($actualSelTgl, $hariTerlambat, $dendaTerlambat, $catatan) {
+
+            // Tentukan status mobil berdasarkan ada/tidak denda
+            $statusMobil = $hariTerlambat > 0 ? 'terlambat' : 'normal';
+
+            // Generate keterangan otomatis
+            $keterangan = $this->generateKeterangan($hariTerlambat, $dendaTerlambat, $catatan);
+
+            $this->update([
+                'status' => 'completed',
+                'actual_sel_tgl' => Carbon::parse($actualSelTgl),
+                'hari_terlambat' => $hariTerlambat,
+                'denda_terlambat' => $dendaTerlambat,
+                'status_mobil' => $statusMobil,
+                'keterangan_terlambat' => $keterangan
+            ]);
+
+            // Kembalikan mobil ke status tersedia
+            if ($this->car) {
+                $this->car->update(['status' => 'tersedia']);
+            }
+
+            \Log::info("Pengembalian manual diproses: {$this->id_transaksi}", [
+                'tanggal_pengembalian' => $actualSelTgl,
+                'hari_terlambat' => $hariTerlambat,
+                'denda_terlambat' => $dendaTerlambat,
+                'admin' => auth()->user()->name,
+                'catatan' => $catatan
+            ]);
+        });
+    }
+
+    // ✅ Generate keterangan otomatis
+    private function generateKeterangan($hariTerlambat, $dendaTerlambat, $catatan = null)
+    {
+        $keterangan = "Mobil dikembalikan " . ($hariTerlambat > 0 ? "terlambat {$hariTerlambat} hari" : "tepat waktu");
+
+        if ($dendaTerlambat > 0) {
+            $keterangan .= ". Denda: Rp " . number_format($dendaTerlambat, 0, ',', '.');
+        }
+
+        if ($catatan) {
+            $keterangan .= " | Catatan: {$catatan}";
+        }
+
+        return $keterangan;
+    }
+
+    // ✅ GET TOTAL PEMBAYARAN + DENDA
+    public function getTotalPembayaranWithDendaAttribute()
+    {
+        return $this->total_pembayaran + $this->denda_terlambat;
+    }
+
+    // ✅ CEK APAKAH ADA DENDA
+    public function getAdaDendaAttribute()
+    {
+        return $this->denda_terlambat > 0;
+    }
+
+    // ✅ ACCESSOR UNTUK STATUS MOBIL BADGE
+    public function getStatusMobilBadgeAttribute()
+    {
+        $badges = [
+            'normal' => 'bg-green-100 text-green-800',
+            'terlambat' => 'bg-orange-100 text-orange-800',
+            'rusak' => 'bg-red-100 text-red-800',
+            'hilang' => 'bg-purple-100 text-purple-800'
+        ];
+
+        return $badges[$this->status_mobil] ?? 'bg-gray-100 text-gray-800';
+    }
+
+    // ✅ CEK APAKAH SUDAH TERLAMBAT (berdasarkan status_mobil)
+    public function getIsMobilTerlambatAttribute()
+    {
+        return $this->status_mobil === 'terlambat';
+    }
+
+    // Method untuk cek apakah booking sudah expired (hanya informasi)
+    public function isExpired()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->sel_tgl)->lt(Carbon::today());
+    }
+
+    // Method untuk cek apakah booking sedang berjalan
+    public function isActive()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->mulai_tgl)->lte(Carbon::today()) &&
+            Carbon::parse($this->sel_tgl)->gte(Carbon::today());
+    }
+
+    // Method untuk cek apakah booking akan datang
+    public function isUpcoming()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->mulai_tgl)->gt(Carbon::today());
     }
 
     // Method untuk mencari booking berdasarkan id_transaksi
@@ -123,10 +273,39 @@ class Booking extends Model
         return $this;
     }
 
-    // Method untuk complete booking
+    // Method untuk cancel booking (dari status approved)
+    public function cancel($alasan = null)
+    {
+        if ($this->status !== 'approved') {
+            throw new \Exception('Hanya booking dengan status approved yang bisa dibatalkan.');
+        }
+
+        $this->update([
+            'status' => 'cancelled',
+            'catatan_admin' => $alasan
+        ]);
+
+        // Kembalikan status mobil menjadi tersedia
+        if ($this->car) {
+            $this->car->update(['status' => 'tersedia']);
+        }
+
+        return $this;
+    }
+
+    // Method untuk complete booking (tanpa denda - untuk pengembalian tepat waktu)
     public function complete()
     {
-        $this->update(['status' => 'completed']);
+        // Safety check - hanya bisa complete booking yang approved
+        if ($this->status !== 'approved') {
+            throw new \Exception('Hanya booking dengan status approved yang bisa diselesaikan.');
+        }
+
+        $this->update([
+            'status' => 'completed',
+            'actual_sel_tgl' => now(),
+            'keterangan_terlambat' => 'Mobil dikembalikan tepat waktu.'
+        ]);
 
         // Update status mobil menjadi tersedia kembali
         if ($this->car) {
@@ -136,10 +315,105 @@ class Booking extends Model
         return $this;
     }
 
+    // ✅ METHOD BARU: Cek apakah booking sedang berjalan (dalam rentang tanggal)
+    public function getIsSedangDisewaAttribute()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->mulai_tgl)->lte(Carbon::today()) &&
+            Carbon::parse($this->sel_tgl)->gte(Carbon::today());
+    }
+
+    // ✅ METHOD BARU: Cek apakah booking akan datang (accessor)
+    public function getIsUpcomingAttribute()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->mulai_tgl)->gt(Carbon::today());
+    }
+
+    // ✅ METHOD BARU: Cek apakah booking sudah terlambat (melewati sel_tgl)
+    public function getIsTerlambatAttribute()
+    {
+        return $this->status === 'approved' &&
+            Carbon::parse($this->sel_tgl)->lt(Carbon::today());
+    }
+
+    // ✅ METHOD BARU: Keterangan status real-time
+    public function getKeteranganStatusAttribute()
+    {
+        if ($this->status === 'completed') {
+            return 'Selesai';
+        } elseif ($this->status === 'cancelled') {
+            return 'Dibatalkan';
+        } elseif ($this->status === 'rejected') {
+            return 'Ditolak';
+        } elseif ($this->status === 'pending') {
+            return 'Menunggu Konfirmasi';
+        } elseif ($this->is_sedang_disewa) {
+            return 'Sedang Disewa/Berjalan';
+        } elseif ($this->is_terlambat) {
+            return 'Terlambat';
+        } elseif ($this->is_upcoming) {
+            return 'Akan Datang';
+        }
+
+        return 'Tidak Diketahui';
+    }
+
+    // ✅ METHOD BARU: Status utama yang harus ditampilkan
+    public function getStatusUtamaAttribute()
+    {
+        // Prioritas: Completed/Cancelled/Rejected → Sedang Disewa → Terlambat → Pending/Approved
+        if ($this->status === 'completed') {
+            return ['text' => 'Selesai', 'color' => 'blue', 'icon' => '✅'];
+        } elseif ($this->status === 'cancelled') {
+            return ['text' => 'Dibatalkan', 'color' => 'gray', 'icon' => '❌'];
+        } elseif ($this->status === 'rejected') {
+            return ['text' => 'Ditolak', 'color' => 'red', 'icon' => '🚫'];
+        } elseif ($this->is_sedang_disewa) {
+            return ['text' => 'Sedang Disewa/Berjalan', 'color' => 'green', 'icon' => '🚗'];
+        } elseif ($this->is_terlambat) {
+            return ['text' => 'Terlambat', 'color' => 'red', 'icon' => '⚠️'];
+        } elseif ($this->is_upcoming) {
+            return ['text' => 'Akan Datang', 'color' => 'blue', 'icon' => '📅'];
+        } elseif ($this->status === 'approved') {
+            return ['text' => 'Disetujui', 'color' => 'green', 'icon' => '✅'];
+        } elseif ($this->status === 'pending') {
+            return ['text' => 'Menunggu Konfirmasi', 'color' => 'yellow', 'icon' => '⏳'];
+        }
+
+        return ['text' => 'Tidak Diketahui', 'color' => 'gray', 'icon' => '❓'];
+    }
+
+    // ✅ METHOD BARU: Badge color berdasarkan status
+    public function getStatusUtamaBadgeAttribute()
+    {
+        $colors = [
+            'green' => 'bg-green-100 text-green-800',
+            'red' => 'bg-red-100 text-red-800',
+            'yellow' => 'bg-yellow-100 text-yellow-800',
+            'blue' => 'bg-blue-100 text-blue-800',
+            'gray' => 'bg-gray-100 text-gray-800'
+        ];
+
+        return $colors[$this->status_utama['color']] ?? 'bg-gray-100 text-gray-800';
+    }
+
+    // ✅ METHOD BARU: Tombol pengembalian hanya aktif jika terlambat
+    public function getTombolPengembalianAktifAttribute()
+    {
+        return $this->status === 'approved' && $this->is_terlambat;
+    }
+
     // Cek apakah booking bisa di-approve
     public function canBeApproved()
     {
         return $this->status === 'pending' && $this->car->status === 'tersedia';
+    }
+
+    // Cek apakah booking bisa di-cancel
+    public function canBeCancelled()
+    {
+        return $this->status === 'approved';
     }
 
     // Accessor untuk status badge
@@ -154,42 +428,6 @@ class Booking extends Model
         ];
 
         return $badges[$this->status] ?? 'bg-gray-100 text-gray-800';
-    }
-
-    // Method untuk auto-complete booking yang sudah selesai
-    public static function autoCompleteExpiredBookings()
-    {
-        $expiredBookings = static::where('status', 'approved')
-            ->where('sel_tgl', '<', Carbon::today())
-            ->get();
-
-        foreach ($expiredBookings as $booking) {
-            $booking->complete();
-        }
-
-        return $expiredBookings->count();
-    }
-
-    // Method untuk cek apakah booking sudah expired
-    public function isExpired()
-    {
-        return $this->status === 'approved' &&
-            Carbon::parse($this->sel_tgl)->lt(Carbon::today());
-    }
-
-    // Method untuk cek apakah booking sedang berjalan
-    public function isActive()
-    {
-        return $this->status === 'approved' &&
-            Carbon::parse($this->mulai_tgl)->lte(Carbon::today()) &&
-            Carbon::parse($this->sel_tgl)->gte(Carbon::today());
-    }
-
-    // Method untuk cek apakah booking akan datang
-    public function isUpcoming()
-    {
-        return $this->status === 'approved' &&
-            Carbon::parse($this->mulai_tgl)->gt(Carbon::today());
     }
 
     // Relationship

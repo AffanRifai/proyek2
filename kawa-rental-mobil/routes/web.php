@@ -16,11 +16,12 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminBookingController;
 
 Route::get('/', function () {
-    return view('landingpage')->name('home');
-});
+    return view('landingpage');
+})->name('home');
+
 Route::get('/landingpage', function () {
-    return view('landingpage')->name('landingpage');
-});
+    return view('landingpage');
+})->name('landingpage');
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -89,21 +90,7 @@ Route::group(['middleware' => ['auth', 'check_role:customer', 'check_status']], 
     Route::get('/landingpage', fn() => view('landingpage'));
 });
 
-// route halaman admin
-Route::group(['middleware' => ['auth', 'check_role:admin']], function () {
-    Route::get('/admin', [AdminController::class, 'index']);
-    // Route::get('/manajemen', [AdminController::class, 'manajemen']);
-    // Route::get('/tambah_mobil', [AdminController::class, 'tambah_mobil']);
-    // Route::post('/tambah_mobil', [AdminController::class, 'store_mobil']);
-    // Route::get('/edit_mobil/{id}', [AdminController::class, 'edit_mobil']);
-    // Route::post('/update_mobil/{id}', [AdminController::class, 'update_mobil']);
-    // Route::get('/delete_mobil/{id}', [AdminController::class, 'delete_mobil']);
-});
-
-
-
 Route::middleware(['auth'])->group(function () {
-    Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
     Route::get('/booking/{id}', [BookingController::class, 'create'])->name('booking.create');
     Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
 });
@@ -112,6 +99,7 @@ Route::get('/daftar-mobil', [CarController::class, 'daftar'])->name('daftar.mobi
 Route::get('/detail-mobil/{id}', [CarController::class, 'detail'])->name('detail.mobil');
 Route::get('/form-booking/{id}', [BookingController::class, 'create'])->name('form.booking');
 Route::post('/form-booking', [BookingController::class, 'store'])->name('booking.store');
+
 // Di routes/web.php tambahkan:
 Route::post('/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('booking.check-availability');
 
@@ -133,16 +121,28 @@ Route::get('/TentangKami', fn() => view('TentangKami'));
 
 Route::get('/AdminManajemenBooking', fn() => view('AdminManajemenBooking'));
 
-// Admin Booking Management Routes
+// ✅ PERBAIKAN: SATU KELOMPOK ROUTE ADMIN YANG BERSIH
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Bookings
+    // Dashboard Admin
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+
+    // Bookings Management - MANUAL PROCESS
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show'])->name('bookings.show');
+
+    // ✅ ROUTES PENGEMBALIAN MANUAL (TANPA AUTO-COMPLETE)
+    Route::get('/bookings/{id}/pengembalian', [AdminBookingController::class, 'showFormPengembalian'])
+        ->name('bookings.pengembalian');
+    Route::post('/bookings/{id}/pengembalian', [AdminBookingController::class, 'prosesPengembalian'])
+        ->name('bookings.proses-pengembalian');
+
+    // Booking Actions
     Route::post('/bookings/{id}/approve', [AdminBookingController::class, 'approve'])->name('bookings.approve');
     Route::post('/bookings/{id}/reject', [AdminBookingController::class, 'reject'])->name('bookings.reject');
+    Route::post('/bookings/{id}/cancel', [AdminBookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{id}/complete', [AdminBookingController::class, 'complete'])->name('bookings.complete');
     Route::delete('/bookings/{id}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
-    
+
     // File View & Download
     Route::get('/bookings/{id}/file/{type}', [AdminBookingController::class, 'viewFile'])->name('bookings.view-file');
     Route::get('/bookings/{id}/download/{type}', [AdminBookingController::class, 'downloadFile'])->name('bookings.download-file');
