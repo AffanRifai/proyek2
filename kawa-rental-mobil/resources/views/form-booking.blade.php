@@ -145,7 +145,7 @@
                                 <div class="form-group">
                                     <label for="mulai_pkl">Mulai Pukul *</label>
                                     <input id="mulai_pkl" name="mulai_pkl" type="time"
-                                        value="{{ old('mulai_pkl', '08:00') }}" required>
+                                        value="{{ old('mulai_pkl') }}">
                                 </div>
                             </div>
 
@@ -159,7 +159,7 @@
                                 <div class="form-group">
                                     <label for="sel_pkl">Selesai Pukul *</label>
                                     <input id="sel_pkl" name="sel_pkl" type="time"
-                                        value="{{ old('sel_pkl', '17:00') }}" required>
+                                        value="{{ old('sel_pkl')}}">
                                 </div>
                                 <div class="form-group">
                                     <label for="lama_hari">Lama Sewa (hari) *</label>
