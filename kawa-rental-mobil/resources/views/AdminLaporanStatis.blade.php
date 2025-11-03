@@ -189,7 +189,7 @@
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        
+
         .report-table h3 {
             margin-bottom: 15px;
             font-weight: 600;
@@ -227,11 +227,11 @@
             <h3>RENTAL MOBIL</h3>
         </div>
         <ul class="menu">
-            <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="#"><i class="fas fa-car"></i> Manajemen Mobil</a></li>
-            <li><a href="#"><i class="fas fa-book"></i> Manajemen Booking</a></li>
-            <li><a href="#"><i class="fas fa-map-marker-alt"></i> Track Location</a></li>
-            <li class="active"><a href="#"><i class="fas fa-chart-line"></i> Laporan & Statistik</a></li>
+            <li class="active"><a href="/AdminDashboardMobil"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="/AdminManajemenMobil"><i class="fas fa-car"></i> Manajemen Mobil</a></li>
+            <li><a href="/AdminManajemenBookingMobil"><i class="fas fa-book"></i> Manajemen Booking</a></li>
+            <li><a href="/AdminTrackLocation"><i class="fas fa-map-marker-alt"></i> Track Location</a></li>
+            <li><a href="/AdminLaporanStatis"><i class="fas fa-chart-line"></i> Laporan & Statistik</a></li>
         </ul>
     </div>
     <div class="main-content">

@@ -203,11 +203,11 @@
             <h3>RENTAL MOBIL</h3>
         </div>
         <ul class="menu">
-            <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="manajemen_mobil.php"><i class="fas fa-car"></i> Manajemen Mobil</a></li>
-            <li><a href="manajemen_booking.php"><i class="fas fa-book"></i> Manajemen Booking</a></li>
-            <li><a href="track_location.php"><i class="fas fa-map-marker-alt"></i> Track Location</a></li>
-            <li><a href="laporan_statistik.php"><i class="fas fa-chart-line"></i> Laporan & Statistik</a></li>
+            <li class="active"><a href="/AdminDashboardMobil"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="/AdminManajemenMobil"><i class="fas fa-car"></i> Manajemen Mobil</a></li>
+            <li><a href="/AdminManajemenBookingMobil"><i class="fas fa-book"></i> Manajemen Booking</a></li>
+            <li><a href="/AdminTrackLocation"><i class="fas fa-map-marker-alt"></i> Track Location</a></li>
+            <li><a href="/AdminLaporanStatis"><i class="fas fa-chart-line"></i> Laporan & Statistik</a></li>
         </ul>
     </div>
     <div class="main-content">
@@ -220,7 +220,7 @@
                 <i class="fas fa-search"></i>
             </div>
         </div>
-        
+
         <div class="stats-grid">
             <div class="stats-box">
                 <h4>Pendapatan Bulan Ini</h4>
@@ -242,7 +242,8 @@
         <div class="chart-grid">
             <div class="chart-box">
                 <h3>Pendapatan Perbulan</h3>
-                <canvas id="monthlyRevenueChart"></canvas>
+                <div class="chart-box line-chart-container">
+                <canvas id="lineChart"></canvas>
             </div>
             <div class="table-container">
                 <h3>Status Mobil</h3>
@@ -344,6 +345,68 @@
             }
         };
         new Chart(document.getElementById('monthlyRevenueChart'), monthlyRevenueConfig);
+    </script>
+    <script>
+    // Data untuk Line Chart
+        const lineChartData = {
+            labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+            datasets: [
+                {
+                    label: 'Mobil SUV',
+                    data: [12, 20, 25, 30, 25, 38, 30, 35, 28, 30, 32, 35],
+                    borderColor: '#2196F3',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Mobil Sedan',
+                    data: [25, 30, 28, 35, 32, 28, 34, 30, 32, 28, 30, 33],
+                    borderColor: '#f44336',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Mobil Hybrid',
+                    data: [15, 25, 30, 25, 28, 30, 25, 28, 26, 30, 31, 29],
+                    borderColor: '#4CAF50',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Mobil Pickup',
+                    data: [10, 12, 15, 18, 20, 15, 18, 16, 15, 12, 14, 10],
+                    borderColor: '#ff9800',
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        };
+
+        // Konfigurasi Line Chart
+        const lineChartConfig = {
+            type: 'line',
+            data: lineChartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Inisialisasi Line Chart
+        var lineChart = new Chart(
+            document.getElementById('lineChart'),
+            lineChartConfig
+        );
     </script>
 </body>
 </html>

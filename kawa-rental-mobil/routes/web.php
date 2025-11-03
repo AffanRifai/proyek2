@@ -61,3 +61,10 @@ Route::get('/bookingavanzaautomatic', fn () => view('bookingavanzaautomatic'));
 Route::get('/TentangKami', fn () => view('TentangKami'));
 
 Route::get('/AdminManajemenBooking', fn () => view('AdminManajemenBooking'));
+
+Route::get('/AdminDashboardMobil', fn () => view('AdminDashboardMobil'));
+Route::get('/AdminDetailMobil', fn () => view('AdminDetailMobil'));
+Route::get('/AdminLaporanStatis', fn () => view('AdminLaporanStatis'));
+Route::get('/AdminManajemenMobil', fn () => view('AdminManajemenMobil'));
+Route::get('/AdminManajemenBookingMobil', fn () => view('AdminManajemenBookingMobil'));
+Route::get('/AdminTrackLocation', fn () => view('AdminTrackLocation'));
