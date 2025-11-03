@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 class BookingController extends Controller
 {
@@ -42,10 +44,10 @@ class BookingController extends Controller
             'file_stnk_motor' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $car = Car::findOrFail($request->car_id);
+        $mobil = Car::findOrFail($request->car_id);
 
         // ✅ Cek ketersediaan mobil
-        if (!$car->isAvailable($request->mulai_tgl, $request->sel_tgl)) {
+        if (!$mobil->isAvailable($request->mulai_tgl, $request->sel_tgl)) {
             return back()
                 ->withInput()
                 ->with('error', 'Mobil tidak tersedia pada tanggal yang dipilih. Silakan pilih tanggal lain.');
@@ -53,14 +55,19 @@ class BookingController extends Controller
 
         // ✅ Hitung total pembayaran
         $lama_hari = (int) $request->lama_hari;
-        $total_base = $lama_hari * $car->biaya_harian;
-        $total_pembayaran = $total_base;
+        $totalBase = $lama_hari * $mobil->biaya_harian;
 
+        // ✅ Tentukan jumlah berdasarkan tipe pembayaran
         if ($request->tipe_pembayaran == 'dp') {
-            $total_pembayaran = $total_base * 0.2; // 20% down payment
+            $jumlahDp = $totalBase * 0.2; // 20% DP
+            $sisaPembayaran = $totalBase - $jumlahDp;
+            $totalPembayaran = $totalBase;
+        } else {
+            // Bayar penuh
+            $jumlahDp = 0;
+            $sisaPembayaran = 0;
+            $totalPembayaran = $totalBase;
         }
-
-        $total_pembayaran = round($total_pembayaran);
 
         // ✅ Upload file
         $uploadFile = function ($file, $folder) {
@@ -85,7 +92,7 @@ class BookingController extends Controller
                 $stnkPath = $uploadFile($request->file('file_stnk_motor'), 'uploads/stnk');
             }
 
-            // ✅ Simpan booking
+            // ✅ Simpan booking dengan SEMUA field yang diperlukan
             $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'car_id' => $request->car_id,
@@ -100,8 +107,15 @@ class BookingController extends Controller
                 'sel_tgl' => $request->sel_tgl,
                 'sel_pkl' => $request->sel_pkl,
                 'lama_hari' => $lama_hari,
-                'biaya_harian' => $car->biaya_harian,
-                'total_pembayaran' => $total_pembayaran,
+                'biaya_harian' => $mobil->biaya_harian,
+
+                // ✅ FIELD BARU YANG DITAMBAHKAN
+                'total_pembayaran' => $totalPembayaran,
+                'jumlah_dp' => $jumlahDp,
+                'sisa_pembayaran' => $sisaPembayaran,
+                'total_dibayar' => 0,
+                'status_pembayaran' => 'menunggu',
+
                 'tipe_pembayaran' => $request->tipe_pembayaran,
                 'bentuk_jaminan' => $request->bentuk_jaminan,
                 'posisi_bbm' => $request->posisi_bbm,
@@ -111,12 +125,17 @@ class BookingController extends Controller
                 'status' => 'pending',
             ]);
 
-            return redirect('/landingpage')
-                ->with('success', 'Booking berhasil dikirim! ID Transaksi: ' . $booking->id_transaksi . '. Menunggu konfirmasi admin.');
+            // ✅ Redirect ke halaman pembayaran sesuai tipe
+            if ($request->tipe_pembayaran == 'dp') {
+                return redirect()->route('pembayaran.buat', [$booking->id, 'dp'])
+                    ->with('success', 'Booking berhasil! Silakan lanjutkan pembayaran DP.');
+            } else {
+                return redirect()->route('pembayaran.buat', [$booking->id, 'bayar_penuh'])
+                    ->with('success', 'Booking berhasil! Silakan lanjutkan pembayaran penuh.');
+            }
         } catch (\Exception $e) {
-            // ✅ FIX: Rollback file uploads jika gagal - HAPUS NULL VALUES
+            // ✅ Rollback file uploads jika gagal
             $filesToDelete = array_filter([$identitasPath, $jaminanPath, $stnkPath]);
-
             if (!empty($filesToDelete)) {
                 Storage::disk('public')->delete($filesToDelete);
             }
@@ -148,5 +167,25 @@ class BookingController extends Controller
                 ? 'Mobil tersedia untuk tanggal yang dipilih'
                 : 'Mobil tidak tersedia untuk tanggal yang dipilih'
         ]);
+    }
+
+    public function show($id)
+    {
+        $booking = Booking::with('car', 'pembayaran')
+            ->where('id', $id)
+            ->where('user_id', Auth::id()) // Hanya pemilik booking yang bisa lihat
+            ->firstOrFail();
+
+        return view('booking.show', compact('booking'));
+    }
+
+    public function bookingsSaya()
+    {
+        $bookings = Booking::with('car')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return view('booking.saya', compact('bookings'));
     }
 }

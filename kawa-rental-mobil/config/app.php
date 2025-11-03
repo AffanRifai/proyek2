@@ -1,5 +1,6 @@
 <?php
 
+
 return [
 
     /*
@@ -52,7 +53,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://776ab14028a3.ngrok-free.app'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +124,20 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+
+    // 'providers' => [
+    //     App\Providers\MidtransServiceProvider::class,
+    // ],
+
+    // 'providers' => [
+    //     SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
+    // ],
+
+    'aliases' => [
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+    ]
+
 
 ];

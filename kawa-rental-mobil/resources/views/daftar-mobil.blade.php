@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Daftar Mobil - KAWA Car Rent</title>
-    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/landingpage.css') }}" />
     <!-- poppins -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
         rel="stylesheet">
@@ -89,7 +89,7 @@
     <section class="cars-container" aria-label="Daftar mobil tersedia" id="daftar-mobil">
         @if ($cars->count() > 0)
             @foreach ($cars as $car)
-                @if ($car->status == 'tersedia')
+                {{-- @if ($car->status == 'tersedia') --}}
                     <article class="car-card" data-merk="{{ strtolower($car->merk) }}"
                         data-transmisi="{{ strtolower($car->transmisi) }}" data-harga="{{ $car->biaya_harian }}"
                         aria-label="{{ $car->merk }} {{ $car->model }}, harga {{ number_format($car->biaya_harian, 0, ',', '.') }} per hari">
@@ -122,7 +122,7 @@
                             </button>
                         </a>
                     </article>
-                @endif
+                {{-- @endif --}}
             @endforeach
         @else
             <div class="no-cars">

@@ -5,7 +5,7 @@
     <nav>
         <ul>
             <li><a href="/landingpage">Beranda</a></li>
-            <li><a href="/DaftarMobil">Daftar Mobil</a></li>
+            <li><a href="/daftar-mobil">Daftar Mobil</a></li>
             <li><a href="/TentangKami">Tentang</a></li>
             @auth
                 <li><a href="#" {{ request()->is('pesanan*') ? 'active' : '' }}>Pesanan Anda</a></li>

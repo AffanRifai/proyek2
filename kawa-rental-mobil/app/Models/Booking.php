@@ -42,7 +42,13 @@ class Booking extends Model
         'denda_terlambat',
         'actual_sel_tgl',
         'keterangan_terlambat',
-        'status_mobil'
+        'status_mobil',
+        'status_pembayaran',
+        'jumlah_dp',
+        'sisa_pembayaran',
+        'total_dibayar',
+        'midtrans_order_id',
+        'tanggal_jatuh_tempo_pembayaran'
     ];
 
     protected $casts = [
@@ -52,7 +58,69 @@ class Booking extends Model
         'total_pembayaran' => 'decimal:2',
         'actual_sel_tgl' => 'date',
         'denda_terlambat' => 'decimal:2',
+        'jumlah_dp' => 'decimal:2',
+        'sisa_pembayaran' => 'decimal:2',
+        'total_dibayar' => 'decimal:2',
+        'tanggal_jatuh_tempo_pembayaran' => 'datetime'
     ];
+
+
+    // Relasi ke Pembayaran
+    public function pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class);
+    }
+
+    // Method untuk pembayaran DP
+    public function bayarDp($jumlah)
+    {
+        $this->update([
+            'jumlah_dp' => $jumlah,
+            'sisa_pembayaran' => $this->total_pembayaran - $jumlah,
+            'status_pembayaran' => 'dp_dibayar'
+        ]);
+    }
+
+    // Method untuk pelunasan
+    public function lunasi($jumlah)
+    {
+        $this->update([
+            'sisa_pembayaran' => 0,
+            'total_dibayar' => $this->total_dibayar + $jumlah,
+            'status_pembayaran' => 'lunas'
+        ]);
+    }
+
+    // Cek apakah sudah bayar DP
+    public function getSudahBayarDpAttribute()
+    {
+        return $this->status_pembayaran === 'dp_dibayar';
+    }
+
+    // Cek apakah sudah lunas
+    public function getSudahLunasAttribute()
+    {
+        return $this->status_pembayaran === 'lunas';
+    }
+
+    // Cek apakah punya tunggakan
+    public function getPunyaTunggakanAttribute()
+    {
+        return $this->sisa_pembayaran > 0 && $this->status_pembayaran === 'dp_dibayar';
+    }
+
+    // Accessor untuk badge status pembayaran
+    public function getBadgeStatusPembayaranAttribute()
+    {
+        $badges = [
+            'menunggu' => 'bg-yellow-100 text-yellow-800',
+            'dp_dibayar' => 'bg-blue-100 text-blue-800',
+            'lunas' => 'bg-green-100 text-green-800',
+            'tertunggak' => 'bg-red-100 text-red-800'
+        ];
+
+        return $badges[$this->status_pembayaran] ?? 'bg-gray-100 text-gray-800';
+    }
 
     // Scope untuk filter status
     public function scopePending($query)
