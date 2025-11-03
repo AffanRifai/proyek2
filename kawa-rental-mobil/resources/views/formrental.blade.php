@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Surat Perjanjian & Formulir Sewa - KAWA Car Rent</title>
-    <link rel="stylesheet" href="/kawa-rental-mobil/public/css/formrental.css">
+    <link rel="stylesheet" href="{{ asset('css/formrental.css')}}">
     <!-- poppins -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
     <!-- Montserrat -->
@@ -134,7 +134,7 @@
                                     <input id="mulai_tgl" name="mulai_tgl" type="date" onchange="calculateAll()" required>
                                 </div>
                                 <div>
-                                    <label>Mulai Pukul (opsional)</label>
+                                    <label>Mulai Pukul</label>
                                     <input id="mulai_pkl" name="mulai_pkl" type="time">
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
                                     <input id="sel_tgl" name="sel_tgl" type="date" readonly>
                                 </div>
                                 <div>
-                                    <label>Selesai Pukul (opsional)</label>
+                                    <label>Selesai Pukul</label>
                                     <input id="sel_pkl" name="sel_pkl" type="time">
                                 </div>
                                 <div>
@@ -165,7 +165,7 @@
                             <div class="two-col" style="margin-top:8px">
                                 <div>
                                     <label>Biaya per Hari (Rp)</label>
-                                    <input id="biaya_harian" name="biaya_harian" type="number" min="0" value="200000" readonly>
+                                    <input id="biaya_harian" name="biaya_harian" type="number" min="0" readonly>
                                 </div>
                             </div>
 

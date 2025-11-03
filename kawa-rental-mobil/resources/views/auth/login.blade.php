@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Kawa Rental Mobil</title>
+    {{-- sweet alert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
@@ -27,7 +29,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: url('{{asset('img/background-mobil.png')}}');
+            background-image: url('{{ asset('img/background-mobil.png') }}');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
@@ -78,7 +80,7 @@
         .input-group {
             margin-bottom: 25px;
         }
-        
+
         .input-group input {
             background: transparent;
             width: 100%;
@@ -86,8 +88,8 @@
             padding: 12px 15px;
             border: 2px solid rgba(255, 255, 255, 0.4);
             border-radius: 40px;
-            box-sizing: border-box;   
-            transition: border-color 0.3s ease;  
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
         }
 
         .input-group input::placeholder {
@@ -151,6 +153,31 @@
             background-color: var(--button-hover-color);
         }
 
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .social-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background-color: white;
+            font-size: 1rem;
+            font-weight: 550;
+            text-decoration: none
+        }
+
+        .social-btn img {
+            width: 40px;
+        }
+
         .link-group {
             margin-top: 20px;
         }
@@ -177,39 +204,85 @@
 <body>
     <div class="background"></div>
     <div class="login-container">
+        <h2>MASUK</h2>
+        <form action="/login" method="POST">
+            @csrf
 
-        @if (session('failed'))
-        <div class="alert-danger">{{ session('failed') }}</div>
-        @endif
-
-            <h2>LOGIN</h2>
-            <form action="/login" method="POST">
-                @csrf
-
-                @error('email')
+            @error('email')
                 <small class="error-message" style="color: red;">{{ $message }}</small>
-                @enderror
-                <div class="input-group">
-                    <input type="email" name="email" placeholder="masukan email">
-                </div>
-
-                @error('password')
-                <small class="error-message" style="color: red;">{{ $message }}</small>
-                @enderror
-                <div class="input-group">
-                    <input type="password" name="password" placeholder="Masukan sandi">
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" name="remember">
-                    <label for="remember-me" style="color: white;">Remember me?</label>
-                </div>
-                <button type="submit" class="btn-login">Login</button>
-            </form>
-            <div class="link-group">
-                <a href="#">Lupa kata sandi?</a>
-                <p style="color: white;">Belum punya akun? <a href="/register">Daftar</a></p>
+            @enderror
+            <div class="input-group">
+                <input type="email" name="email" placeholder="masukan email">
             </div>
+
+            @error('password')
+                <small class="error-message" style="color: red;">{{ $message }}</small>
+            @enderror
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Masukan sandi">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="remember">
+                <label for="remember-me" style="color: white;">Remember me?</label>
+            </div>
+            <button type="submit" class="btn-login">Masuk</button>
+        </form>
+
+        <p>- atau -</p>
+
+        <div class="social-buttons">
+            <a href="{{ route('google.login') }}" style="text-decoration: none;">
+                <div class="social-btn" style="color: black;">
+                    <img src="{{ asset('img/google.png') }}" alt="Google Logo">
+                    Masuk dengan Google
+                </div>
+            </a>
         </div>
+
+        <div class="link-group">
+            <a href="{{ route('password.request') }}">Lupa kata sandi?</a>
+            <p style="color: white;">Belum punya akun? <a href="/register">Daftar</a></p>
+        </div>
+    </div>
+    
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 2000
+            });
+        </script>
+    @endif
+
+    @if (session('failed'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: "{{ session('failed') }}",
+                showConfirmButton: true,
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#a62f19'
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Terjadi Kesalahan!',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonText: 'Perbaiki',
+                confirmButtonColor: '#a62f19'
+            });
+        </script>
+    @endif
+
 </body>
 
 </html>
