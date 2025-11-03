@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detail Mobil - {{ $car->merk }} {{ $car->model }} {{ $car->tahun }} - KAWA Car Rent</title>
-    <link rel="stylesheet" href="{{ asset('css/booking.css') }}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/booking.css') }}" />
     <!-- poppins -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
         rel="stylesheet">
