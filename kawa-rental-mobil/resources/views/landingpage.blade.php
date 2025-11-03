@@ -1,65 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layout.app')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rental Mobil Indramayu</title>
-    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}" />
-    <!-- poppins -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
-        rel="stylesheet">
-    <!-- Montserrat -->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,300,400,600,700&display=swap" rel="stylesheet">
-    <!-- Lato -->
-    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700&display=swap" rel="stylesheet">
-</head>
+@section('title', 'Beranda - KAWA Rental Mobil')
 
-<body>
-    <!-- Navbar -->
-    <header>
-        <a href="#" class="logo">
-            <img src="{{ asset('img/logo-kawa.png') }}" alt="logo kawa rental mobil" />
-        </a>
-        <nav>
-            <ul>
-                <li><a href="/landingpage">Beranda</a></li>
-                <li><a href="/DaftarMobil">Daftar Mobil</a></li>
-                <li><a href="/TentangKami">Kontak</a></li>
-                <li><a href="/TentangKami">Tentang</a></li>
-                <li class="search-container">
-                    <input type="search" placeholder="Search" aria-label="Cari" />
-                </li>
-                <li>
-                    @if (Auth::check())
-                        <!-- Kalau user sudah login -->
-                        <div class="dropdown">
-                            <button class="btn btn-outline-primary dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ Auth::user()->name }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('profile') }}">Profil</a></li>
-                                <li><a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        Logout
-                                    </a></li>
-                            </ul>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        </div>
-                    @else
-                        <!-- Kalau belum login -->
-                        <a href="{{ route('login') }}" class="login-btn">Login</a>
-                    @endif
-
-                    {{-- <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a> --}}
-                </li>
-            </ul>
-        </nav>
-    </header>
-
+@section('content')
     <!-- Banner Section -->
     <section class="banner" aria-label="Rental mobil cepat dan aman">
         <img src="{{ asset('img/kawa-banner.png') }}" alt="banner kawa rental mobil" />
@@ -235,46 +178,4 @@
     <a href="https://wa.me/62812345678910" class="wa-float" target="_blank" aria-label="Chat WhatsApp">
         <img src="{{ asset('/img/whatsapp.png') }}" alt="WhatsApp" />
     </a>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-container">
-            <div class="footer-col">
-                <a href="#" class="footer-logo" aria-label="Rental Mobil Indramayu">
-                    <img src="{{ asset('img/logo-kawa-stroke2.png') }}" alt="logo kawa rental mobil" />
-                </a>
-                <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a
-                        href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer"
-                        style="color:#00b894;">www.polindra.ac.id</a></small>
-            </div>
-            <div class="footer-col">
-                <h4>Media Sosial</h4>
-                <div class="social-icons" role="navigation" aria-label="Media sosial">
-                    <a href="#"><img src="{{ asset('/img/instagram-icon.png') }}" alt="Instagram"
-                            style="width:30px"></a>
-                    <a href="#"><img src="{{ asset('/img/Facebook.png') }}" alt="facebook"
-                            style="width:30px">
-                    </a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Kontak</h4>
-                <div class="contact-info">
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Alamat</h4>
-                <address>
-                    Jl. Raya Lohbener No.08,<br />
-                    Lohbener, Kec. Indramayu,<br />
-                    Kabupaten Indramayu, Jawa Barat 45252
-                </address>
-            </div>
-        </div>
-    </footer>
-</body>
-
-</html>
+@endsection
