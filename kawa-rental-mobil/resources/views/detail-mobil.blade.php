@@ -1,46 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layout.app')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detail Mobil - {{ $car->merk }} {{ $car->model }} {{ $car->tahun }} - KAWA Car Rent</title>
-    <link rel="stylesheet" href="{{ secure_asset('css/booking.css') }}" />
-    <!-- poppins -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
-        rel="stylesheet">
-    <!-- Montserrat -->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,300,400,600,700&display=swap" rel="stylesheet">
-    <!-- Lato -->
-    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700&display=swap" rel="stylesheet">
-</head>
+@section('title', 'Beranda - KAWA Rental Mobil')
 
-<body>
-    <!-- Navbar -->
-    <header>
-        <a href="/" class="logo">
-            <img src="{{ asset('img/logo-kawa.png') }}" alt="logo kawa rental mobil" />
-        </a>
-        <nav>
-            <ul>
-                <li><a href="/landingpage">Beranda</a></li>
-                <li><a href="/DaftarMobil">Daftar Mobil</a></li>
-                <li><a href="/TentangKami">Kontak</a></li>
-                <li><a href="/TentangKami">Tentang</a></li>
-                <li class="search-container">
-                    <input type="search" placeholder="Search" aria-label="Cari" />
-                </li>
-                <li>
-                    @auth
-                        <a href="/dashboard"><button class="login-btn" aria-label="Dashboard">Dashboard</button></a>
-                    @else
-                        <a href="/login"><button class="login-btn" aria-label="Login">Login</button></a>
-                    @endauth
-                </li>
-            </ul>
-        </nav>
-    </header>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/booking.css') }}">
+@endpush
 
+@section('content')
     <!-- Status Alert -->
     @if($car->status != 'tersedia')
         <div class="status-alert {{ $car->status }}">
@@ -64,6 +30,7 @@
             
             <div class="car-info" aria-labelledby="carTitle">
                 <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
+                <h1>halo</h1>
 
                 <!-- Status Badge -->
                 <div class="status-badge {{ $car->status }}">
@@ -248,44 +215,4 @@
         });
     </script>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-container">
-            <div class="footer-col">
-                <a href="/" class="footer-logo" aria-label="Rental Mobil Indramayu">
-                    <img src="{{ asset('img/logo-kawa-stroke2.png') }}" alt="logo kawa rental mobil" />
-                </a>
-                <small>©2025 KAWA Rental mobil Indramayu All Rights Reserved. Published by <a
-                        href="http://www.polindra.ac.id" target="_blank" rel="noopener noreferrer"
-                        style="color:#00b894;">www.polindra.ac.id</a></small>
-            </div>
-            <div class="footer-col">
-                <h4>Media Sosial</h4>
-                <div class="social-icons" role="navigation" aria-label="Media sosial">
-                    <a href="#"><img src="{{ asset('img/instagram-icon.png') }}" alt="Instagram"
-                            style="width:24px"></a>
-                    <a href="#"><img src="{{ asset('img/fb.png') }}" alt="Facebook"
-                            style="width:24px"></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Kontak</h4>
-                <div class="contact-info">
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                    <div>+62 1234 5678 910</div>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Alamat</h4>
-                <address>
-                    Jl. Raya Lohbener No.08,<br />
-                    Lohbener, Kec. Indramayu,<br />
-                    Kabupaten Indramayu, Jawa Barat 45252
-                </address>
-            </div>
-        </div>
-    </footer>
-</body>
-
-</html>
+@endsection

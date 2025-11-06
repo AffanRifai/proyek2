@@ -24,9 +24,9 @@ Route::get('/', function () {
     return view('landingpage');
 })->name('home');
 
-Route::get('/landingpage', function () {
-    return view('landingpage');
-})->name('landingpage');
+// Route::get('/landingpage', function () {
+//     return view('landingpage');
+// })->name('landingpage');
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;

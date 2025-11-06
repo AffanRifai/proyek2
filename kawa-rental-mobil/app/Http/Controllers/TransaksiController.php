@@ -71,21 +71,43 @@ class TransaksiController extends Controller
     {
         $pembayaran = \App\Models\Pembayaran::with('booking.car')->findOrFail($id);
 
-        // QR Code berisi link verifikasi (contoh)
-        $qrcode = \QrCode::size(100)->generate(url('/transaksi/' . $pembayaran->id . '/nota'));
+        // QR Code dalam bentuk base64 PNG agar tampil juga di PDF
+        $qrcode = base64_encode(
+            QrCode::format('png')
+                ->size(200)
+                ->errorCorrection('H')
+                ->generate($data)
+        );
 
-        return view('transaksi.nota', compact('pembayaran', 'qrcode'));
+        return view('transaksi.nota-pdf', compact('transaksi', 'qrcode'));
     }
+
 
     public function downloadNotaPDF($id)
     {
-        $pembayaran = \App\Models\Pembayaran::with('booking.car')->findOrFail($id);
+        $transaksi = Pembayaran::with(['booking.car', 'booking.user'])->findOrFail($id);
 
-        $qrcode = \QrCode::size(100)->generate(url('/transaksi/' . $pembayaran->id . '/nota'));
+        // isi QR code dengan informasi penting
+        $data = 'Kode Booking: ' . $transaksi->booking->kode_booking . "\n" .
+            'Nama: ' . $transaksi->booking->user->name . "\n" .
+            'Mobil: ' . $transaksi->booking->car->nama_mobil . "\n" .
+            'Total: Rp' . number_format($transaksi->jumlah_bayar, 0, ',', '.');
 
-        $pdf = Pdf::loadView('transaksi.nota-pdf', compact('pembayaran', 'qrcode'))->setPaper('A4', 'portrait');
+        // generate QR base64 (tanpa imagick)
+        $qrcode = base64_encode(
+            \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                ->size(200)
+                ->errorCorrection('H')
+                ->generate($data)
+        );
 
-        $fileName = 'Nota-' . $pembayaran->booking->id_transaksi . '.pdf';
-        return $pdf->download($fileName);
+        // kirim ke view pdf
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('transaksi.nota-pdf', [
+            'pembayaran' => $transaksi,
+            'transaksi' => $transaksi,
+            'qrcode' => $qrcode
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('Nota_' . $transaksi->booking->id_transaksi . '.pdf');
     }
 }

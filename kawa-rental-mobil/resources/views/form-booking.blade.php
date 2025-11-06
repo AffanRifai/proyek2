@@ -1,16 +1,12 @@
-<!doctype html>
-<html lang="id">
+@extends('layout.app')
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Formulir Sewa Mobil - {{ $car->merk }} {{ $car->model }} - KAWA Car Rent</title>
-    <link rel="stylesheet" href="{{ secure_asset('css/formrental.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
+@section('title', 'Beranda - KAWA Rental Mobil')
 
-<body>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/formrental.css') }}">
+@endpush
+
+@section('content')
     <div class="wrap">
         <!-- Header dengan Navigation -->
         <header class="form-header">
@@ -91,8 +87,7 @@
                             <h3><span class="step-number">2</span> DATA KENDARAAN</h3>
                             <div class="car-info-display">
                                 <div class="car-image-small">
-                                    <img src="{{ asset($car->gambar) }}"
-                                        alt="{{ $car->merk }} {{ $car->model }}" />
+                                    <img src="{{ asset($car->gambar) }}" alt="{{ $car->merk }} {{ $car->model }}" />
                                 </div>
                             </div>
 
@@ -152,14 +147,13 @@
                             <div class="three-col">
                                 <div class="form-group">
                                     <label for="sel_tgl">Selesai Sewa (tgl) *</label>
-                                    <input id="sel_tgl" name="sel_tgl" type="date"
-                                        value="{{ old('sel_tgl') }}" required>
+                                    <input id="sel_tgl" name="sel_tgl" type="date" value="{{ old('sel_tgl') }}"
+                                        required>
                                     <small class="error-message" id="sel_tgl_error"></small>
                                 </div>
                                 <div class="form-group">
                                     <label for="sel_pkl">Selesai Pukul *</label>
-                                    <input id="sel_pkl" name="sel_pkl" type="time"
-                                        value="{{ old('sel_pkl')}}">
+                                    <input id="sel_pkl" name="sel_pkl" type="time" value="{{ old('sel_pkl') }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="lama_hari">Lama Sewa (hari) *</label>
@@ -192,8 +186,8 @@
                                         <option value="kartu_pelajar"
                                             {{ old('bentuk_jaminan') == 'kartu_pelajar' ? 'selected' : '' }}>Kartu
                                             Pelajar/Mahasiswa</option>
-                                        <option value="lain"
-                                            {{ old('bentuk_jaminan') == 'lain' ? 'selected' : '' }}>Lainnya</option>
+                                        <option value="lain" {{ old('bentuk_jaminan') == 'lain' ? 'selected' : '' }}>
+                                            Lainnya</option>
                                     </select>
                                     <small class="error-message" id="jaminan_error"></small>
                                 </div>
@@ -249,8 +243,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="file_jaminan">File Jaminan *</label>
-                                    <input type="file" name="file_jaminan" accept="image/*,.pdf"
-                                        id="file_jaminan" required>
+                                    <input type="file" name="file_jaminan" accept="image/*,.pdf" id="file_jaminan"
+                                        required>
                                     <div class="file-preview" id="preview_jaminan"></div>
                                     <small class="error-message" id="jaminan_file_error"></small>
                                     <small class="file-info" id="jaminan_info">SIM, STNK, KK, dll sesuai pilihan
@@ -261,8 +255,7 @@
                             <!-- STNK Motor additional field (jika memilih STNK sebagai jaminan) -->
                             <div class="form-group" id="stnk_motor_field" style="display: none;">
                                 <label for="file_stnk_motor">Foto STNK Motor (Tambahan) *</label>
-                                <input type="file" name="file_stnk_motor" accept="image/*,.pdf"
-                                    id="file_stnk_motor">
+                                <input type="file" name="file_stnk_motor" accept="image/*,.pdf" id="file_stnk_motor">
                                 <div class="file-preview" id="preview_stnk"></div>
                                 <small class="error-message" id="stnk_error"></small>
                                 <small class="file-info">Wajib diisi jika memilih STNK Motor sebagai jaminan</small>
@@ -574,6 +567,5 @@
             toggleSTNKField();
         });
     </script>
-</body>
 
-</html>
+@endsection
