@@ -393,7 +393,7 @@ Route::get('/callback-monitor', function () {
     if (file_exists($logFile)) {
         $content = file_get_contents($logFile);
         // Ambil log terkait callback
-        preg_match_all('/.*MIDTRANS CALLBACK.*/i', $content, $matches);
+        preg_match_all('/.MIDTRANS CALLBACK./i', $content, $matches);
         $logs = array_slice($matches[0], -10); // 10 log terakhir
     }
 

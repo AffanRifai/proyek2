@@ -2,7 +2,9 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log; // ← tambahkan ini
 use Midtrans\Config;
+use Midtrans\Snap;
 
 class MidtransHelper
 {
