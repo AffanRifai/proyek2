@@ -2,7 +2,9 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log; // ← tambahkan ini
 use Midtrans\Config;
+use Midtrans\Snap;
 
 class MidtransHelper
 {
@@ -12,12 +14,6 @@ class MidtransHelper
         if (!class_exists('Midtrans\Config')) {
             throw new \Exception('Midtrans package tidak terinstall');
         }
-
-        \Log::info('Initializing Midtrans with config:', [
-            'server_key' => config('midtrans.server_key'),
-            'is_production' => config('midtrans.is_production'),
-            'callback_url' => config('midtrans.callback_url')
-        ]);
 
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production', false);
