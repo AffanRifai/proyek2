@@ -39,7 +39,7 @@
 
             <div class="car-info" aria-labelledby="carTitle">
                 <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
-                
+
 
                 <!-- Status Badge -->
                 <div class="status-badge {{ $car->status }}">
@@ -113,11 +113,7 @@
                 <div class="quick-contact">
                     <p>Butuh bantuan? Hubungi kami:</p>
                     <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}"
-<<<<<<< HEAD
                         class="whatsapp-contact" target="_blank">
-=======
-                       class="whatsapp-contact" target="_blank">
->>>>>>> 89d8bf9e693a9715e6eb060b16b851f3bf93a636
                         <img src="{{ asset('img/whatsapp.png') }}" alt="WhatsApp" style="width: 20px; margin-right: 8px;">
                         Chat via WhatsApp
                     </a>
