@@ -2,6 +2,10 @@
 
 @section('title', 'Beranda - KAWA Rental Mobil')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
+@endpush
+
 @section('content')
     <!-- Banner Section -->
     <section class="banner" aria-label="Rental mobil cepat dan aman">
@@ -104,7 +108,7 @@
             <h1>RENTAL</h1>
             <h4>Mobil terpopuler Indramayu</h4>
             <p>Booking sekarang juga dan dapatkan harga spesial untuk Anda!</p>
-            <a href="/DaftarMobil" class="btn">LIHAT MOBIL</a>
+            <a href="/daftar-mobil" class="btn">LIHAT MOBIL</a>
         </div>
     </section>
 
@@ -149,7 +153,7 @@
 
     </section>
 
-    <a href="/DaftarMobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya
+    <a href="/daftar-mobil"><button class="btn-load-more" type="button" aria-label="Selengkapnya">Selengkapnya
             &gt;&gt;&gt;</button></a>
     </div>
 

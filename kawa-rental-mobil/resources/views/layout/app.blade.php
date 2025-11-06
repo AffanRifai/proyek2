@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@yield('title', 'KAWA kawa Mobil')</title>
 
-    <link rel="stylesheet" href="{{ secure_asset('css/landingpage.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/global.css') }}">
+
+    @stack('styles')
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700,800&display=swap" rel="stylesheet">
@@ -14,9 +16,12 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
+
 
 <body>
     {{-- Navbar --}}
