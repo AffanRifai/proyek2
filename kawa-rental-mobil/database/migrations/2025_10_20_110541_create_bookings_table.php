@@ -42,8 +42,8 @@ return new class extends Migration {
             $table->decimal('sisa_pembayaran', 12, 2)->default(0)->change();
             $table->decimal('total_dibayar', 12, 2)->default(0)->change();
             $table->enum('status_pembayaran', ['menunggu', 'dp_dibayar', 'lunas', 'tertunggak'])->default('menunggu')->change();
-            $table->string('midtrans_order_id')->nullable()->after('total_dibayar');
-            $table->timestamp('tanggal_jatuh_tempo_pembayaran')->nullable()->after('midtrans_order_id');
+            $table->string('midtrans_order_id')->nullable();
+            $table->timestamp('tanggal_jatuh_tempo_pembayaran')->nullable();
             $table->timestamps();
         });
     }
