@@ -640,3 +640,88 @@
             transform: translateY(0);
         }
     }
+    /* === Tambahan penting untuk fungsi tab === */
+    .tab-content {
+        display: none; /* Semua tab disembunyikan dulu */
+    }
+
+    .tab-content.active {
+        display: block; /* Hanya tab aktif yang ditampilkan */
+    }
+    /* ===== RAPIKAN ISI TAB ===== */
+.tab-content {
+    display: none;
+    padding: 20px 25px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    line-height: 1.8;
+    color: #333;
+    font-size: 15px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Buat jarak antar paragraf dan list */
+.tab-content p {
+    margin-bottom: 12px;
+}
+
+.tab-content ul {
+    margin: 10px 0 10px 25px;
+    list-style-type: disc;
+}
+
+.tab-content li {
+    margin-bottom: 6px;
+}
+
+/* Heading dalam tab (kalau ada subjudul) */
+.tab-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 18px;
+    color: #A62F19;
+}
+
+/* Responsif di layar kecil */
+@media (max-width: 768px) {
+    .tab-content {
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+
+
+    /* Optional: biar isi tab kelihatan lebih rapi */
+    .tab-content p,
+    .tab-content ul {
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    .tab-content ul {
+        list-style: disc;
+        padding-left: 20px;
+    }
+
+    /* Perbaikan responsif */
+    @media (max-width: 768px) {
+        .tabs {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .tab-button {
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            border-left: 3px solid transparent;
+            border-bottom: none;
+        }
+        .tab-button.active {
+            border-left-color: #A62F19;
+        }
+    }
