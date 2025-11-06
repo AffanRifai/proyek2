@@ -1,0 +1,458 @@
+/* ==============================
+   STYLING HALAMAN TENTANG KAMI
+   Seragam dengan gaya Beranda
+============================== */
+
+/* Bagian Selamat Datang / Tentang Kami */
+.welcome {
+  width: 100%;
+  padding: 90px 10%;
+  background-color: #fff;
+  color: #333;
+}
+
+.welcome h2 {
+  text-align: center;
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #000;
+}
+
+.welcome-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.welcome-left {
+  flex: 1 1 40%;
+  text-align: center;
+}
+
+.welcome-left img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 10px;
+}
+
+.welcome-right {
+  flex: 1 1 50%;
+  font-size: 1.05rem;
+  color: #333;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.welcome-right strong {
+  color: #000;
+}
+
+/* ==============================
+   Bagian Kontak & Sosial Media
+============================== */
+#kontak {
+  background: linear-gradient(180deg, #fff, #f7f7f7);
+  padding: 80px 8%;
+}
+
+#kontak h2 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 2rem;
+  margin-bottom: 50px;
+  font-weight: 700;
+}
+
+#kontak .kontak-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+}
+
+#kontak .card-kontak {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  padding: 30px;
+  flex: 1 1 40%;
+  min-width: 340px;
+}
+
+#kontak .card-kontak h3 {
+  text-align: center;
+  color: #A62F19;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+#kontak a.btn-wa {
+  display: inline-block;
+  background: #25D366;
+  color: #fff;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+#kontak a.btn-wa:hover {
+  background: #1EBE5B;
+  transform: translateY(-3px);
+}
+
+/* ==============================
+   Bagian Lokasi (Google Maps)
+============================== */
+#lokasi {
+  padding: 80px 8%;
+  background: #fff;
+}
+
+#lokasi h2 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.map-container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ==============================
+   Responsive (HP & Tablet)
+============================== */
+@media (max-width: 992px) {
+  .welcome {
+    padding: 60px 6%;
+  }
+
+  .welcome-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcome-right {
+    text-align: justify;
+  }
+
+  #kontak {
+    padding: 60px 6%;
+  }
+
+  #lokasi {
+    padding: 60px 6%;
+  }
+}
+
+/* ==========================
+   HUBUNGI KAMI & INSTAGRAM
+========================== */
+
+#kontak {
+  background: linear-gradient(180deg, #fff, #f7f7f7);
+  padding: 80px 8%;
+}
+
+#kontak h2 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 2rem;
+  margin-bottom: 60px;
+  font-weight: 700;
+}
+
+.kontak-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 30px 35px;
+  flex: 1 1 45%;
+  min-width: 350px;
+}
+
+.card h3 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.divider {
+  border-top: 2px solid #A62F19;
+  width: 60px;
+  margin: 0 auto 25px;
+}
+
+.card p {
+  color: #333;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.card a {
+  color: #A62F19;
+  text-decoration: none;
+}
+
+.btn-wa {
+  display: inline-block;
+  background: #25D366;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.btn-wa:hover {
+  background: #1EBE5B;
+  transform: translateY(-2px);
+}
+
+.card-ig {
+  text-align: center;
+}
+
+.card-ig h3 a {
+  color: #A62F19;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.card-ig .ig-icon {
+  width: 26px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.embed-container iframe {
+  width: 100%;
+  height: 700px;
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-detail,
+.btn-follow {
+  border: none;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #fff;
+  transition: 0.3s;
+}
+
+.btn-detail {
+  background: #333;
+}
+
+.btn-detail:hover {
+  background: #555;
+  transform: translateY(-2px);
+}
+
+.btn-follow {
+  background: #2D9CDB;
+}
+
+.btn-follow:hover {
+  background: #1B7FCA;
+  transform: translateY(-2px);
+}
+
+.btn-follow img {
+  width: 20px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .kontak-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+  .embed-container iframe {
+    height: 550px;
+  }
+}
+
+/* ==========================
+   HUBUNGI KAMI & INSTAGRAM
+========================== */
+
+#kontak {
+  background: linear-gradient(180deg, #fff, #f7f7f7);
+  padding: 80px 8%;
+}
+
+#kontak h2 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 2rem;
+  margin-bottom: 50px;
+  font-weight: 700;
+}
+
+#kontak .card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 30px 35px;
+  margin-bottom: 50px;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card h3 {
+  text-align: center;
+  color: #A62F19;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.divider {
+  border-top: 2px solid #A62F19;
+  width: 60px;
+  margin: 0 auto 25px;
+}
+
+.card p {
+  color: #333;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.card a {
+  color: #A62F19;
+  text-decoration: none;
+}
+
+.btn-wa {
+  display: inline-block;
+  background: #25D366;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.btn-wa:hover {
+  background: #1EBE5B;
+  transform: translateY(-2px);
+}
+
+/* Instagram Section */
+.card-ig {
+  text-align: center;
+}
+
+.card-ig h3 a {
+  color: #A62F19;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.card-ig .ig-icon {
+  width: 26px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.embed-container iframe {
+  width: 100%;
+  height: 700px;
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-detail,
+.btn-follow {
+  border: none;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #fff;
+  transition: 0.3s;
+}
+
+.btn-detail {
+  background: #333;
+}
+
+.btn-detail:hover {
+  background: #555;
+  transform: translateY(-2px);
+}
+
+.btn-follow {
+  background: #2D9CDB;
+}
+
+.btn-follow:hover {
+  background: #1B7FCA;
+  transform: translateY(-2px);
+}
+
+.btn-follow img {
+  width: 20px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #kontak {
+    padding: 60px 5%;
+  }
+  .embed-container iframe {
+    height: 550px;
+  }
+}
