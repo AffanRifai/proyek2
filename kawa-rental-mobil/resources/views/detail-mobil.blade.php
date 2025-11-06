@@ -11,7 +11,11 @@
     @if ($car->status != 'tersedia')
         <div class="status-alert {{ $car->status }}">
             <strong>Perhatian:</strong> Mobil saat ini
+<<<<<<< HEAD
             @if ($car->status == 'disewa')
+=======
+            @if($car->status == 'disewa')
+>>>>>>> 89d8bf9e693a9715e6eb060b16b851f3bf93a636
                 sedang disewa
             @else
                 dalam perawatan
@@ -23,13 +27,19 @@
     <main>
         <section class="product-detail" aria-label="Detail mobil {{ $car->merk }} {{ $car->model }}">
             <div class="car-image">
+<<<<<<< HEAD
                 <img src="{{ asset($car->gambar) }}" alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
                     onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+=======
+                <img src="{{ asset($car->gambar) }}"
+                     alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
+                     onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+>>>>>>> 89d8bf9e693a9715e6eb060b16b851f3bf93a636
             </div>
 
             <div class="car-info" aria-labelledby="carTitle">
                 <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
-                <h1>halo</h1>
+                
 
                 <!-- Status Badge -->
                 <div class="status-badge {{ $car->status }}">
@@ -103,7 +113,11 @@
                 <div class="quick-contact">
                     <p>Butuh bantuan? Hubungi kami:</p>
                     <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}"
+<<<<<<< HEAD
                         class="whatsapp-contact" target="_blank">
+=======
+                       class="whatsapp-contact" target="_blank">
+>>>>>>> 89d8bf9e693a9715e6eb060b16b851f3bf93a636
                         <img src="{{ asset('img/whatsapp.png') }}" alt="WhatsApp" style="width: 20px; margin-right: 8px;">
                         Chat via WhatsApp
                     </a>
@@ -157,8 +171,14 @@
 
             @foreach ($relatedCars as $relatedCar)
                 <article class="car-card" aria-label="{{ $relatedCar->merk }} {{ $relatedCar->model }}">
+<<<<<<< HEAD
                     <img src="{{ asset($relatedCar->gambar) }}" alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
                         onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+=======
+                    <img src="{{ asset($relatedCar->gambar) }}"
+                         alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
+                         onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+>>>>>>> 89d8bf9e693a9715e6eb060b16b851f3bf93a636
                     <h3>{{ $relatedCar->merk }} {{ $relatedCar->model }}</h3>
                     <div class="price">Rp{{ number_format($relatedCar->biaya_harian, 0, ',', '.') }}/hari</div>
                     <div class="details">
