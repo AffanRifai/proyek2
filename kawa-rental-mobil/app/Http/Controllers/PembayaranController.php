@@ -234,7 +234,7 @@ class PembayaranController extends Controller
             // Tampilkan halaman sukses
             return view('pembayaran.sukses', compact('pembayaran', 'booking', 'user'));
         } catch (\Exception $e) {
-            \Log::error('Error di PembayaranController@sukses: ' . $e->getMessage());
+            Log::error('Error di PembayaranController@sukses: ' . $e->getMessage());
             return redirect()->route('home')->with('error', 'Terjadi kesalahan saat memuat status pembayaran.');
         }
     }

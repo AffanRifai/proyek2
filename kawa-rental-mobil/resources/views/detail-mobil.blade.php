@@ -8,10 +8,10 @@
 
 @section('content')
     <!-- Status Alert -->
-    @if($car->status != 'tersedia')
+    @if ($car->status != 'tersedia')
         <div class="status-alert {{ $car->status }}">
-            <strong>Perhatian:</strong> Mobil saat ini 
-            @if($car->status == 'disewa')
+            <strong>Perhatian:</strong> Mobil saat ini
+            @if ($car->status == 'disewa')
                 sedang disewa
             @else
                 dalam perawatan
@@ -23,11 +23,10 @@
     <main>
         <section class="product-detail" aria-label="Detail mobil {{ $car->merk }} {{ $car->model }}">
             <div class="car-image">
-                <img src="{{ asset($car->gambar) }}" 
-                     alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
-                     onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+                <img src="{{ asset($car->gambar) }}" alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
+                    onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
             </div>
-            
+
             <div class="car-info" aria-labelledby="carTitle">
                 <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
                 <h1>halo</h1>
@@ -40,25 +39,25 @@
                 <div class="meta-icons" aria-label="Spesifikasi utama mobil">
                     <span>
                         <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="none" stroke-width="2"/>
+                            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="none" stroke-width="2" />
                         </svg>
                         {{ ucfirst($car->transmisi ?? 'Manual') }}
                     </span>
                     <span>
                         <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2"/>
+                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2" />
                         </svg>
                         {{ $car->tahun }}
                     </span>
                     <span>
                         <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2"/>
+                            <path d="M17 8h1a4 4 0 110 8h-1M3 8h10v8H3z" fill="none" stroke-width="2" />
                         </svg>
                         {{ $car->kapasitas_penumpang }} Penumpang
                     </span>
                     <span>
                         <svg viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10" fill="none" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="10" fill="none" stroke-width="2" />
                         </svg>
                         {{ $car->warna ?? 'Various' }}
                     </span>
@@ -79,17 +78,17 @@
                     <span class="price-label">Harga Sewa</span><br>
                     <strong id="priceDisplay" class="price-amount">
                         Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}
-                    </strong> 
+                    </strong>
                     <span class="price-period">/ hari</span>
                 </div>
 
-                @if($car->status == 'tersedia')
+                @if ($car->status == 'tersedia')
                     <a href="{{ route('form.booking', $car->id) }}" class="rent-button">
                         Sewa Sekarang
                     </a>
                 @else
                     <button class="rent-button disabled" disabled>
-                        @if($car->status == 'disewa')
+                        @if ($car->status == 'disewa')
                             Sedang Disewa
                         @else
                             Dalam Perawatan
@@ -103,8 +102,8 @@
                 <!-- Quick Contact -->
                 <div class="quick-contact">
                     <p>Butuh bantuan? Hubungi kami:</p>
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}" 
-                       class="whatsapp-contact" target="_blank">
+                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}"
+                        class="whatsapp-contact" target="_blank">
                         <img src="{{ asset('img/whatsapp.png') }}" alt="WhatsApp" style="width: 20px; margin-right: 8px;">
                         Chat via WhatsApp
                     </a>
@@ -124,7 +123,7 @@
 
         <!-- Isi Konten Tab -->
         <div id="deskripsi" class="tab-content active">
-            <div style="white-space: pre-line;">{{ $car->deskripsi}}</div>
+            <div style="white-space: pre-line;">{{ $car->deskripsi }}</div>
         </div>
 
         <div id="fasilitas" class="tab-content">
@@ -156,15 +155,14 @@
                     ->get();
             @endphp
 
-            @foreach($relatedCars as $relatedCar)
+            @foreach ($relatedCars as $relatedCar)
                 <article class="car-card" aria-label="{{ $relatedCar->merk }} {{ $relatedCar->model }}">
-                    <img src="{{ asset($relatedCar->gambar) }}" 
-                         alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
-                         onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+                    <img src="{{ asset($relatedCar->gambar) }}" alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
+                        onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
                     <h3>{{ $relatedCar->merk }} {{ $relatedCar->model }}</h3>
                     <div class="price">Rp{{ number_format($relatedCar->biaya_harian, 0, ',', '.') }}/hari</div>
                     <div class="details">
-                        <div><span>Transmisi</span><span>{{ ucfirst($relatedCar->transmisi)}}</span></div>
+                        <div><span>Transmisi</span><span>{{ ucfirst($relatedCar->transmisi) }}</span></div>
                         <div><span>Kapasitas</span><span>{{ $relatedCar->kapasitas_penumpang }} Penumpang</span></div>
                     </div>
                     <a href="{{ route('detail.mobil', $relatedCar->id) }}">
@@ -211,7 +209,9 @@
 
         // Initialize first tab as active
         document.addEventListener('DOMContentLoaded', function() {
-            openTab(event, 'deskripsi');
+            // Aktifkan tab deskripsi secara default
+            const defaultTab = document.getElementById('deskripsi');
+            if (defaultTab) defaultTab.classList.add('active');
         });
     </script>
 
