@@ -10,7 +10,7 @@
     <!-- Status Alert -->
     @if($car->status != 'tersedia')
         <div class="status-alert {{ $car->status }}">
-            <strong>Perhatian:</strong> Mobil saat ini 
+            <strong>Perhatian:</strong> Mobil saat ini
             @if($car->status == 'disewa')
                 sedang disewa
             @else
@@ -23,14 +23,14 @@
     <main>
         <section class="product-detail" aria-label="Detail mobil {{ $car->merk }} {{ $car->model }}">
             <div class="car-image">
-                <img src="{{ asset($car->gambar) }}" 
+                <img src="{{ asset($car->gambar) }}"
                      alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
                      onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
             </div>
-            
+
             <div class="car-info" aria-labelledby="carTitle">
                 <h1 id="carTitle">{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}</h1>
-                <h1>halo</h1>
+                
 
                 <!-- Status Badge -->
                 <div class="status-badge {{ $car->status }}">
@@ -79,7 +79,7 @@
                     <span class="price-label">Harga Sewa</span><br>
                     <strong id="priceDisplay" class="price-amount">
                         Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}
-                    </strong> 
+                    </strong>
                     <span class="price-period">/ hari</span>
                 </div>
 
@@ -103,7 +103,7 @@
                 <!-- Quick Contact -->
                 <div class="quick-contact">
                     <p>Butuh bantuan? Hubungi kami:</p>
-                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}" 
+                    <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20{{ $car->merk }}%20{{ $car->model }}"
                        class="whatsapp-contact" target="_blank">
                         <img src="{{ asset('img/whatsapp.png') }}" alt="WhatsApp" style="width: 20px; margin-right: 8px;">
                         Chat via WhatsApp
@@ -158,7 +158,7 @@
 
             @foreach($relatedCars as $relatedCar)
                 <article class="car-card" aria-label="{{ $relatedCar->merk }} {{ $relatedCar->model }}">
-                    <img src="{{ asset($relatedCar->gambar) }}" 
+                    <img src="{{ asset($relatedCar->gambar) }}"
                          alt="{{ $relatedCar->merk }} {{ $relatedCar->model }}"
                          onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
                     <h3>{{ $relatedCar->merk }} {{ $relatedCar->model }}</h3>
