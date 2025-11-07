@@ -3,7 +3,7 @@
 @section('title', 'Beranda - KAWA Rental Mobil')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ secure_asset('css/landingpage.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
 @endpush
 
 @section('content')
