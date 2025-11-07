@@ -62,8 +62,8 @@ class AdminPaymentController extends Controller
         try {
             $payment = Pembayaran::findOrFail($id);
 
-            \Artisan::call('payment:sync', ['paymentId' => $id]);
-            $output = \Artisan::output();
+            Artisan::call('payment:sync', ['paymentId' => $id]);
+            $output = Artisan::output();
 
             return redirect()->route('admin.payments.show', $id)
                 ->with('success', 'Manual sync completed: ' . strip_tags($output));
@@ -144,7 +144,7 @@ class AdminPaymentController extends Controller
                 $successCount = 0;
                 foreach ($request->selected_payments as $paymentId) {
                     try {
-                        \Artisan::call('payment:sync', ['paymentId' => $paymentId]);
+                        Artisan::call('payment:sync', ['paymentId' => $paymentId]);
                         $successCount++;
                     } catch (\Exception $e) {
                         \Log::error("Bulk sync failed for payment {$paymentId}: " . $e->getMessage());
