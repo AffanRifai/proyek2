@@ -1,187 +1,182 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layout.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran - Sistem Rental Mobil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
+@section('title', 'Beranda - KAWA Rental Mobil')
 
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-2xl mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">Pembayaran {{ ucfirst(str_replace('_', ' ', $jenis)) }}
-                </h1>
-                <p class="text-gray-600 mt-2">Selesaikan pembayaran untuk melanjutkan proses booking</p>
-            </div>
+@section('content')
 
-            <!-- Ringkasan Booking -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 class="text-xl font-bold mb-4 text-gray-800">📋 Ringkasan Booking</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">ID Transaksi</label>
-                        <p class="font-semibold text-lg">{{ $booking->id_transaksi }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">Customer</label>
-                        <p class="font-semibold">{{ $booking->nama_penyewa }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">Mobil</label>
-                        <p class="font-semibold">{{ $booking->car->merk }} {{ $booking->car->model }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">Total Pembayaran</label>
-                        <p class="font-semibold text-green-600 text-lg">Rp {{ number_format($jumlah, 0, ',', '.') }}</p>
-                    </div>
+    <body class="bg-gray-100">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Pembayaran {{ ucfirst(str_replace('_', ' ', $jenis)) }}
+                    </h1>
+                    <p class="text-gray-600 mt-2">Selesaikan pembayaran untuk melanjutkan proses booking</p>
                 </div>
 
-                @if ($jenis == 'dp')
-                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                            <p class="text-blue-800 text-sm">
-                                <strong>Pembayaran DP (20%)</strong> wajib dilakukan secara online via Midtrans
-                            </p>
+                <!-- Ringkasan Booking -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">📋 Ringkasan Booking</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID Transaksi</label>
+                            <p class="font-semibold text-lg">{{ $booking->id_transaksi }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Customer</label>
+                            <p class="font-semibold">{{ $booking->nama_penyewa }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Mobil</label>
+                            <p class="font-semibold">{{ $booking->car->merk }} {{ $booking->car->model }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Total Pembayaran</label>
+                            <p class="font-semibold text-green-600 text-lg">Rp {{ number_format($jumlah, 0, ',', '.') }}</p>
                         </div>
                     </div>
-                @elseif($jenis == 'bayar_penuh')
-                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                            <p class="text-blue-800 text-sm">
-                                <strong>Pembayaran Penuh</strong> wajib dilakukan secara online via Midtrans
-                            </p>
-                        </div>
-                    </div>
-                @endif
-            </div>
 
-            <!-- Pilihan Metode Pembayaran -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-bold mb-6 text-gray-800">💳 Pilih Metode Pembayaran</h2>
-
-                <!-- Pembayaran Online -->
-                <div class="mb-8">
-                    <div class="flex items-center mb-4">
-                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-wifi text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-green-700">Bayar Online</h3>
-                    </div>
-
-                    <form action="{{ route('pembayaran.proses.online', $booking->id) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="jenis" value="{{ $jenis }}">
-                        <button type="submit"
-                            class="w-full bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center">
-                            <i class="fas fa-credit-card mr-3"></i>
-                            @if ($jenis == 'dp')
-                                Bayar DP via Midtrans
-                            @elseif($jenis == 'bayar_penuh')
-                                Bayar Penuh via Midtrans
-                            @elseif($jenis == 'pelunasan')
-                                Lunasi via Midtrans
-                            @elseif($jenis == 'denda')
-                                Bayar Denda via Midtrans
-                            @endif
-                        </button>
-                    </form>
-
-                    <div class="mt-3 text-sm text-gray-600">
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            <span>Konfirmasi instan</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            <span>Berbagai metode pembayaran tersedia</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pembayaran Offline (Hanya untuk pelunasan & denda) -->
-                @if (!$hanyaOnline)
-                    <div class="border-t pt-8">
-                        <div class="flex items-center mb-4">
-                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-store text-white text-sm"></i>
+                    @if ($jenis == 'dp')
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                <p class="text-blue-800 text-sm">
+                                    <strong>Pembayaran DP (20%)</strong> wajib dilakukan secara online via Midtrans
+                                </p>
                             </div>
-                            <h3 class="text-lg font-semibold text-blue-700">Bayar Offline</h3>
+                        </div>
+                    @elseif($jenis == 'bayar_penuh')
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                <p class="text-blue-800 text-sm">
+                                    <strong>Pembayaran Penuh</strong> wajib dilakukan secara online via Midtrans
+                                </p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Pilihan Metode Pembayaran -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800">💳 Pilih Metode Pembayaran</h2>
+
+                    <!-- Pembayaran Online -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-wifi text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-green-700">Bayar Online</h3>
                         </div>
 
-                        <form action="{{ route('pembayaran.proses.offline', $booking->id) }}" method="POST">
+                        <form action="{{ route('pembayaran.proses.online', $booking->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="jenis" value="{{ $jenis }}">
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-money-bill-wave mr-1"></i>Metode Pembayaran
-                                </label>
-                                <select name="metode_pembayaran"
-                                    class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    required>
-                                    <option value="cash">💵 Cash (Bayar di Tempat)</option>
-                                    <option value="transfer">🏦 Transfer Bank (Manual)</option>
-                                    <option value="qris">📱 QRIS (Scan QR di Tempat)</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-sticky-note mr-1"></i>Catatan untuk Admin (Optional)
-                                </label>
-                                <textarea name="catatan" rows="3"
-                                    class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Tambahkan catatan khusus untuk admin..."></textarea>
-                            </div>
-
                             <button type="submit"
-                                class="w-full bg-blue-500 text-white py-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
-                                <i class="fas fa-paper-plane mr-3"></i>
-                                Ajukan Pembayaran Offline
+                                class="w-full bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center">
+                                <i class="fas fa-credit-card mr-3"></i>
+                                @if ($jenis == 'dp')
+                                    Bayar DP via Midtrans
+                                @elseif($jenis == 'bayar_penuh')
+                                    Bayar Penuh via Midtrans
+                                @elseif($jenis == 'pelunasan')
+                                    Lunasi via Midtrans
+                                @elseif($jenis == 'denda')
+                                    Bayar Denda via Midtrans
+                                @endif
                             </button>
                         </form>
 
                         <div class="mt-3 text-sm text-gray-600">
                             <div class="flex items-center mb-1">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                <span>Butuh konfirmasi manual dari admin</span>
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Konfirmasi instan</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                <span>Status booking akan update setelah dikonfirmasi</span>
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Berbagai metode pembayaran tersedia</span>
                             </div>
                         </div>
                     </div>
-                @else
-                    <!-- Info untuk DP & Bayar Penuh -->
-                    <div class="border-t pt-8">
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <div class="flex items-center">
-                                <i class="fas fa-store text-yellow-500 mr-3"></i>
-                                <div>
-                                    <h3 class="font-semibold text-yellow-800">Pembayaran Offline</h3>
-                                    <p class="text-yellow-700 text-sm mt-1">
-                                        Untuk pembayaran <strong>{{ $jenis == 'dp' ? 'DP' : 'Bayar Penuh' }}</strong>,
-                                        hanya tersedia metode pembayaran online via Midtrans untuk memastikan keamanan
-                                        transaksi.
-                                    </p>
+
+                    <!-- Pembayaran Offline (Hanya untuk pelunasan & denda) -->
+                    @if (!$hanyaOnline)
+                        <div class="border-t pt-8">
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-store text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-blue-700">Bayar Offline</h3>
+                            </div>
+
+                            <form action="{{ route('pembayaran.proses.offline', $booking->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="jenis" value="{{ $jenis }}">
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-money-bill-wave mr-1"></i>Metode Pembayaran
+                                    </label>
+                                    <select name="metode_pembayaran"
+                                        class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
+                                        <option value="cash">💵 Cash (Bayar di Tempat)</option>
+                                        <option value="transfer">🏦 Transfer Bank (Manual)</option>
+                                        <option value="qris">📱 QRIS (Scan QR di Tempat)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-sticky-note mr-1"></i>Catatan untuk Admin (Optional)
+                                    </label>
+                                    <textarea name="catatan" rows="3"
+                                        class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Tambahkan catatan khusus untuk admin..."></textarea>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full bg-blue-500 text-white py-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
+                                    <i class="fas fa-paper-plane mr-3"></i>
+                                    Ajukan Pembayaran Offline
+                                </button>
+                            </form>
+
+                            <div class="mt-3 text-sm text-gray-600">
+                                <div class="flex items-center mb-1">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                    <span>Butuh konfirmasi manual dari admin</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                    <span>Status booking akan update setelah dikonfirmasi</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endif
-            </div>
+                    @else
+                        <!-- Info untuk DP & Bayar Penuh -->
+                        <div class="border-t pt-8">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-store text-yellow-500 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold text-yellow-800">Pembayaran Offline</h3>
+                                        <p class="text-yellow-700 text-sm mt-1">
+                                            Untuk pembayaran <strong>{{ $jenis == 'dp' ? 'DP' : 'Bayar Penuh' }}</strong>,
+                                            hanya tersedia metode pembayaran online via Midtrans untuk memastikan keamanan
+                                            transaksi.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
 
-            <!-- Navigasi -->
-            <div class="mt-6 text-center">
-                @auth
+                <!-- Navigasi -->
+                <div class="mt-6 text-center">
+                    @auth
 
                         <!-- Untuk customer -->
                         <a href="{{ route('booking.show', $booking->id) }}"
@@ -190,10 +185,10 @@
                             Kembali ke Detail Booking
                         </a>
 
-                @endauth
+                    @endauth
+                </div>
             </div>
         </div>
-    </div>
-</body>
+    </body>
 
-</html>
+@endsection
