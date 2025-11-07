@@ -20,21 +20,14 @@ use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
 
 
+
+
 Route::get('/', function () {
     return view('landingpage');
 })->name('home');
 
-// Route::get('/landingpage', function () {
-//     return view('landingpage');
-// })->name('landingpage');
-
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-
-Route::get('/cek-tabel', function () {
-    $columns = DB::select('DESCRIBE bookings');
-    return response()->json($columns);
-});
 
 
 Route::get('/login', fn() => view('auth.login'))->name('login');
@@ -44,10 +37,9 @@ Route::get('/register', fn() => view('auth.register'))->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
-Route::get('/auth-google-callback', [GoogleController::class, 'callback']);
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 
 
-Route::get('/DaftarMobil', fn() => view('DaftarMobil'));
 
 // route verifikasi akun
 Route::group(['middleware' => ['auth', 'check_role:customer']], function () {
@@ -109,6 +101,8 @@ Route::post('/form-booking', [BookingController::class, 'store'])->name('booking
 // Di routes/web.php tambahkan:
 Route::post('/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('booking.check-availability');
 
+
+Route::get('/DaftarMobil', fn() => view('DaftarMobil'));
 
 Route::get('/logout', [AuthController::class, 'logout']);
 
@@ -204,14 +198,14 @@ Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')
 
 use App\Http\Controllers\TransaksiController;
 
+// ✅ Gunakan hanya salah satu dari dua ini
 Route::get('/transaksi/nota/{id}', [TransaksiController::class, 'nota'])->name('transaksi.nota');
+Route::get('/transaksi/{id}/nota', [TransaksiController::class, 'showNota'])->name('transaksi.showNota');
+
 Route::get('/transaksi/nota/{id}/download', [TransaksiController::class, 'downloadNota'])->name('transaksi.downloadNota');
 Route::get('/transaksi/nota/{id}/download-gambar', [TransaksiController::class, 'downloadNotaGambar'])->name('transaksi.downloadNotaGambar');
-Route::get('/transaksi/{id}/nota/gambar', [TransaksiController::class, 'downloadNotaGambar'])
-    ->name('transaksi.downloadNota');
-
-Route::get('/transaksi/{id}/nota', [TransaksiController::class, 'showNota'])->name('transaksi.nota');
 Route::get('/transaksi/{id}/nota-pdf', [TransaksiController::class, 'downloadNotaPDF'])->name('transaksi.nota.pdf');
+
 
 
 

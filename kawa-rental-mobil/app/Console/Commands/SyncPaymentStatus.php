@@ -5,7 +5,9 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Pembayaran;
 use App\Models\Booking;
-use Illuminate\Container\Attributes\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 class SyncPaymentStatus extends Command
 {
@@ -42,7 +44,7 @@ class SyncPaymentStatus extends Command
 
             $this->info("🎉 Sync completed! Success: {$successCount}, Errors: {$errorCount}");
 
-            \Log::info("Payment sync completed", [
+            Log::info("Payment sync completed", [
                 'success_count' => $successCount,
                 'error_count' => $errorCount,
                 'total' => $payments->count()
@@ -51,7 +53,7 @@ class SyncPaymentStatus extends Command
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $this->error("❌ Sync failed: " . $e->getMessage());
-            \Log::error("Payment sync failed: " . $e->getMessage());
+            Log::error("Payment sync failed: " . $e->getMessage());
             return Command::FAILURE;
         }
     }
@@ -92,14 +94,14 @@ class SyncPaymentStatus extends Command
             }
         } catch (\Exception $e) {
             $this->error("❌ Payment {$payment->id} error: " . $e->getMessage());
-            \Log::error("Sync error for payment {$payment->id}: " . $e->getMessage());
+            Log::error("Sync error for payment {$payment->id}: " . $e->getMessage());
             return false;
         }
     }
 
     private function processSuccessfulPayment($payment, $status)
     {
-        return \DB::transaction(function () use ($payment, $status) {
+        return DB::transaction(function () use ($payment, $status) {
             // Update payment
             $payment->update([
                 'status_pembayaran' => 'sukses',
@@ -140,7 +142,7 @@ class SyncPaymentStatus extends Command
             }
 
             $this->info("✅ SUCCESS: Payment {$payment->id} updated to sukses");
-            \Log::info("Payment synced successfully", [
+            Log::info("Payment synced successfully", [
                 'payment_id' => $payment->id,
                 'order_id' => $payment->midtrans_order_id,
                 'status' => $status->transaction_status,
