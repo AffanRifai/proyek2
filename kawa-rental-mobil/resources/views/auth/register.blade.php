@@ -251,11 +251,12 @@
         <p>- atau -</p>
 
         <div class="social-buttons">
-            <div class="social-btn" style="color: black;">
-                <a href="/auth-google-redirect"><img src="{{ asset('img/google.png') }}" alt="Google Logo">
-                    Daftar dengan Google
-                </a>
-            </div>
+            <a href="{{ route('google.login') }}" style="text-decoration: none;">
+                <div class="social-btn" style="color: black;">
+                    <img src="{{ asset('img/google.png') }}" alt="Google Logo">
+                    Daftar dengan Goggle
+                </div>
+            </a>
         </div>
         <div class="link-group" style="color: white;">
             Sudah punya akun? <a href="/login">masuk</a>
