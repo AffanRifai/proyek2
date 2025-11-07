@@ -184,34 +184,48 @@
     </a>
 
     <script>
-        function openTab(evt, tabName) {
-            // Sembunyikan semua tab-content
-            var tabcontent = document.getElementsByClassName("tab-content");
-            for (var i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove('active');
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-            // Hapus class "active" dari semua tombol
-            var tabbuttons = document.getElementsByClassName("tab-button");
-            for (var i = 0; i < tabbuttons.length; i++) {
-                tabbuttons[i].classList.remove("active");
-            }
+        // Fungsi untuk membuka tab
+        function openTab(tabName, clickedButton) {
+            // Hilangkan semua konten aktif
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            // Hilangkan semua tombol aktif
+            tabButtons.forEach(btn => btn.classList.remove('active'));
 
             // Tampilkan tab yang dipilih
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add("active");
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // Tandai tombol aktif
+            clickedButton.classList.add('active');
         }
 
-        function changeMainImage(src) {
-            document.querySelector('.car-image img').src = src;
-        }
-
-        // Initialize first tab as active
-        document.addEventListener('DOMContentLoaded', function() {
-            // Aktifkan tab deskripsi secara default
-            const defaultTab = document.getElementById('deskripsi');
-            if (defaultTab) defaultTab.classList.add('active');
+        // Event listener untuk setiap tombol
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const tabName = this.getAttribute('onclick')
+                    ? this.getAttribute('onclick').match(/'([^']+)'/)[1]
+                    : this.dataset.tab;
+                openTab(tabName, this);
+            });
         });
-    </script>
+
+        // Set tab awal (Deskripsi) aktif saat halaman dimuat
+        if (tabContents.length > 0) {
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            const defaultTab = document.getElementById('deskripsi');
+            const defaultButton = document.querySelector(".tab-button:first-child");
+
+            if (defaultTab) defaultTab.classList.add('active');
+            if (defaultButton) defaultButton.classList.add('active');
+        }
+    });
+</script>
+
 
 @endsection
