@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@yield('title', 'KAWA kawa Mobil')</title>
 
-    <link rel="stylesheet" href="{{ asset('css/global.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/global.css') }}">
 
     @stack('styles')
 
