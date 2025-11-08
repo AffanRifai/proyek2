@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/tentang-kami.css') }}">
+<link rel="stylesheet" href="{{ secure_asset('css/tentang-kami.css') }}">
 @endpush
 
 

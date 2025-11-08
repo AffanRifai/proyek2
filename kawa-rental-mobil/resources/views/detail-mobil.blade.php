@@ -3,7 +3,7 @@
 @section('title', 'Beranda - KAWA Rental Mobil')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/booking.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/booking.css') }}">
 @endpush
 
 @section('content')
@@ -184,48 +184,48 @@
     </a>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
 
-        // Fungsi untuk membuka tab
-        function openTab(tabName, clickedButton) {
-            // Hilangkan semua konten aktif
-            tabContents.forEach(tab => tab.classList.remove('active'));
-            // Hilangkan semua tombol aktif
-            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // Fungsi untuk membuka tab
+            function openTab(tabName, clickedButton) {
+                // Hilangkan semua konten aktif
+                tabContents.forEach(tab => tab.classList.remove('active'));
+                // Hilangkan semua tombol aktif
+                tabButtons.forEach(btn => btn.classList.remove('active'));
 
-            // Tampilkan tab yang dipilih
-            const selectedTab = document.getElementById(tabName);
-            if (selectedTab) {
-                selectedTab.classList.add('active');
+                // Tampilkan tab yang dipilih
+                const selectedTab = document.getElementById(tabName);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                }
+
+                // Tandai tombol aktif
+                clickedButton.classList.add('active');
             }
 
-            // Tandai tombol aktif
-            clickedButton.classList.add('active');
-        }
-
-        // Event listener untuk setiap tombol
-        tabButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const tabName = this.getAttribute('onclick')
-                    ? this.getAttribute('onclick').match(/'([^']+)'/)[1]
-                    : this.dataset.tab;
-                openTab(tabName, this);
+            // Event listener untuk setiap tombol
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('onclick') ?
+                        this.getAttribute('onclick').match(/'([^']+)'/)[1] :
+                        this.dataset.tab;
+                    openTab(tabName, this);
+                });
             });
+
+            // Set tab awal (Deskripsi) aktif saat halaman dimuat
+            if (tabContents.length > 0) {
+                tabContents.forEach(tab => tab.classList.remove('active'));
+                const defaultTab = document.getElementById('deskripsi');
+                const defaultButton = document.querySelector(".tab-button:first-child");
+
+                if (defaultTab) defaultTab.classList.add('active');
+                if (defaultButton) defaultButton.classList.add('active');
+            }
         });
-
-        // Set tab awal (Deskripsi) aktif saat halaman dimuat
-        if (tabContents.length > 0) {
-            tabContents.forEach(tab => tab.classList.remove('active'));
-            const defaultTab = document.getElementById('deskripsi');
-            const defaultButton = document.querySelector(".tab-button:first-child");
-
-            if (defaultTab) defaultTab.classList.add('active');
-            if (defaultButton) defaultButton.classList.add('active');
-        }
-    });
-</script>
+    </script>
 
 
 @endsection

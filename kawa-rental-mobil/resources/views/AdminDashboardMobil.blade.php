@@ -199,11 +199,11 @@
 <body>
     <div class="sidebar">
         <div class="logo">
-            <img src="https://via.placeholder.com/40" alt="Rental Mobil Logo">
+            <img src="{{asset('img/logo-kawa.png')}}" alt="Rental Mobil Logo">
             <h3>RENTAL MOBIL</h3>
         </div>
         <ul class="menu">
-            <li class="active"><a href="/AdminDashboardMobil"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="/AdminDashboardMobil"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="/AdminManajemenMobil"><i class="fas fa-car"></i> Manajemen Mobil</a></li>
             <li><a href="/AdminManajemenBookingMobil"><i class="fas fa-book"></i> Manajemen Booking</a></li>
             <li><a href="/AdminTrackLocation"><i class="fas fa-map-marker-alt"></i> Track Location</a></li>

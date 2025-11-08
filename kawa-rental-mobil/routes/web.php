@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\AdminBookingController;
+use App\Http\Controllers\AdminBookingController;    
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\StatusPembayaranController;
@@ -25,6 +25,31 @@ use App\Http\Controllers\AdminPaymentController;
 Route::get('/', function () {
     return view('landingpage');
 })->name('home');
+
+Route::get('/AdminDashboardMobil', function () {
+    return view('AdminDashboardMobil');
+})->name('admin');
+
+Route::get('DetailMobil', function () {
+    return view('AdminDetailMobil');
+})->name('detail');
+
+Route::get('/laporan', function () {
+    return view('AdminLaporanStatis');
+});
+
+Route::get('/manajemenmobil', function () {
+    return view('AdminManajemenMobil');
+})->name('admin');
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
