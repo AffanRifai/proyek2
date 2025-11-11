@@ -100,61 +100,6 @@
                         </div>
                     </div>
 
-                    <!-- Pembayaran Offline (Hanya untuk pelunasan & denda) -->
-                    @if (!$hanyaOnline)
-                        <div class="border-t pt-8">
-                            <div class="flex items-center mb-4">
-                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas fa-store text-white text-sm"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-blue-700">Bayar Offline</h3>
-                            </div>
-
-                            <form action="{{ route('pembayaran.proses.offline', $booking->id) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="jenis" value="{{ $jenis }}">
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fas fa-money-bill-wave mr-1"></i>Metode Pembayaran
-                                    </label>
-                                    <select name="metode_pembayaran"
-                                        class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required>
-                                        <option value="cash">💵 Cash (Bayar di Tempat)</option>
-                                        <option value="transfer">🏦 Transfer Bank (Manual)</option>
-                                        <option value="qris">📱 QRIS (Scan QR di Tempat)</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fas fa-sticky-note mr-1"></i>Catatan untuk Admin (Optional)
-                                    </label>
-                                    <textarea name="catatan" rows="3"
-                                        class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Tambahkan catatan khusus untuk admin..."></textarea>
-                                </div>
-
-                                <button type="submit"
-                                    class="w-full bg-blue-500 text-white py-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
-                                    <i class="fas fa-paper-plane mr-3"></i>
-                                    Ajukan Pembayaran Offline
-                                </button>
-                            </form>
-
-                            <div class="mt-3 text-sm text-gray-600">
-                                <div class="flex items-center mb-1">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                    <span>Butuh konfirmasi manual dari admin</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                    <span>Status booking akan update setelah dikonfirmasi</span>
-                                </div>
-                            </div>
-                        </div>
-                    @else
                         <!-- Info untuk DP & Bayar Penuh -->
                         <div class="border-t pt-8">
                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -171,7 +116,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
+                    
                 </div>
 
                 <!-- Navigasi -->

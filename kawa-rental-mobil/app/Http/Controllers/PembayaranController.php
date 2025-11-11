@@ -8,14 +8,21 @@ use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Midtrans\Config as MidtransConfig;
 use Midtrans\Snap;
 use Midtrans\Transaction;
+use Midtrans\Notification;
+use Illuminate\Support\Str;
+
 
 class PembayaranController extends Controller
 {
     public function __construct()
     {
-        MidtransHelper::initialize();
+        MidtransConfig::$serverKey = env('MIDTRANS_SERVER_KEY');
+        MidtransConfig::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        MidtransConfig::$isSanitized = true;
+        MidtransConfig::$is3ds = true;
     }
 
     private function initializeMidtrans()
@@ -25,6 +32,100 @@ class PembayaranController extends Controller
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
     }
+
+    public function createSnap(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer|exists:bookings,id',
+            'jenis_pembayaran' => 'required|string', // dp / pelunasan / bayar_penuh
+        ]);
+
+        $booking = Booking::with('pembayaran')->findOrFail($request->booking_id);
+
+        // pastikan user sedang melakukan pada bookingnya sendiri (jika route auth)
+        // (jika route di middleware auth, bisa juga check here)
+        // if (auth()->id() !== $booking->user_id) abort(403);
+
+        // putuskan jumlah yang harus dibayar berdasarkan jenis_pembayaran
+        $jenis = $request->jenis_pembayaran;
+
+        if ($jenis === 'dp') {
+            // hitung dp: asumsikan jumlah_dp column is dp amount OR definisikan dp = 30% jika belum tersedia
+            $jumlah = $booking->jumlah_dp > 0 ? (float)$booking->jumlah_dp : round($booking->total_pembayaran * 0.30, 2);
+        } elseif ($jenis === 'pelunasan') {
+            // pelunasan = sisa
+            $jumlah = $booking->sisaBayar();
+            if ($jumlah <= 0) {
+                return response()->json(['message' => 'Tidak ada sisa pembayaran'], 422);
+            }
+        } elseif ($jenis === 'bayar_penuh') {
+            $jumlah = (float)$booking->total_pembayaran;
+        } else {
+            return response()->json(['message' => 'Jenis pembayaran tidak valid'], 422);
+        }
+
+        // buat unique order id
+        $orderId = 'KAWA-' . Str::upper(Str::random(8)) . '-' . $booking->id;
+
+        // simpan record pembayaran prelim (status menunggu)
+        $pembayaran = Pembayaran::create([
+            'booking_id' => $booking->id,
+            'jenis_pembayaran' => $jenis,
+            'metode_pembayaran' => 'midtrans',
+            'saluran_pembayaran' => 'online',
+            'jumlah' => $jumlah,
+            'jumlah_dibayar' => 0,
+            'midtrans_order_id' => $orderId,
+            'status_pembayaran' => 'menunggu',
+        ]);
+
+        // prepare payload untuk midtrans snap
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (float)$jumlah,
+            ],
+            'customer_details' => [
+                'first_name' => $booking->nama_penyewa ?? 'Customer',
+                'email' => $booking->booking_user_email ?? null, // kalau ada di booking, atau ambil dari user
+                'phone' => $booking->no_telp,
+            ],
+            'item_details' => [
+                [
+                    'id' => $booking->id,
+                    'price' => (float)$jumlah,
+                    'quantity' => 1,
+                    'name' => 'Pembayaran ' . $jenis . ' - ' . $booking->id_transaksi,
+                ],
+            ],
+            // 'expiry' => [ 'start_time' => ..., 'unit' => 'minutes', 'duration' => 60 ], // optional
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+
+            return response()->json([
+                'snap_token' => $snapToken,
+                'pembayaran_id' => $pembayaran->id,
+                'order_id' => $orderId,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('MIDTRANS ERROR: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Gagal membuat transaksi midtrans: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ], 500);
+        }
+
+        try {
+            \Log::info('Creating snap for booking ' . $booking->id);
+            $snapToken = Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            \Log::error('Midtrans error: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal membuat transaksi midtrans: ' . $e->getMessage()], 500);
+        }
+    }
+
 
     // ======================= PEMBUATAN PEMBAYARAN ==========================
 
@@ -72,6 +173,90 @@ class PembayaranController extends Controller
         } catch (\Exception $e) {
             Log::error('Error in prosesOnline: ' . $e->getMessage());
             return back()->with('error', 'Gagal memproses pembayaran.');
+        }
+    }
+
+    // Notification / webhook endpoint dari midtrans
+    public function notification(Request $request)
+    {
+        // midtrans notification signature handled by library
+        try {
+            $notif = new Notification();
+
+            $transactionStatus = $notif->transaction_status;
+            $orderId = $notif->order_id; // ini harus unik yang kita set
+            $fraudStatus = $notif->fraud_status ?? null;
+            $paymentType = $notif->payment_type ?? null;
+            $transactionId = $notif->transaction_id ?? null;
+            $grossAmount = $notif->gross_amount ?? null;
+
+            // cari pembayaran berdasarkan midtrans_order_id
+            $pembayaran = Pembayaran::where('midtrans_order_id', $orderId)->first();
+
+            if (!$pembayaran) {
+                return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+            }
+
+            // update berdasarkan status midtrans
+            DB::beginTransaction();
+            try {
+                if ($transactionStatus == 'capture') {
+                    if ($paymentType == 'credit_card') {
+                        if ($fraudStatus == 'challenge') {
+                            $pembayaran->status_pembayaran = 'menunggu_verifikasi';
+                        } else {
+                            $pembayaran->status_pembayaran = 'sukses';
+                            $pembayaran->jumlah_dibayar = $pembayaran->jumlah;
+                            $pembayaran->dibayar_pada = now();
+                        }
+                    }
+                } elseif ($transactionStatus == 'settlement') {
+                    $pembayaran->status_pembayaran = 'sukses';
+                    $pembayaran->jumlah_dibayar = $pembayaran->jumlah;
+                    $pembayaran->dibayar_pada = now();
+                } elseif ($transactionStatus == 'pending') {
+                    $pembayaran->status_pembayaran = 'menunggu';
+                } elseif ($transactionStatus == 'deny') {
+                    $pembayaran->status_pembayaran = 'gagal';
+                } elseif ($transactionStatus == 'expire') {
+                    $pembayaran->status_pembayaran = 'kadaluarsa';
+                } elseif ($transactionStatus == 'cancel') {
+                    $pembayaran->status_pembayaran = 'gagal';
+                }
+
+                $pembayaran->midtrans_transaction_id = $transactionId;
+                $pembayaran->data_pembayaran = json_encode($notif);
+                $pembayaran->save();
+
+                // Jika pembayaran sukses, update booking: total_dibayar, status_pembayaran, midtrans_order_id, dll
+                if ($pembayaran->status_pembayaran == 'sukses') {
+                    $booking = $pembayaran->booking()->first();
+
+                    // update total_dibayar di booking
+                    $booking->total_dibayar = (float)$booking->total_dibayar + (float)$pembayaran->jumlah;
+                    // set sisa_pembayaran
+                    $booking->sisa_pembayaran = max(0, (float)$booking->total_pembayaran - (float)$booking->total_dibayar);
+
+                    // update status_pembayaran: jika masih ada sisa -> dp_dibayar, jika lunas -> lunas
+                    if ($booking->sisa_pembayaran > 0 && $booking->requiresDp()) {
+                        $booking->status_pembayaran = 'dp_dibayar';
+                    } elseif ($booking->sisa_pembayaran <= 0) {
+                        $booking->status_pembayaran = 'lunas';
+                    }
+
+                    // simpan midtrans_order_id di booking sebagai referensi (opsional)
+                    $booking->midtrans_order_id = $orderId;
+                    $booking->save();
+                }
+
+                DB::commit();
+                return response()->json(['message' => 'ok'], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'error update: ' . $e->getMessage()], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'invalid notification: ' . $e->getMessage()], 500);
         }
     }
 
