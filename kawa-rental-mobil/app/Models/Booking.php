@@ -64,7 +64,6 @@ class Booking extends Model
         'tanggal_jatuh_tempo_pembayaran' => 'datetime'
     ];
 
-
     // Relasi ke Pembayaran
     public function pembayaran()
     {
@@ -513,5 +512,32 @@ class Booking extends Model
     public function getTransactionIdAttribute()
     {
         return $this->id_transaksi;
+    }
+
+    // total sudah dibayar (mengakumulasi total_dibayar atau dari pembayaran)
+    public function totalDibayar()
+    {
+        // Jika kamu menyimpan total_dibayar di kolom, pakai itu; fallback ke relasi pembayaran
+        if ($this->total_dibayar && $this->total_dibayar > 0) return (float) $this->total_dibayar;
+
+        return (float) $this->pembayaran()->whereIn('status_pembayaran', ['sukses'])->sum('jumlah');
+    }
+
+    public function sisaBayar()
+    {
+        $sisa = (float)$this->total_pembayaran - $this->totalDibayar();
+        return $sisa > 0 ? $sisa : 0.00;
+    }
+
+    public function requiresDp()
+    {
+        // asumsi: tipe_pembayaran 'dp' berarti ada DP
+        return $this->tipe_pembayaran === 'dp';
+    }
+
+    public function isCancelable()
+    {
+        // hanya bisa dibatalkan jika status pending
+        return $this->status === 'pending';
     }
 }
