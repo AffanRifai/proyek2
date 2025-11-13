@@ -11,6 +11,39 @@ class AdminPembayaranController extends Controller
 {
     public function index(Request $request)
     {
+
+        $query = Pembayaran::query();
+
+        // --- Filter opsional ---
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('booking.pelanggan', function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%');
+            })->orWhereHas('booking', function ($q) use ($request) {
+                $q->where('id_transaksi', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status_pembayaran', $request->status);
+        }
+
+        // --- Ambil data utama ---
+        $pembayarans = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        // --- Tambahkan statistik (untuk card di atas tabel) ---
+        $totalPembayaran     = Pembayaran::count();
+        $pembayaranSukses    = Pembayaran::where('status_pembayaran', 'sukses')->count();
+        $pembayaranMenunggu  = Pembayaran::where('status_pembayaran', 'menunggu')->count();
+        $pembayaranGagal     = Pembayaran::where('status_pembayaran', 'gagal')->count();
+
+        // --- Kirim semua ke view ---
+        return view('admin.payments.index', compact(
+            'pembayarans',
+            'totalPembayaran',
+            'pembayaranSukses',
+            'pembayaranMenunggu',
+            'pembayaranGagal'
+        ));
         $status = $request->get('status', 'semua');
         $jenis = $request->get('jenis', 'semua');
 

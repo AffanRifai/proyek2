@@ -25,11 +25,21 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ secure_asset('adminlte/dist/css/adminlte.min.css') }}">
     <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="{{ secure_asset('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ secure_asset('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
     <!-- Daterange picker -->
     <link rel="stylesheet" href="{{ secure_asset('adminlte/plugins/daterangepicker/daterangepicker.css') }}">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ secure_asset('adminlte/plugins/summernote/summernote-bs4.min.css') }}">
+
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons (optional tapi direkomendasikan) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <link href="{{ asset('css/custom-admin.css') }}" rel="stylesheet">
 
     <style>
         /* Responsive table styles */
@@ -137,6 +147,10 @@
     <script src="{{ asset('adminlte/dist/js/adminlte.js') }}"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="{{ asset('adminlte/dist/js/demo.js') }}"></script>
+
+    <!-- Bootstrap Bundle JS (dengan Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
     @yield('admin_js')
 </body>
