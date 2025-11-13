@@ -231,7 +231,7 @@ class Booking extends Model
                 $this->car->update(['status' => 'tersedia']);
             }
 
-            \Log::info("Pengembalian manual diproses: {$this->id_transaksi}", [
+            Log::info("Pengembalian manual diproses: {$this->id_transaksi}", [
                 'tanggal_pengembalian' => $actualSelTgl,
                 'hari_terlambat' => $hariTerlambat,
                 'denda_terlambat' => $dendaTerlambat,
