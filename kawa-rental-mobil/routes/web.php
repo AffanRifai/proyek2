@@ -146,6 +146,9 @@ Route::get('/TentangKami', fn() => view('TentangKami'));
 
 Route::get('/AdminManajemenBooking', fn() => view('AdminManajemenBooking'));
 
+Route::post('/pembayaran/offline', [PembayaranController::class, 'offline'])->name('pembayaran.offline');
+
+
 // ✅ PERBAIKAN: SATU KELOMPOK ROUTE ADMIN YANG BERSIH
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin

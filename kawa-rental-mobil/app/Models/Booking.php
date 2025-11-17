@@ -76,17 +76,6 @@ class Booking extends Model
         'updated_at',
     ];
 
-    // Relationship
-    // public function car()
-    // {
-    //     return $this->belongsTo(Car::class);
-    // }
-
-    // public function user()
-    // {
-    //     return $this->belongsTo(User::class);
-    // }
-
     public function car()
     {
         return $this->belongsTo(\App\Models\Car::class, 'car_id');
@@ -578,9 +567,6 @@ class Booking extends Model
         return $badges[$this->status] ?? 'bg-gray-100 text-gray-800';
     }
 
-
-
-    // === AUTO CANCEL CHECK ===
     // === AUTO CANCEL CHECK ===
     public function checkAutoCancel()
     {
@@ -591,22 +577,33 @@ class Booking extends Model
                 return false;
             }
 
-            // jika booking sudah punya payment-status selain 'menunggu' (mis. dp_dibayar, lunas),
-            // berarti pembayaran sudah (sebagian) diproses - jangan auto-cancel
+            // jika booking sudah memiliki status_pembayaran selain 'menunggu' (mis. dp_dibayar, lunas), skip
             if ($this->status_pembayaran && $this->status_pembayaran !== 'menunggu') {
                 Log::info("checkAutoCancel: booking {$this->id} status_pembayaran={$this->status_pembayaran}, skipping auto-cancel");
                 return false;
             }
 
-            // jika ada record pembayaran yang sedang berjalan atau sudah sukses, skip.
-            // ini menangani kasus: user sudah klik bayar -> dibuat record pembayaran (menunggu)
-            // dan kita tidak ingin auto-cancel di window antara pembuatan transaksi dan webhook midtrans.
-            $inProgress = $this->pembayaran()
-                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi', 'sukses'])
+            // jika sudah ada pembayaran sukses, skip
+            $hasSuccess = $this->pembayaran()->where('status_pembayaran', 'sukses')->exists();
+            if ($hasSuccess) {
+                Log::info("checkAutoCancel: booking {$this->id} has successful pembayaran, skipping auto-cancel");
+                return false;
+            }
+
+            // jika ada pembayaran pending online, atau ada pembayaran offline yang terdaftar (menunggu_verifikasi),
+            // skip auto-cancel supaya admin bisa konfirmasi/offline flow berjalan.
+            $hasPendingOnline = $this->pembayaran()
+                ->where('saluran_pembayaran', 'online')
+                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi'])
                 ->exists();
 
-            if ($inProgress) {
-                Log::info("checkAutoCancel: booking {$this->id} has pembayaran in-progress/success, skipping auto-cancel");
+            $hasPendingOffline = $this->pembayaran()
+                ->where('saluran_pembayaran', 'offline')
+                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi'])
+                ->exists();
+
+            if ($hasPendingOnline || $hasPendingOffline) {
+                Log::info("checkAutoCancel: booking {$this->id} has pending pembayaran (online/offline), skipping auto-cancel");
                 return false;
             }
 
@@ -651,14 +648,32 @@ class Booking extends Model
         }
     }
 
-
-
-
     // Scope untuk booking yang belum expired
     public function scopeNotExpired($query)
     {
         return $query->where('status', '!=', 'expired')->where(function ($q) {
             $q->whereNull('expired_at')->orWhere('expired_at', '>', now());
         });
+    }
+
+    public function pelunasanDeadline()
+    {
+        if (!$this->mulai_tgl) return null;
+        return \Carbon\Carbon::parse($this->mulai_tgl)->endOfDay();
+    }
+
+    public function canPelunasanOffline()
+    {
+        if ($this->status === 'expired') return false;
+        if ($this->sisaBayar() <= 0) return false;
+        if ($this->status_pembayaran === 'lunas') return false;
+
+        $deadline = $this->pelunasanDeadline();
+        if ($deadline) {
+            return now()->lessThanOrEqualTo($deadline);
+        }
+
+        // fallback: jika tidak ada mulai_tgl, kita izinkan selama booking belum expired
+        return true;
     }
 }
