@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                 </div>
 
                 <!-- Navigasi -->
@@ -134,6 +134,7 @@
                 </div>
             </div>
         </div>
+
     </body>
 
 @endsection

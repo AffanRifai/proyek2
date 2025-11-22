@@ -34,7 +34,6 @@ return new class extends Migration {
             $table->string('file_identitas')->nullable();
             $table->string('file_jaminan')->nullable();
             $table->string('file_stnk_motor')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'completed', 'cancelled'])->default('pending');
             $table->text('catatan_admin')->nullable();
             $table->text('keterangan_terlambat')->nullable();
             $table->enum('status_mobil', ['normal', 'terlambat', 'rusak', 'hilang'])->default('normal');
@@ -44,6 +43,8 @@ return new class extends Migration {
             $table->enum('status_pembayaran', ['menunggu', 'dp_dibayar', 'lunas', 'tertunggak'])->default('menunggu')->change();
             $table->string('midtrans_order_id')->nullable();
             $table->timestamp('tanggal_jatuh_tempo_pembayaran')->nullable();
+            $table->timestamp('expired_at')->nullable()->after('status');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'completed', 'cancelled', 'expired'])->default('pending')->change();
             $table->timestamps();
         });
     }

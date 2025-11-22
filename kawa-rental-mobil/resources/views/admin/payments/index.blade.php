@@ -195,7 +195,7 @@
                                                         <i class="fas fa-eye mr-1"></i> Detail
                                                     </a>
 
-                                                    {{-- @if ($payment->status_pembayaran == 'menunggu')
+                                                    @if ($payment->status_pembayaran == 'menunggu')
                                                         <form action="{{ route('admin.payments.sync', $payment->id) }}"
                                                             method="POST" class="d-inline m-1">
                                                             @csrf
@@ -203,7 +203,7 @@
                                                                 <i class="fas fa-sync-alt"></i> Sinkronkan
                                                             </button>
                                                         </form>
-                                                    @endif --}}
+                                                    @endif
 
                                                     <a href="{{ route('admin.bookings.show', $payment->booking_id) }}"
                                                         class="btn btn-sm btn-outline-success d-flex align-items-center px-2 m-1">

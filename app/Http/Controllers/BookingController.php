@@ -124,10 +124,10 @@ class BookingController extends Controller
                 'file_jaminan' => $jaminanPath,
                 'file_stnk_motor' => $stnkPath,
                 'status' => 'pending',
-                'expired_at' => now()->addMinutes(3),
+                'expired_at' => now()->addMinute(),
 
             ]);
-            AutoCancelBooking::dispatch($booking->id)->delay(now()->addMinutes(3));
+            AutoCancelBooking::dispatch($booking->id)->delay(now()->addMinutes(1));
 
 
             // ✅ Redirect ke halaman pembayaran sesuai tipe
@@ -176,24 +176,27 @@ class BookingController extends Controller
 
     public function show($id)
     {
-        // Ambil booking hanya milik user + load relasi lengkap
-        $booking = Booking::with(['car', 'pembayaran'])
+        $booking = Booking::with('car', 'pembayaran')
             ->where('id', $id)
-            ->where('user_id', Auth::id())
+            ->where('user_id', Auth::id()) // Hanya pemilik booking yang bisa lihat
             ->firstOrFail();
 
-        // Jalankan auto cancel realtime
+        $booking = Booking::with('pembayaran')->findOrFail($id);
+
+        // Jalankan pengecekan realtime auto-cancel
+        $booking->checkAutoCancel();
+
+        $booking = Booking::findOrFail($id);
+
+        // 🔥 Cek auto cancel realtime
         $autoCancelled = $booking->checkAutoCancel();
 
-        // Wajib! — refresh setelah update agar model terbaru dipakai
         if ($autoCancelled) {
-            $booking->refresh();
-            session()->flash('booking_auto_cancelled', 'Booking kamu dibatalkan karena melewati batas waktu pembayaran.');
+            session()->flash('booking_auto_cancelled', 'Booking kamu dibatalkan karena melewati batas waktu pembayaran 1 jam.');
         }
 
         return view('booking.show', compact('booking'));
     }
-
 
     public function bookingsSaya()
     {
@@ -207,12 +210,11 @@ class BookingController extends Controller
 
     public function index()
     {
-        $bookings = Booking::with(['car', 'pembayaran'])->get();
+        $bookings = Booking::all();
 
+        // Jalankan auto cancel untuk semua booking yang sudah lewat 1 jam
         foreach ($bookings as $booking) {
-            if ($booking->checkAutoCancel()) {
-                $booking->refresh();
-            }
+            $booking->checkAutoCancel();
         }
 
         return view('booking.index', compact('bookings'));

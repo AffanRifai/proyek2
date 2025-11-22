@@ -7,6 +7,8 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+
 
 class AdminPaymentController extends Controller
 {
@@ -77,7 +79,7 @@ class AdminPaymentController extends Controller
         try {
             $payment = Pembayaran::findOrFail($id);
 
-            \Log::info("Admin deleting payment", [
+            Log::info("Admin deleting payment", [
                 'payment_id' => $payment->id,
                 'order_id' => $payment->midtrans_order_id,
                 'admin_id' => auth()->id()
@@ -88,7 +90,7 @@ class AdminPaymentController extends Controller
             return redirect()->route('admin.payments.index')
                 ->with('success', 'Pembayaran berhasil dihapus!');
         } catch (\Exception $e) {
-            \Log::error("Failed to delete payment {$id}: " . $e->getMessage());
+            Log::error("Failed to delete payment {$id}: " . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus pembayaran: ' . $e->getMessage());
         }
     }
@@ -117,7 +119,7 @@ class AdminPaymentController extends Controller
                     $this->updateBookingPaymentStatus($payment);
                 }
 
-                \Log::info("Admin manually updated payment status", [
+                Log::info("Admin manually updated payment status", [
                     'payment_id' => $payment->id,
                     'old_status' => $oldStatus,
                     'new_status' => $newStatus,
@@ -147,7 +149,7 @@ class AdminPaymentController extends Controller
                         Artisan::call('payment:sync', ['paymentId' => $paymentId]);
                         $successCount++;
                     } catch (\Exception $e) {
-                        \Log::error("Bulk sync failed for payment {$paymentId}: " . $e->getMessage());
+                        Log::error("Bulk sync failed for payment {$paymentId}: " . $e->getMessage());
                     }
                 }
 
@@ -179,16 +181,24 @@ class AdminPaymentController extends Controller
         ];
     }
 
+
     private function updateBookingPaymentStatus($payment)
     {
         $booking = $payment->booking;
+
+        if (! $booking) {
+            Log::warning('Payment has no associated booking', [
+                'payment_id' => $payment->id ?? null
+            ]);
+            return;
+        }
 
         switch ($payment->jenis_pembayaran) {
             case 'dp':
                 $booking->update([
                     'status_pembayaran' => 'dp_dibayar',
                     'jumlah_dp' => $payment->jumlah_dibayar,
-                    'sisa_pembayaran' => $booking->total_pembayaran - $payment->jumlah_dibayar,
+                    'sisa_pembayaran' => ($booking->total_pembayaran ?? 0) - $payment->jumlah_dibayar,
                     'total_dibayar' => $payment->jumlah_dibayar
                 ]);
                 break;
@@ -197,7 +207,7 @@ class AdminPaymentController extends Controller
                 $booking->update([
                     'status_pembayaran' => 'lunas',
                     'sisa_pembayaran' => 0,
-                    'total_dibayar' => $booking->total_dibayar + $payment->jumlah_dibayar
+                    'total_dibayar' => ($booking->total_dibayar ?? 0) + $payment->jumlah_dibayar
                 ]);
                 break;
 

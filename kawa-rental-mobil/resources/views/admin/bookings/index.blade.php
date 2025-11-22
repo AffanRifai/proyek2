@@ -301,11 +301,6 @@
                                                             class="fw-bold text-dark">{{ $booking->sel_tgl->format('d/m/Y') }}</span>
                                                         <small class="text-muted">{{ $booking->lama_hari }} hari</small>
                                                     </div>
-                                                    @if ($booking->isExpired())
-                                                        <div class="status-badge status-expired mt-1">
-                                                            <i class="fas fa-exclamation-circle me-1"></i>Expired
-                                                        </div>
-                                                    @endif
                                                 </td>
 
                                                 <!-- Total -->
