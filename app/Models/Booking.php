@@ -581,78 +581,32 @@ class Booking extends Model
 
 
     // === AUTO CANCEL CHECK ===
-    // === AUTO CANCEL CHECK ===
     public function checkAutoCancel()
     {
         try {
-            // jika status akhir, skip
-            if (in_array($this->status, ['expired', 'cancelled', 'rejected', 'completed'])) {
-                Log::info("checkAutoCancel: booking {$this->id} already terminal status {$this->status}");
-                return false;
-            }
+            if ($this->status === 'pending' && $this->created_at) {
+                // gunakan timestamp agar aman terhadap perbedaan zona waktu
+                $createdTs = $this->created_at->getTimestamp();
+                $nowTs = now()->getTimestamp();
 
-            // jika booking sudah punya payment-status selain 'menunggu' (mis. dp_dibayar, lunas),
-            // berarti pembayaran sudah (sebagian) diproses - jangan auto-cancel
-            if ($this->status_pembayaran && $this->status_pembayaran !== 'menunggu') {
-                Log::info("checkAutoCancel: booking {$this->id} status_pembayaran={$this->status_pembayaran}, skipping auto-cancel");
-                return false;
-            }
-
-            // jika ada record pembayaran yang sedang berjalan atau sudah sukses, skip.
-            // ini menangani kasus: user sudah klik bayar -> dibuat record pembayaran (menunggu)
-            // dan kita tidak ingin auto-cancel di window antara pembuatan transaksi dan webhook midtrans.
-            $inProgress = $this->pembayaran()
-                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi', 'sukses'])
-                ->exists();
-
-            if ($inProgress) {
-                Log::info("checkAutoCancel: booking {$this->id} has pembayaran in-progress/success, skipping auto-cancel");
-                return false;
-            }
-
-            // determine cutoff: prefer expired_at, else created_at + 3600s
-            if ($this->expired_at) {
-                $cutoff = $this->expired_at;
-            } elseif ($this->created_at) {
-                $cutoff = $this->created_at->copy()->addSeconds(3600); // jangan mutasi created_at
-            } else {
-                Log::info("checkAutoCancel: booking {$this->id} has no cutoff/expired_at");
-                return false;
-            }
-
-            if (now()->gte($cutoff)) {
-                DB::transaction(function () {
-                    // update booking
+                if (($nowTs - $createdTs) >= 3600) { // 3600 detik = 1 jam
                     $this->update([
                         'status' => 'expired',
-                        'status_pembayaran' => 'tertunggak',
-                        'catatan_admin' => 'Booking dibatalkan otomatis karena melewati batas waktu pembayaran.',
+                        'catatan_admin' => 'Booking dibatalkan otomatis karena belum dibayar dalam 1 jam.',
                     ]);
 
-                    // kembalikan mobil jika terkait
-                    if ($this->car) {
-                        try {
-                            $this->car->update(['status' => 'tersedia']);
-                        } catch (\Exception $e) {
-                            Log::warning("checkAutoCancel: failed to update car status for booking {$this->id}: " . $e->getMessage());
-                        }
-                    }
-                });
+                    // Jangan ubah record pembayaran di sini; mekanisme pembayaran punya alur sendiri
+                    Log::info('Booking auto-cancelled (realtime timestamp check): ' . $this->id);
 
-                Log::info("Booking {$this->id} auto-cancelled and marked tertunggak.");
-                return true;
+                    return true;
+                }
             }
-
-            // belum waktunya
-            return false;
         } catch (\Exception $e) {
-            Log::error("Auto cancel error booking {$this->id}: " . $e->getMessage());
-            return false;
+            Log::error('Error in checkAutoCancel: ' . $e->getMessage());
         }
+
+        return false;
     }
-
-
-
 
     // Scope untuk booking yang belum expired
     public function scopeNotExpired($query)
