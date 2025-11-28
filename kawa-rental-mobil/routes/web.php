@@ -19,9 +19,6 @@ use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
 
-
-
-
 Route::get('/', function () {
     return view('landingpage');
 })->name('home');
