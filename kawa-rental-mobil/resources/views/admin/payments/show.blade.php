@@ -443,6 +443,12 @@
                                             </option>
                                         </select>
                                     </div>
+                                    <div class="form-group" id="jumlah-dibayar-field" style="display: none;">
+                                        <label class="font-weight-bold">Jumlah Dibayar (Rp)</label>
+                                        <input type="number" step="1" min="0" name="jumlah_dibayar" id="jumlah_dibayar"
+                                            class="form-control" value="{{ old('jumlah_dibayar', $payment->jumlah_dibayar ?? '') }}">
+                                        <small class="form-text text-muted">Masukkan jumlah yang diterima (biarkan kosong untuk gunakan nilai total).</small>
+                                    </div>
                                     <div class="form-group">
                                         <label class="font-weight-bold">Catatan Admin</label>
                                         <textarea name="catatan_admin" rows="3" class="form-control" placeholder="Catatan untuk pembayaran ini...">{{ $payment->catatan_admin }}</textarea>
@@ -572,5 +578,31 @@
         function printPaymentDetail() {
             window.print();
         }
+
+        // Toggle jumlah_dibayar input when status == sukses or if payment is offline
+        (function() {
+            const form = document.querySelector('form[action*="update-status"]');
+            if (!form) return;
+
+            const statusSelect = form.querySelector('select[name="status_pembayaran"]');
+            const jumlahField = document.getElementById('jumlah-dibayar-field');
+            const jumlahInput = document.getElementById('jumlah_dibayar');
+            const paymentJumlah = {{ $payment->jumlah ?? 0 }};
+            const isOffline = '{{ $payment->saluran_pembayaran ?? '' }}' === 'offline';
+
+            function refresh() {
+                const status = statusSelect.value;
+                if (status === 'sukses' && (isOffline || {{ $payment->jenis_pembayaran === 'pelunasan' ? 'true' : 'false' }})) {
+                    jumlahField.style.display = 'block';
+                    if (!jumlahInput.value) jumlahInput.value = paymentJumlah || '';
+                } else {
+                    jumlahField.style.display = 'none';
+                }
+            }
+
+            statusSelect.addEventListener('change', refresh);
+            // init
+            refresh();
+        })();
     </script>
 @endsection
