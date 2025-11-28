@@ -445,9 +445,11 @@
                                     </div>
                                     <div class="form-group" id="jumlah-dibayar-field" style="display: none;">
                                         <label class="font-weight-bold">Jumlah Dibayar (Rp)</label>
-                                        <input type="number" step="1" min="0" name="jumlah_dibayar" id="jumlah_dibayar"
-                                            class="form-control" value="{{ old('jumlah_dibayar', $payment->jumlah_dibayar ?? '') }}">
-                                        <small class="form-text text-muted">Masukkan jumlah yang diterima (biarkan kosong untuk gunakan nilai total).</small>
+                                        <input type="number" step="1" min="0" name="jumlah_dibayar"
+                                            id="jumlah_dibayar" class="form-control"
+                                            value="{{ old('jumlah_dibayar', $payment->jumlah_dibayar ?? '') }}">
+                                        <small class="form-text text-muted">Masukkan jumlah yang diterima (biarkan kosong
+                                            untuk gunakan nilai total).</small>
                                     </div>
                                     <div class="form-group">
                                         <label class="font-weight-bold">Catatan Admin</label>
@@ -592,7 +594,8 @@
 
             function refresh() {
                 const status = statusSelect.value;
-                if (status === 'sukses' && (isOffline || {{ $payment->jenis_pembayaran === 'pelunasan' ? 'true' : 'false' }})) {
+                if (status === 'sukses' && (isOffline ||
+                        {{ $payment->jenis_pembayaran === 'pelunasan' ? 'true' : 'false' }})) {
                     jumlahField.style.display = 'block';
                     if (!jumlahInput.value) jumlahInput.value = paymentJumlah || '';
                 } else {

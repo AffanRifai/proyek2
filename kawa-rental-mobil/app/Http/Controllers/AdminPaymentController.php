@@ -80,11 +80,11 @@ class AdminPaymentController extends Controller
         try {
             $payment = Pembayaran::findOrFail($id);
 
-                Log::info("Admin deleting payment", [
-                    'payment_id' => $payment->id,
-                    'order_id' => $payment->midtrans_order_id,
-                    'admin_id' => Auth::id()
-                ]);
+            Log::info("Admin deleting payment", [
+                'payment_id' => $payment->id,
+                'order_id' => $payment->midtrans_order_id,
+                'admin_id' => Auth::id()
+            ]);
 
             $payment->delete();
 
@@ -146,12 +146,12 @@ class AdminPaymentController extends Controller
                     $this->updateBookingPaymentStatus($payment);
                 }
 
-                    Log::info("Admin manually updated payment status", [
-                        'payment_id' => $payment->id,
-                        'old_status' => $oldStatus,
-                        'new_status' => $newStatus,
-                        'admin_id' => Auth::id()
-                    ]);
+                Log::info("Admin manually updated payment status", [
+                    'payment_id' => $payment->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'admin_id' => Auth::id()
+                ]);
             });
 
             return redirect()->route('admin.payments.show', $id)
