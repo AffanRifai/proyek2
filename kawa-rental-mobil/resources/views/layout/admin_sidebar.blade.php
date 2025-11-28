@@ -3,7 +3,7 @@
       <a href="index3.html" class="brand-link">
           <img src="{{ asset('adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
               class="brand-image img-circle elevation-3" style="opacity: .8">
-          <span class="brand-text font-weight-light">{{ config('app.name') }}</span>
+          <span class="brand-text font-weight-light">KAWA RENTAL</span>
       </a>
 
       <!-- Sidebar -->
@@ -55,17 +55,18 @@
                       </a>
                   </li>
                   <li class="nav-item">
-                      <a href="#" class="nav-link">
+                      <a href="/admin/bookings" class="nav-link">
                           <i class="nav-icon fa-solid fa-square-poll-vertical"></i>
                           <p>
-                              Manajemen Booking
+                              Booking
                               <i class="right fas fa-angle-left"></i>
                           </p>
                       </a>
                       <ul class="nav nav-treeview">
                           <li class="nav-item">
                               <a href="/admin/bookings" class="nav-link">
-                                  <p>Booking</p>
+                                  <i class="far fa-circle nav-icon"></i>
+                                  <p>Daftar Booking</p>
                               </a>
                           </li>
                       </ul>

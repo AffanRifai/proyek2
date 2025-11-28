@@ -8,7 +8,7 @@
             <li><a href="/daftar-mobil">Daftar Mobil</a></li>
             <li><a href="/TentangKami">Tentang</a></li>
             @auth
-                <li><a href="#" {{ request()->is('pesanan') ? 'active' : '' }}>Pesanan Anda</a></li>
+                <li><a href="{{ route('pesanan.index') }}" {{ request()->is('pesanan') ? 'active' : '' }}>Pesanan Anda</a></li>
             @endauth
             <li class="search-container">
                 <input type="search" placeholder="Search" aria-label="Cari" />

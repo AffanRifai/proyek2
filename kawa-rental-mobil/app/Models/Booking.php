@@ -48,7 +48,8 @@ class Booking extends Model
         'sisa_pembayaran',
         'total_dibayar',
         'midtrans_order_id',
-        'tanggal_jatuh_tempo_pembayaran'
+        'tanggal_jatuh_tempo_pembayaran',
+        'expired_at',
     ];
 
     protected $casts = [
@@ -61,15 +62,81 @@ class Booking extends Model
         'jumlah_dp' => 'decimal:2',
         'sisa_pembayaran' => 'decimal:2',
         'total_dibayar' => 'decimal:2',
-        'tanggal_jatuh_tempo_pembayaran' => 'datetime'
+        'tanggal_jatuh_tempo_pembayaran' => 'datetime',
+        'expired_at' => 'datetime',
     ];
 
+    protected $dates = [
+        'mulai_tgl',
+        'sel_tgl',
+        'actual_sel_tgl',
+        'tanggal_jatuh_tempo_pembayaran',
+        'expired_at',
+        'created_at',
+        'updated_at',
+    ];
+
+    public function car()
+    {
+        return $this->belongsTo(\App\Models\Car::class, 'car_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+    // Accessor untuk mudah mendapatkan id_transaksi
+    public function getTransactionIdAttribute()
+    {
+        return $this->id_transaksi;
+    }
 
     // Relasi ke Pembayaran
     public function pembayaran()
     {
-        return $this->hasMany(Pembayaran::class);
+        return $this->hasMany(\App\Models\Pembayaran::class, 'booking_id');
     }
+
+    // total sudah dibayar (mengakumulasi total_dibayar atau dari pembayaran)
+    public function totalDibayar()
+    {
+        // Jika kamu menyimpan total_dibayar di kolom, pakai itu; fallback ke relasi pembayaran
+        if ($this->total_dibayar && $this->total_dibayar > 0) return (float) $this->total_dibayar;
+
+        return (float) $this->pembayaran()->whereIn('status_pembayaran', ['sukses'])->sum('jumlah');
+    }
+
+    public function sisaBayar()
+    {
+        $sisa = (float)$this->total_pembayaran - $this->totalDibayar();
+        return $sisa > 0 ? $sisa : 0.00;
+    }
+
+    public function requiresDp()
+    {
+        // asumsi: tipe_pembayaran 'dp' berarti ada DP
+        return $this->tipe_pembayaran === 'dp';
+    }
+
+    public function isCancelable()
+    {
+        // hanya bisa dibatalkan jika status pending
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Scope untuk filter booking yang belum dibayar dalam 24 jam.
+     */
+    public function scopeExpiredUnpaid($query)
+    {
+        return $query->where('status', 'pending')
+            ->where('status_pembayaran', 'menunggu')
+            ->whereNotNull('created_at')
+            ->where('created_at', '<', now()->subDay());
+    }
+
+
 
     // Method untuk pembayaran DP
     public function bayarDp($jumlah)
@@ -232,7 +299,7 @@ class Booking extends Model
                 $this->car->update(['status' => 'tersedia']);
             }
 
-            \Log::info("Pengembalian manual diproses: {$this->id_transaksi}", [
+            Log::info("Pengembalian manual diproses: {$this->id_transaksi}", [
                 'tanggal_pengembalian' => $actualSelTgl,
                 'hari_terlambat' => $hariTerlambat,
                 'denda_terlambat' => $dendaTerlambat,
@@ -292,8 +359,10 @@ class Booking extends Model
     // Method untuk cek apakah booking sudah expired (hanya informasi)
     public function isExpired()
     {
-        return $this->status === 'approved' &&
-            Carbon::parse($this->sel_tgl)->lt(Carbon::today());
+        // return $this->status === 'approved' &&
+        //     Carbon::parse($this->sel_tgl)->lt(Carbon::today());
+
+        return $this->status === 'expired' || ($this->expired_at && now()->isAfter($this->expired_at));
     }
 
     // Method untuk cek apakah booking sedang berjalan
@@ -498,20 +567,113 @@ class Booking extends Model
         return $badges[$this->status] ?? 'bg-gray-100 text-gray-800';
     }
 
-    // Relationship
-    public function car()
+    // === AUTO CANCEL CHECK ===
+    public function checkAutoCancel()
     {
-        return $this->belongsTo(Car::class);
+        try {
+            // jika status akhir, skip
+            if (in_array($this->status, ['expired', 'cancelled', 'rejected', 'completed'])) {
+                Log::info("checkAutoCancel: booking {$this->id} already terminal status {$this->status}");
+                return false;
+            }
+
+            // jika booking sudah memiliki status_pembayaran selain 'menunggu' (mis. dp_dibayar, lunas), skip
+            if ($this->status_pembayaran && $this->status_pembayaran !== 'menunggu') {
+                Log::info("checkAutoCancel: booking {$this->id} status_pembayaran={$this->status_pembayaran}, skipping auto-cancel");
+                return false;
+            }
+
+            // jika sudah ada pembayaran sukses, skip
+            $hasSuccess = $this->pembayaran()->where('status_pembayaran', 'sukses')->exists();
+            if ($hasSuccess) {
+                Log::info("checkAutoCancel: booking {$this->id} has successful pembayaran, skipping auto-cancel");
+                return false;
+            }
+
+            // jika ada pembayaran pending online, atau ada pembayaran offline yang terdaftar (menunggu_verifikasi),
+            // skip auto-cancel supaya admin bisa konfirmasi/offline flow berjalan.
+            $hasPendingOnline = $this->pembayaran()
+                ->where('saluran_pembayaran', 'online')
+                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi'])
+                ->exists();
+
+            $hasPendingOffline = $this->pembayaran()
+                ->where('saluran_pembayaran', 'offline')
+                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi'])
+                ->exists();
+
+            if ($hasPendingOnline || $hasPendingOffline) {
+                Log::info("checkAutoCancel: booking {$this->id} has pending pembayaran (online/offline), skipping auto-cancel");
+                return false;
+            }
+
+            // determine cutoff: prefer expired_at, else created_at + 3600s
+            if ($this->expired_at) {
+                $cutoff = $this->expired_at;
+            } elseif ($this->created_at) {
+                $cutoff = $this->created_at->copy()->addSeconds(3600); // jangan mutasi created_at
+            } else {
+                Log::info("checkAutoCancel: booking {$this->id} has no cutoff/expired_at");
+                return false;
+            }
+
+            if (now()->gte($cutoff)) {
+                DB::transaction(function () {
+                    // update booking
+                    $this->update([
+                        'status' => 'expired',
+                        'status_pembayaran' => 'tertunggak',
+                        'catatan_admin' => 'Booking dibatalkan otomatis karena melewati batas waktu pembayaran.',
+                    ]);
+
+                    // kembalikan mobil jika terkait
+                    if ($this->car) {
+                        try {
+                            $this->car->update(['status' => 'tersedia']);
+                        } catch (\Exception $e) {
+                            Log::warning("checkAutoCancel: failed to update car status for booking {$this->id}: " . $e->getMessage());
+                        }
+                    }
+                });
+
+                Log::info("Booking {$this->id} auto-cancelled and marked tertunggak.");
+                return true;
+            }
+
+            // belum waktunya
+            return false;
+        } catch (\Exception $e) {
+            Log::error("Auto cancel error booking {$this->id}: " . $e->getMessage());
+            return false;
+        }
     }
 
-    public function user()
+    // Scope untuk booking yang belum expired
+    public function scopeNotExpired($query)
     {
-        return $this->belongsTo(User::class);
+        return $query->where('status', '!=', 'expired')->where(function ($q) {
+            $q->whereNull('expired_at')->orWhere('expired_at', '>', now());
+        });
     }
 
-    // Accessor untuk mudah mendapatkan id_transaksi
-    public function getTransactionIdAttribute()
+    public function pelunasanDeadline()
     {
-        return $this->id_transaksi;
+        if (!$this->mulai_tgl) return null;
+        return \Carbon\Carbon::parse($this->mulai_tgl)->endOfDay();
+    }
+
+    public function canPelunasanOffline()
+    {
+        if ($this->status === 'expired') return false;
+        if ($this->sisaBayar() <= 0) return false;
+        if ($this->status_pembayaran === 'lunas') return false;
+
+        $deadline = $this->pelunasanDeadline();
+        if ($deadline) {
+            return now()->lessThanOrEqualTo($deadline);
+        }
+
+        // fallback: jika tidak ada mulai_tgl, kita izinkan selama booking belum expired
+        return true;
     }
 }

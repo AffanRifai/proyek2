@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Booking;
+use Illuminate\Container\Attributes\Log;
+
 
 class AutoCompleteBookings extends Command
 {
@@ -12,17 +14,22 @@ class AutoCompleteBookings extends Command
 
     public function handle()
     {
-        $this->info('Starting auto-complete process for expired bookings...');
-        
-        $count = Booking::autoCompleteExpiredBookings();
-        
-        if ($count > 0) {
-            $this->info("✅ Successfully auto-completed {$count} bookings.");
-            \Log::info("Auto-completed {$count} bookings on " . now()->toDateTimeString());
-        } else {
-            $this->info("ℹ️ No expired bookings found to auto-complete.");
+        $expiredBookings = Booking::expiredUnpaid()->get();
+
+        if ($expiredBookings->isEmpty()) {
+            $this->info('Tidak ada booking yang perlu dibatalkan.');
+            return Command::SUCCESS;
         }
-        
+
+        foreach ($expiredBookings as $booking) {
+            $booking->update([
+                'status' => 'cancelled',
+                'status_pembayaran' => 'tertunggak',
+                'catatan_admin' => 'Booking otomatis dibatalkan karena tidak dibayar dalam 1x24 jam.',
+            ]);
+        }
+
+        $this->info("{$expiredBookings->count()} booking dibatalkan otomatis.");
         return Command::SUCCESS;
     }
 }
