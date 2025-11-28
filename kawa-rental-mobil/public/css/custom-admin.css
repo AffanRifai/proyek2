@@ -1,0 +1,48 @@
+/* Warna pastel + efek hover stylish */
+.info-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #93C5FD, #3B82F6);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #A7F3D0, #10B981);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #FDE68A, #F59E0B);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #FCA5A5, #EF4444);
+}
+
+/* Tabel rapi dan sejajar */
+.table th,
+.table td {
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+/* Responsif dan enak dilihat */
+@media (max-width: 768px) {
+    .info-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .info-card h6 {
+        font-size: 0.85rem;
+    }
+
+    .btn-sm {
+        font-size: 0.8rem;
+    }
+}

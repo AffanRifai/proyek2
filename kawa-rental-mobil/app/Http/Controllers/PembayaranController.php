@@ -8,26 +8,184 @@ use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Midtrans\Config as MidtransConfig;
 use Midtrans\Snap;
 use Midtrans\Transaction;
+use Midtrans\Notification;
+use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
 {
-    public function __construct()
-    {
-        MidtransHelper::initialize();
-    }
-
     private function initializeMidtrans()
     {
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = config('midtrans.is_production', false);
-        \Midtrans\Config::$isSanitized = true;
-        \Midtrans\Config::$is3ds = true;
+        $mid = config('services.midtrans', []);
+
+        MidtransConfig::$serverKey = $mid['server_key'] ?? env('MIDTRANS_SERVER_KEY');
+        MidtransConfig::$isProduction = filter_var($mid['is_production'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        MidtransConfig::$isSanitized = filter_var($mid['is_sanitized'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        MidtransConfig::$is3ds = filter_var($mid['is_3ds'] ?? true, FILTER_VALIDATE_BOOLEAN);
     }
 
-    // ======================= PEMBUATAN PEMBAYARAN ==========================
+    public function createSnap(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer|exists:bookings,id',
+            'jenis_pembayaran' => 'required|string', // dp / pelunasan / bayar_penuh
+        ]);
 
+        $booking = Booking::with('pembayaran')->findOrFail($request->booking_id);
+        $jenis = $request->jenis_pembayaran;
+
+        // blokir jika booking sudah expired
+        if ($booking->status === 'expired' || ($booking->expired_at && now()->isAfter($booking->expired_at))) {
+            return response()->json(['message' => 'Booking sudah kedaluwarsa, tidak bisa melakukan pembayaran.'], 422);
+        }
+
+        // jika pelunasan dan sudah melewati mulai tanggal, tolak (tidak boleh bayar sisa setelah mulai)
+        if ($jenis === 'pelunasan') {
+            $jumlah = $booking->sisaBayar();
+            if ($jumlah <= 0) {
+                return response()->json(['message' => 'Tidak ada sisa pembayaran'], 422);
+            }
+
+            if ($booking->mulai_tgl && now()->gte(\Carbon\Carbon::parse($booking->mulai_tgl))) {
+                return response()->json(['message' => 'Sudah melewati tanggal mulai sewa, tidak bisa bayar sisa.'], 422);
+            }
+        } elseif ($jenis === 'dp') {
+            $jumlah = $booking->jumlah_dp > 0
+                ? (float)$booking->jumlah_dp
+                : round($booking->total_pembayaran * 0.30, 2);
+        } elseif ($jenis === 'bayar_penuh') {
+            $jumlah = (float)$booking->total_pembayaran;
+        } else {
+            return response()->json(['message' => 'Jenis pembayaran tidak valid'], 422);
+        }
+
+        // inisialisasi Midtrans
+        $this->initializeMidtrans();
+
+        // generate order ID
+        $orderId = 'KAWA-' . Str::upper(Str::random(8)) . '-' . $booking->id;
+
+        // buat catatan pembayaran status "menunggu"
+        $pembayaran = Pembayaran::create([
+            'booking_id' => $booking->id,
+            'jenis_pembayaran' => $jenis,
+            'metode_pembayaran' => 'midtrans',
+            'saluran_pembayaran' => 'online',
+            'jumlah' => $jumlah,
+            'jumlah_dibayar' => 0,
+            'midtrans_order_id' => $orderId,
+            'status_pembayaran' => 'menunggu',
+        ]);
+
+        // payload untuk midtrans
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (float)$jumlah,
+            ],
+            'customer_details' => [
+                'first_name' => $booking->nama_penyewa ?? 'Customer',
+                'email' => $booking->booking_user_email ?? null,
+                'phone' => $booking->no_telp,
+            ],
+            'item_details' => [
+                [
+                    'id' => $booking->id,
+                    'price' => (float)$jumlah,
+                    'quantity' => 1,
+                    'name' => 'Pembayaran ' . $jenis . ' - ' . $booking->id_transaksi,
+                ],
+            ],
+        ];
+
+        try {
+            Log::info("MIDTRANS: Creating SnapToken for ORDER $orderId");
+
+            $snapToken = Snap::getSnapToken($params);
+
+            return response()->json([
+                'snap_token' => $snapToken,
+                'pembayaran_id' => $pembayaran->id,
+                'order_id' => $orderId,
+            ]);
+        } catch (\Exception $e) {
+
+            Log::error('MIDTRANS ERROR (createSnap): ' . $e->getMessage(), [
+                'orderId' => $orderId,
+                'params' => $params
+            ]);
+
+            return response()->json([
+                'message' => 'Gagal membuat transaksi midtrans: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ===================================================================
+    // Endpoint untuk mendaftar pembayaran offline (pelunasan/offline)
+    // - Membuat record pembayaran dengan saluran_pembayaran = 'offline'
+    // - status_pembayaran = 'menunggu_verifikasi' (butuh konfirmasi admin)
+    // ===================================================================
+    public function offline(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer|exists:bookings,id',
+            'jenis' => 'required|string', // pelunasan_offline / bayar_penuh_offline
+        ]);
+
+        $booking = Booking::with('pembayaran')->findOrFail($request->booking_id);
+        $jenisReq = $request->jenis;
+
+        // blokir jika booking expired
+        if ($booking->status === 'expired' || ($booking->expired_at && now()->isAfter($booking->expired_at))) {
+            return response()->json(['success' => false, 'message' => 'Booking sudah kedaluwarsa, tidak bisa mendaftar bayar offline.'], 422);
+        }
+
+        // terjemahkan jenis request ke jenis_pembayaran
+        if ($jenisReq === 'pelunasan_offline') {
+            // cek sisa
+            $jumlah = $booking->sisaBayar();
+            if ($jumlah <= 0) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada sisa pembayaran.'], 422);
+            }
+
+            // **Aturan deadline pelunasan yang kamu minta:**
+            // boleh sampai akhir hari mulai_tgl (mulai_tgl 1 = sampai 23:59:59 hari itu).
+            if (!$booking->mulai_tgl) {
+                return response()->json(['success' => false, 'message' => 'Tanggal mulai sewa tidak tersedia.'], 422);
+            }
+
+            $deadline = \Carbon\Carbon::parse($booking->mulai_tgl)->endOfDay();
+            if (now()->greaterThan($deadline)) {
+                return response()->json(['success' => false, 'message' => 'Sudah melewati batas waktu pelunasan (telah memasuki hari setelah tanggal mulai).'], 422);
+            }
+
+            $jenisDb = 'pelunasan';
+        } elseif ($jenisReq === 'bayar_penuh_offline') {
+            $jumlah = (float)$booking->total_pembayaran;
+            $jenisDb = 'bayar_penuh';
+        } else {
+            return response()->json(['success' => false, 'message' => 'Jenis offline tidak valid.'], 422);
+        }
+
+        // buat pembayaran offline (status menunggu_verifikasi sehingga admin perlu konfirmasi)
+        $pembayaran = Pembayaran::create([
+            'booking_id' => $booking->id,
+            'jenis_pembayaran' => $jenisDb,
+            'metode_pembayaran' => 'cash', // default; admin bisa ubah nanti
+            'saluran_pembayaran' => 'offline',
+            'jumlah' => $jumlah,
+            'jumlah_dibayar' => 0,
+            'midtrans_order_id' => null,
+            'status_pembayaran' => 'menunggu_verifikasi',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Permintaan bayar offline berhasil dikirim. Tunggu konfirmasi admin.', 'pembayaran_id' => $pembayaran->id]);
+    }
+
+    // ======================= PEMBUATAN PEMBAYARAN (view/prosesOnline etc) ==========================
     public function buat($idBooking, $jenis)
     {
         $booking = Booking::with('car', 'user')->findOrFail($idBooking);
@@ -75,8 +233,91 @@ class PembayaranController extends Controller
         }
     }
 
-    // ======================= CALLBACK DARI MIDTRANS ==========================
+    // Notification / webhook endpoint dari midtrans
+    public function notification(Request $request)
+    {
+        // midtrans notification signature handled by library
+        try {
+            $notif = new Notification();
 
+            $transactionStatus = $notif->transaction_status;
+            $orderId = $notif->order_id; // ini harus unik yang kita set
+            $fraudStatus = $notif->fraud_status ?? null;
+            $paymentType = $notif->payment_type ?? null;
+            $transactionId = $notif->transaction_id ?? null;
+            $grossAmount = $notif->gross_amount ?? null;
+
+            // cari pembayaran berdasarkan midtrans_order_id
+            $pembayaran = Pembayaran::where('midtrans_order_id', $orderId)->first();
+
+            if (!$pembayaran) {
+                return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
+            }
+
+            // update berdasarkan status midtrans
+            DB::beginTransaction();
+            try {
+                if ($transactionStatus == 'capture') {
+                    if ($paymentType == 'credit_card') {
+                        if ($fraudStatus == 'challenge') {
+                            $pembayaran->status_pembayaran = 'menunggu_verifikasi';
+                        } else {
+                            $pembayaran->status_pembayaran = 'sukses';
+                            $pembayaran->jumlah_dibayar = $pembayaran->jumlah;
+                            $pembayaran->dibayar_pada = now();
+                        }
+                    }
+                } elseif ($transactionStatus == 'settlement') {
+                    $pembayaran->status_pembayaran = 'sukses';
+                    $pembayaran->jumlah_dibayar = $pembayaran->jumlah;
+                    $pembayaran->dibayar_pada = now();
+                } elseif ($transactionStatus == 'pending') {
+                    $pembayaran->status_pembayaran = 'menunggu';
+                } elseif ($transactionStatus == 'deny') {
+                    $pembayaran->status_pembayaran = 'gagal';
+                } elseif ($transactionStatus == 'expire') {
+                    $pembayaran->status_pembayaran = 'kadaluarsa';
+                } elseif ($transactionStatus == 'cancel') {
+                    $pembayaran->status_pembayaran = 'gagal';
+                }
+
+                $pembayaran->midtrans_transaction_id = $transactionId;
+                $pembayaran->data_pembayaran = json_encode($notif);
+                $pembayaran->save();
+
+                // Jika pembayaran sukses, update booking: total_dibayar, status_pembayaran, midtrans_order_id, dll
+                if ($pembayaran->status_pembayaran == 'sukses') {
+                    $booking = $pembayaran->booking()->first();
+
+                    // update total_dibayar di booking
+                    $booking->total_dibayar = (float)$booking->total_dibayar + (float)$pembayaran->jumlah;
+                    // set sisa_pembayaran
+                    $booking->sisa_pembayaran = max(0, (float)$booking->total_pembayaran - (float)$booking->total_dibayar);
+
+                    // update status_pembayaran: jika masih ada sisa -> dp_dibayar, jika lunas -> lunas
+                    if ($booking->sisa_pembayaran > 0 && $booking->requiresDp()) {
+                        $booking->status_pembayaran = 'dp_dibayar';
+                    } elseif ($booking->sisa_pembayaran <= 0) {
+                        $booking->status_pembayaran = 'lunas';
+                    }
+
+                    // simpan midtrans_order_id di booking sebagai referensi (opsional)
+                    $booking->midtrans_order_id = $orderId;
+                    $booking->save();
+                }
+
+                DB::commit();
+                return response()->json(['message' => 'ok'], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'error update: ' . $e->getMessage()], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'invalid notification: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // Callback dan helper lainnya tetap sama...
     public function handleCallback(Request $request)
     {
         Log::info('=== MIDTRANS CALLBACK RECEIVED ===');
@@ -162,8 +403,6 @@ class PembayaranController extends Controller
         return redirect()->route('transaksi.nota', ['id' => $pembayaran->id]);
     }
 
-    // ======================= PEMROSESAN PEMBAYARAN SUKSES ==========================
-
     private function prosesPembayaranSukses($pembayaran, $booking, $jumlah, $notification)
     {
         Log::info('=== PEMBAYARAN SUKSES ===', [
@@ -207,14 +446,11 @@ class PembayaranController extends Controller
     public function sukses($idPembayaran)
     {
         try {
-            // Ambil data pembayaran dari database
             $pembayaran = Pembayaran::findOrFail($idPembayaran);
 
-            // Jika status belum sukses, kita bisa panggil API Midtrans buat update status-nya
             if ($pembayaran->status_pembayaran !== 'sukses') {
                 $status = \Midtrans\Transaction::status($pembayaran->order_id);
 
-                // Update status di database
                 if ($status->transaction_status === 'settlement' || $status->transaction_status === 'capture') {
                     $pembayaran->status_pembayaran = 'sukses';
                     $pembayaran->save();
@@ -227,11 +463,9 @@ class PembayaranController extends Controller
                 }
             }
 
-            // Ambil relasi ke data booking atau user jika ada
             $booking = $pembayaran->booking ?? null;
             $user = auth()->user();
 
-            // Tampilkan halaman sukses
             return view('pembayaran.sukses', compact('pembayaran', 'booking', 'user'));
         } catch (\Exception $e) {
             Log::error('Error di PembayaranController@sukses: ' . $e->getMessage());
@@ -239,7 +473,6 @@ class PembayaranController extends Controller
         }
     }
 
-    // pembayaran pending
     public function pending($idPembayaran)
     {
         $pembayaran = Pembayaran::findOrFail($idPembayaran);
@@ -250,9 +483,7 @@ class PembayaranController extends Controller
         ]);
     }
 
-
-    // ======================= HELPER METHOD ==========================
-
+    // helper parsing dan signature validation (tetap seperti semula)
     private function parseMidtransNotification(Request $request)
     {
         $raw = $request->getContent();

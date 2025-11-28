@@ -26,6 +26,31 @@ Route::get('/', function () {
     return view('landingpage');
 })->name('home');
 
+Route::get('/AdminDashboardMobil', function () {
+    return view('AdminDashboardMobil');
+})->name('admin');
+
+Route::get('DetailMobil', function () {
+    return view('AdminDetailMobil');
+})->name('detail');
+
+Route::get('/laporan', function () {
+    return view('AdminLaporanStatis');
+});
+
+Route::get('/manajemenmobil', function () {
+    return view('AdminManajemenMobil');
+})->name('admin');
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
+Route::get('/manajemenbookingmobil', function () {
+    return view('AdminManajemenBookingMobil');
+});
+
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
@@ -121,6 +146,9 @@ Route::get('/TentangKami', fn() => view('TentangKami'));
 
 Route::get('/AdminManajemenBooking', fn() => view('AdminManajemenBooking'));
 
+Route::post('/pembayaran/offline', [PembayaranController::class, 'offline'])->name('pembayaran.offline');
+
+
 // ✅ PERBAIKAN: SATU KELOMPOK ROUTE ADMIN YANG BERSIH
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
@@ -163,6 +191,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pembayaran/{idBooking}/online', [PembayaranController::class, 'prosesOnline'])->name('pembayaran.proses.online');
     Route::post('/pembayaran/{idBooking}/offline', [PembayaranController::class, 'prosesOffline'])->name('pembayaran.proses.offline');
     Route::post('/pembayaran/{idPembayaran}/upload-bukti', [PembayaranController::class, 'uploadBukti'])->name('pembayaran.upload.bukti');
+    Route::post('/pembayaran/store', [PembayaranController::class, 'store'])->name('pembayaran.store');
 });
 
 // ✅ STATUS PEMBAYARAN - TANPA AUTH (DI LUAR MIDDLEWARE GROUP)
@@ -207,35 +236,22 @@ Route::get('/transaksi/nota/{id}/download-gambar', [TransaksiController::class, 
 Route::get('/transaksi/{id}/nota-pdf', [TransaksiController::class, 'downloadNotaPDF'])->name('transaksi.nota.pdf');
 
 
+use App\Http\Controllers\PesananController;
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/pesanan-saya', [PesananController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan-saya/{id}', [PesananController::class, 'show'])->name('pesanan.show');
 
+    // Aksi untuk batalkan (AJAX post)
+    Route::post('/pesanan-saya/{id}/cancel', [PesananController::class, 'cancel'])->name('pesanan.cancel');
 
-// routes/web.php - tambahkan route test
-Route::get('/test-midtrans', function () {
-    try {
-        // Test koneksi Midtrans
-        if (class_exists('Midtrans\Config')) {
-            \Midtrans\Config::$serverKey = config('midtrans.server_key');
-            \Midtrans\Config::$isProduction = false;
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Midtrans berhasil di-load',
-                'client_key' => config('midtrans.client_key')
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Class Midtrans tidak ditemukan'
-            ], 500);
-        }
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
-    }
+    // Pembayaran / Midtrans
+    // Route::post('/pembayaran/create-snap', [PembayaranController::class, 'createSnapToken'])->name('pembayaran.create_snap');
+    Route::post('/pembayaran/create-snap', [PembayaranController::class, 'createSnap'])
+        ->name('pembayaran.create_snap');
+    Route::post('/pembayaran/webhook', [PembayaranController::class, 'notification']); // midtrans server-to-server
 });
+
 
 // Routes untuk Customer melihat booking mereka
 Route::middleware(['auth'])->group(function () {
@@ -245,314 +261,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bookings/saya', [BookingController::class, 'bookingsSaya'])->name('bookings.saya');
 });
 
-// Route untuk test callback - HAPUS JIKA SUDAH PRODUCTION
-Route::get('/test-callback/{pembayaranId}', function ($pembayaranId) {
-    $pembayaran = \App\Models\Pembayaran::find($pembayaranId);
-
-    if (!$pembayaran) {
-        return response()->json(['error' => 'Pembayaran tidak ditemukan'], 404);
-    }
-
-    // Simulasikan callback settlement dari Midtrans
-    $mockData = [
-        'order_id' => $pembayaran->midtrans_order_id,
-        'transaction_status' => 'settlement',
-        'fraud_status' => 'accept',
-        'gross_amount' => (string) $pembayaran->jumlah,
-        'transaction_id' => 'TEST-' . time(),
-        'payment_type' => 'bank_transfer',
-        'va_numbers' => [['bank' => 'bca', 'va_number' => '1234567890']]
-    ];
-
-    \Log::info('Testing callback with data:', $mockData);
-
-    // Panggil callback handler dengan GET request
-    $request = new \Illuminate\Http\Request();
-    $request->replace($mockData);
-
-    $controller = new \App\Http\Controllers\PembayaranController();
-    return $controller->handleCallback($request);
-});
-
-// Route debugging - temporary
-Route::get('/debug-routes', function () {
-    $routes = Route::getRoutes();
-
-    $paymentRoutes = [];
-    foreach ($routes as $route) {
-        if (str_contains($route->uri(), 'pembayaran')) {
-            $paymentRoutes[] = [
-                'method' => $route->methods()[0],
-                'uri' => $route->uri(),
-                'name' => $route->getName(),
-                'action' => $route->getActionName()
-            ];
-        }
-    }
-
-    return response()->json($paymentRoutes);
-});
-
-// Fallback route untuk testing
-Route::get('/test-pending/{id}', function ($id) {
-    try {
-        $pembayaran = \App\Models\Pembayaran::with('booking')->findOrFail($id);
-        return view('pembayaran.pending', compact('pembayaran'));
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-});
-
-// Debug route untuk testing
-Route::get('/debug-pending/{id}', function ($id) {
-    return "Debug Pending Route - ID: " . $id;
-});
-
-// Test semua route pembayaran
-Route::get('/test-all-payment-routes', function () {
-    $tests = [
-        '/pembayaran/pending/9',
-        '/pembayaran/sukses/9',
-        '/pembayaran/gagal/9',
-        '/test-pending/8',
-        '/debug-pending/8'
-    ];
-
-    $results = [];
-    foreach ($tests as $test) {
-        try {
-            $response = app()->handle(Request::create($test));
-            $results[$test] = [
-                'status' => $response->getStatusCode(),
-                'success' => $response->getStatusCode() === 200
-            ];
-        } catch (\Exception $e) {
-            $results[$test] = [
-                'status' => 'ERROR',
-                'message' => $e->getMessage()
-            ];
-        }
-    }
-
-    return response()->json($results);
-});
-
-
-// Test endpoint untuk Midtrans webhook
-Route::post('/test-webhook', function (Request $request) {
-    \Log::info('=== TEST WEBHOOK RECEIVED ===');
-    \Log::info('Headers:', $request->headers->all());
-    \Log::info('Body:', $request->all());
-    \Log::info('Raw:', ['content' => $request->getContent()]);
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Webhook received',
-        'received_at' => now()->toDateTimeString()
-    ]);
-});
-
-Route::get('/test-ngrok', function () {
-    $configs = [
-        'app_url' => config('app.url'),
-        'midtrans_merchant_id' => config('midtrans.merchant_id'),
-        'midtrans_client_key' => config('midtrans.client_key'),
-        'midtrans_callback_url' => config('midtrans.callback_url'),
-        'midtrans_is_production' => config('midtrans.is_production'),
-        'all_midtrans_config' => config('midtrans'),
-    ];
-
-    \Log::info('Ngrok Test Accessed', $configs);
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Ngrok is working!',
-        'config_check' => [
-            'app_url_configured' => !empty(config('app.url')),
-            'midtrans_loaded' => class_exists('Midtrans\Config'),
-            'callback_url_set' => !empty(config('midtrans.callback_url')),
-        ],
-        'app_url' => config('app.url'),
-        'midtrans_callback' => config('midtrans.callback_url'),
-        'server_time' => now()->toDateTimeString(),
-        'debug_info' => $configs
-    ]);
-});
-
-// Di routes/web.php
-Route::get('/callback-monitor', function () {
-    $logs = [];
-    $logFile = storage_path('logs/laravel.log');
-
-    if (file_exists($logFile)) {
-        $content = file_get_contents($logFile);
-        // Ambil log terkait callback
-        preg_match_all('/.MIDTRANS CALLBACK./i', $content, $matches);
-        $logs = array_slice($matches[0], -10); // 10 log terakhir
-    }
-
-    return view('callback-monitor', compact('logs'));
-});
-
-// Di routes/web.php
-Route::get('/test-payment-flow/{bookingId}/{jenis}', function ($bookingId, $jenis) {
-    try {
-        $booking = \App\Models\Booking::findOrFail($bookingId);
-        $controller = new \App\Http\Controllers\PembayaranController();
-
-        // Simulasikan request
-        $request = new \Illuminate\Http\Request();
-        $request->replace(['jenis' => $jenis]);
-
-        // Panggil prosesOnline
-        return $controller->prosesOnline($request, $bookingId);
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-});
-
-
-// Di routes/web.php
-Route::get('/payment-monitor', function () {
-    $recentPayments = \App\Models\Pembayaran::with('booking')
-        ->orderBy('created_at', 'desc')
-        ->limit(10)
-        ->get();
-
-    $stats = [
-        'total' => \App\Models\Pembayaran::count(),
-        'success' => \App\Models\Pembayaran::where('status_pembayaran', 'sukses')->count(),
-        'pending' => \App\Models\Pembayaran::where('status_pembayaran', 'menunggu')->count(),
-        'failed' => \App\Models\Pembayaran::where('status_pembayaran', 'gagal')->count(),
-    ];
-
-    return view('payment-monitor', compact('recentPayments', 'stats'));
-});
-
-
-// Test script untuk pembayaran otomatis
-Route::get('/auto-test-payment/{jenis}', function ($jenis) {
-    try {
-        // Cari booking yang cocok
-        $booking = \App\Models\Booking::where('tipe_pembayaran', $jenis == 'dp' ? 'dp' : 'bayar_penuh')
-            ->where('status_pembayaran', 'menunggu')
-            ->first();
-
-        if (!$booking) {
-            // Buat booking test otomatis
-            $car = \App\Models\Car::where('status', 'tersedia')->first();
-
-            $booking = \App\Models\Booking::create([
-                'id_transaksi' => 'AUTO-TEST-' . time(),
-                'user_id' => 1, // Ganti dengan user ID yang valid
-                'car_id' => $car->id,
-                'nama_penyewa' => 'Auto Test Customer',
-                'no_telp' => '081234567890',
-                'alamat' => 'Auto Test Address',
-                'tujuan' => 'Surabaya',
-                'mulai_tgl' => now(),
-                'sel_tgl' => now()->addDays(3),
-                'lama_hari' => 3,
-                'biaya_harian' => $car->biaya_harian,
-                'total_pembayaran' => $car->biaya_harian * 3,
-                'tipe_pembayaran' => $jenis == 'dp' ? 'dp' : 'bayar_penuh',
-                'bentuk_jaminan' => 'sim',
-                'posisi_bbm' => 'full',
-                'status' => 'pending',
-                'status_pembayaran' => 'menunggu',
-                'jumlah_dp' => $jenis == 'dp' ? ($car->biaya_harian * 3) * 0.2 : 0,
-                'sisa_pembayaran' => $jenis == 'dp' ? ($car->biaya_harian * 3) * 0.8 : 0,
-            ]);
-        }
-
-        // Redirect ke halaman pembayaran
-        return redirect()->route('pembayaran.buat', [
-            'idBooking' => $booking->id,
-            'jenis' => $jenis
-        ]);
-    } catch (\Exception $e) {
-        return "Error creating test: " . $e->getMessage();
-    }
-});
-
-// Di routes/web.php
-Route::get('/test-callback-accessible', function () {
-    \Log::info('🔍 TEST: Callback accessibility check');
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Callback URL is accessible',
-        'callback_url' => url('/pembayaran/midtrans/callback'),
-        'required_method' => 'POST',
-        'timestamp' => now()->toDateTimeString()
-    ]);
-});
-
-// Test POST request ke callback URL
-Route::post('/test-callback-post', function () {
-    \Log::info('✅ TEST: Callback POST request received', request()->all());
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'POST callback working!',
-        'data_received' => request()->all(),
-        'headers' => request()->headers->all()
-    ]);
-});
-
-// Di routes/web.php
-Route::get('/simulate-midtrans-callback/{pembayaranId}', function ($pembayaranId) {
-    try {
-        $pembayaran = \App\Models\Pembayaran::findOrFail($pembayaranId);
-
-        // Data simulasi dari Midtrans
-        $simulatedData = [
-            'order_id' => $pembayaran->midtrans_order_id,
-            'transaction_status' => 'settlement',
-            'fraud_status' => 'accept',
-            'gross_amount' => (string) $pembayaran->jumlah,
-            'transaction_id' => 'SIM-' . time(),
-            'payment_type' => 'bank_transfer',
-            'va_numbers' => [['bank' => 'bca', 'va_number' => '1234567890']],
-            'status_code' => '200',
-            'signature_key' => 'simulated_signature'
-        ];
-
-        \Log::info('🧪 SIMULATING MIDTRANS CALLBACK', $simulatedData);
-
-        // Panggil callback handler
-        $request = new \Illuminate\Http\Request();
-        $request->replace($simulatedData);
-
-        $controller = new \App\Http\Controllers\PembayaranController();
-        $response = $controller->handleCallback($request);
-
-        \Log::info('SIMULATION RESULT', ['response' => $response->getContent()]);
-
-        return response()->json([
-            'simulation_data' => $simulatedData,
-            'response' => $response->getContent(),
-            'pembayaran_after' => \App\Models\Pembayaran::find($pembayaranId)
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Simulation error: ' . $e->getMessage());
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-});
-
-Route::get('/view-logs', function () {
-    $logFile = storage_path('logs/laravel.log');
-
-    if (!file_exists($logFile)) {
-        return "Log file not found";
-    }
-
-    $logs = file_get_contents($logFile);
-    $lines = explode("\n", $logs);
-    $recentLines = array_slice($lines, -50); // 50 lines terakhir
-
-    return "<pre>" . implode("\n", $recentLines) . "</pre>";
-});
 
 // Di routes/web.php
 Route::get('/sync-payment/{paymentId}', function ($paymentId) {
@@ -586,35 +294,5 @@ Route::get('/sync-all-payments', function () {
         ]);
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
-    }
-});
-
-// Di routes/web.php
-// Ganti route advanced-payment-monitor dengan error handling
-Route::get('/advanced-payment-monitor', function () {
-    try {
-        $recentPayments = \App\Models\Pembayaran::with(['booking', 'booking.car'])
-            ->orderBy('created_at', 'desc')
-            ->limit(25)
-            ->get();
-
-        $syncStats = [
-            'pending' => \App\Models\Pembayaran::where('status_pembayaran', 'menunggu')->count(),
-            'success' => \App\Models\Pembayaran::where('status_pembayaran', 'sukses')->count(),
-            'failed' => \App\Models\Pembayaran::where('status_pembayaran', 'gagal')->count(),
-            'total' => \App\Models\Pembayaran::count(),
-        ];
-
-        // Last sync info
-        $logFile = storage_path('logs/payment-sync.log');
-        $lastSync = file_exists($logFile) ? date('Y-m-d H:i:s', filemtime($logFile)) : 'Never';
-
-        return view('advanced-payment-monitor', compact('recentPayments', 'syncStats', 'lastSync'));
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'View not ready',
-            'message' => 'Advanced payment monitor view is being created',
-            'alternative_url' => '/payment-monitor'
-        ], 500);
     }
 });

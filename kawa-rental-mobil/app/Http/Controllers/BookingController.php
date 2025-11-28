@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AutoCancelBooking;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Car;
@@ -123,7 +124,11 @@ class BookingController extends Controller
                 'file_jaminan' => $jaminanPath,
                 'file_stnk_motor' => $stnkPath,
                 'status' => 'pending',
+                'expired_at' => now()->addMinutes(3),
+
             ]);
+            AutoCancelBooking::dispatch($booking->id)->delay(now()->addMinutes(3));
+
 
             // ✅ Redirect ke halaman pembayaran sesuai tipe
             if ($request->tipe_pembayaran == 'dp') {
@@ -140,8 +145,8 @@ class BookingController extends Controller
                 Storage::disk('public')->delete($filesToDelete);
             }
 
-            \Log::error('Booking Error: ' . $e->getMessage());
-            \Log::error('Booking Error Trace: ' . $e->getTraceAsString());
+            Log::error('Booking Error: ' . $e->getMessage());
+            Log::error('Booking Error Trace: ' . $e->getTraceAsString());
 
             return back()
                 ->withInput()
@@ -171,13 +176,24 @@ class BookingController extends Controller
 
     public function show($id)
     {
-        $booking = Booking::with('car', 'pembayaran')
+        // Ambil booking hanya milik user + load relasi lengkap
+        $booking = Booking::with(['car', 'pembayaran'])
             ->where('id', $id)
-            ->where('user_id', Auth::id()) // Hanya pemilik booking yang bisa lihat
+            ->where('user_id', Auth::id())
             ->firstOrFail();
+
+        // Jalankan auto cancel realtime
+        $autoCancelled = $booking->checkAutoCancel();
+
+        // Wajib! — refresh setelah update agar model terbaru dipakai
+        if ($autoCancelled) {
+            $booking->refresh();
+            session()->flash('booking_auto_cancelled', 'Booking kamu dibatalkan karena melewati batas waktu pembayaran.');
+        }
 
         return view('booking.show', compact('booking'));
     }
+
 
     public function bookingsSaya()
     {
@@ -187,5 +203,18 @@ class BookingController extends Controller
             ->paginate(10);
 
         return view('booking.saya', compact('bookings'));
+    }
+
+    public function index()
+    {
+        $bookings = Booking::with(['car', 'pembayaran'])->get();
+
+        foreach ($bookings as $booking) {
+            if ($booking->checkAutoCancel()) {
+                $booking->refresh();
+            }
+        }
+
+        return view('booking.index', compact('bookings'));
     }
 }

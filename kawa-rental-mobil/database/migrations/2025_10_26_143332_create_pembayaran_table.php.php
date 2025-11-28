@@ -27,7 +27,6 @@ return new class extends Migration
             $table->index(['booking_id', 'status_pembayaran']);
             $table->unique('midtrans_order_id');
             $table->timestamps();
-
         });
     }
 

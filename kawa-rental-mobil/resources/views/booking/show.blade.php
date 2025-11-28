@@ -34,7 +34,7 @@
                         <p class="text-gray-600 mt-1">
                             <span
                                 class="px-3 py-1 rounded-full text-sm font-semibold {{ $booking->badge_status_pembayaran }}">
-                                {{ ucfirst( $booking->status_pembayaran) }}
+                                {{ ucfirst($booking->status_pembayaran) }}
                             </span>
                         </p>
                     </div>
@@ -158,6 +158,20 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (session('booking_auto_cancelled'))
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Booking Dibatalkan',
+                text: '{{ session('booking_auto_cancelled') }}',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @endif
+
 </body>
 
 </html>
