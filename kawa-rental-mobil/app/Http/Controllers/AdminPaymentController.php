@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class AdminPaymentController extends Controller
@@ -82,7 +83,7 @@ class AdminPaymentController extends Controller
             Log::info("Admin deleting payment", [
                 'payment_id' => $payment->id,
                 'order_id' => $payment->midtrans_order_id,
-                'admin_id' => auth()->id()
+                'admin_id' => Auth::id()
             ]);
 
             $payment->delete();
@@ -98,8 +99,10 @@ class AdminPaymentController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status_pembayaran' => 'required|in:sukses,menunggu,gagal',
-            'catatan_admin' => 'nullable|string|max:500'
+            // include offline verification status 'menunggu_verifikasi'
+            'status_pembayaran' => 'required|in:sukses,menunggu,gagal,menunggu_verifikasi',
+            'catatan_admin' => 'nullable|string|max:500',
+            'jumlah_dibayar' => 'nullable|numeric|min:0'
         ]);
 
         try {
@@ -109,13 +112,37 @@ class AdminPaymentController extends Controller
                 $oldStatus = $payment->status_pembayaran;
                 $newStatus = $request->status_pembayaran;
 
-                $payment->update([
+                $updateData = [
                     'status_pembayaran' => $newStatus,
                     'catatan_admin' => $request->catatan_admin
-                ]);
+                ];
+
+                // jika admin memberikan jumlah_dibayar eksplisit gunakan itu
+                if ($request->filled('jumlah_dibayar')) {
+                    $updateData['jumlah_dibayar'] = $request->jumlah_dibayar;
+                    $updateData['dibayar_pada'] = now();
+                }
+
+                // if confirming mark who confirmed
+                if ($newStatus === 'sukses') {
+                    $updateData['confirmed_by'] = Auth::id();
+                    $updateData['confirmed_at'] = now();
+                }
+
+                $payment->update($updateData);
 
                 // Jika status berubah ke sukses, update booking juga
                 if ($newStatus === 'sukses' && $oldStatus !== 'sukses') {
+                    // Jika ini pembayaran offline dan jumlah_dibayar belum diisi, anggap admin menerima jumlah penuh
+                    if ($request->filled('jumlah_dibayar')) {
+                        // jumlah_dibayar already set above
+                    } else {
+                        // Jika ini pembayaran offline dan jumlah_dibayar belum diisi, anggap admin menerima jumlah penuh
+                        if (($payment->saluran_pembayaran ?? '') === 'offline' && (empty($payment->jumlah_dibayar) || $payment->jumlah_dibayar == 0)) {
+                            $payment->update(['jumlah_dibayar' => $payment->jumlah, 'dibayar_pada' => now(), 'confirmed_by' => Auth::id(), 'confirmed_at' => now()]);
+                        }
+                    }
+
                     $this->updateBookingPaymentStatus($payment);
                 }
 
@@ -123,7 +150,7 @@ class AdminPaymentController extends Controller
                     'payment_id' => $payment->id,
                     'old_status' => $oldStatus,
                     'new_status' => $newStatus,
-                    'admin_id' => auth()->id()
+                    'admin_id' => Auth::id()
                 ]);
             });
 
@@ -173,6 +200,7 @@ class AdminPaymentController extends Controller
             'sukses' => Pembayaran::where('status_pembayaran', 'sukses')->count(),
             'menunggu' => Pembayaran::where('status_pembayaran', 'menunggu')->count(),
             'gagal' => Pembayaran::where('status_pembayaran', 'gagal')->count(),
+            'menunggu_verifikasi' => Pembayaran::where('status_pembayaran', 'menunggu_verifikasi')->count(),
 
             'total_amount' => Pembayaran::where('status_pembayaran', 'sukses')->sum('jumlah_dibayar'),
             'dp_count' => Pembayaran::where('jenis_pembayaran', 'dp')->where('status_pembayaran', 'sukses')->count(),
