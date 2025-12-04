@@ -162,27 +162,57 @@ class PembayaranController extends Controller
                 return response()->json(['success' => false, 'message' => 'Sudah melewati batas waktu pelunasan (telah memasuki hari setelah tanggal mulai).'], 422);
             }
 
-            $jenisDb = 'pelunasan';
+            // Cari pembayaran DP yang belum gagal (status != gagal, jenis_pembayaran = dp)
+            $pembayaran = $booking->pembayaran
+                ->where('jenis_pembayaran', 'dp')
+                ->where('status_pembayaran', '!=', 'gagal')
+                ->sortByDesc('id')
+                ->first();
+
+            if ($pembayaran) {
+                // Update record DP menjadi pelunasan
+                $pembayaran->update([
+                    'jenis_pembayaran' => 'pelunasan',
+                    'jumlah' => $jumlah,
+                    'jumlah_dibayar' => 0,
+                    'metode_pembayaran' => 'cash',
+                    'saluran_pembayaran' => 'offline',
+                    'midtrans_order_id' => null,
+                    'status_pembayaran' => 'menunggu_verifikasi',
+                    'catatan_admin' => null,
+                ]);
+            } else {
+                // Jika tidak ada DP, buat baru
+                $pembayaran = Pembayaran::create([
+                    'booking_id' => $booking->id,
+                    'jenis_pembayaran' => 'pelunasan',
+                    'metode_pembayaran' => 'cash',
+                    'saluran_pembayaran' => 'offline',
+                    'jumlah' => $jumlah,
+                    'jumlah_dibayar' => 0,
+                    'midtrans_order_id' => null,
+                    'status_pembayaran' => 'menunggu_verifikasi',
+                ]);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Permintaan pelunasan offline berhasil dikirim. Tunggu konfirmasi admin.', 'pembayaran_id' => $pembayaran->id]);
         } elseif ($jenisReq === 'bayar_penuh_offline') {
             $jumlah = (float)$booking->total_pembayaran;
             $jenisDb = 'bayar_penuh';
+            $pembayaran = Pembayaran::create([
+                'booking_id' => $booking->id,
+                'jenis_pembayaran' => $jenisDb,
+                'metode_pembayaran' => 'cash',
+                'saluran_pembayaran' => 'offline',
+                'jumlah' => $jumlah,
+                'jumlah_dibayar' => 0,
+                'midtrans_order_id' => null,
+                'status_pembayaran' => 'menunggu_verifikasi',
+            ]);
+            return response()->json(['success' => true, 'message' => 'Permintaan bayar offline berhasil dikirim. Tunggu konfirmasi admin.', 'pembayaran_id' => $pembayaran->id]);
         } else {
             return response()->json(['success' => false, 'message' => 'Jenis offline tidak valid.'], 422);
         }
-
-        // buat pembayaran offline (status menunggu_verifikasi sehingga admin perlu konfirmasi)
-        $pembayaran = Pembayaran::create([
-            'booking_id' => $booking->id,
-            'jenis_pembayaran' => $jenisDb,
-            'metode_pembayaran' => 'cash', // default; admin bisa ubah nanti
-            'saluran_pembayaran' => 'offline',
-            'jumlah' => $jumlah,
-            'jumlah_dibayar' => 0,
-            'midtrans_order_id' => null,
-            'status_pembayaran' => 'menunggu_verifikasi',
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Permintaan bayar offline berhasil dikirim. Tunggu konfirmasi admin.', 'pembayaran_id' => $pembayaran->id]);
     }
 
     // ======================= PEMBUATAN PEMBAYARAN (view/prosesOnline etc) ==========================
