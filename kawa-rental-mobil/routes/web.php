@@ -18,6 +18,18 @@ use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
+use App\Http\Controllers\LaporanStatistik;
+
+Route::get('/test-adminlte', function() {
+    return view('adminlte::page');
+});
+
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/laporan-bulanan', [LaporanStatistik::class, 'index'])
+        ->name('admin.laporan.bulanan');
+});
+
 
 Route::get('/', function () {
     return view('landingpage');
