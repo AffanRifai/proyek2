@@ -83,5 +83,4 @@ class Pembayaran extends Model
     {
         return $this->saluran_pembayaran === 'online';
     }
-    
 }

@@ -443,6 +443,17 @@
                                             </option>
                                         </select>
                                     </div>
+<<<<<<< HEAD
+=======
+                                    <div class="form-group" id="jumlah-dibayar-field" style="display: none;">
+                                        <label class="font-weight-bold">Jumlah Dibayar (Rp)</label>
+                                        <input type="number" step="1" min="0" name="jumlah_dibayar"
+                                            id="jumlah_dibayar" class="form-control"
+                                            value="{{ old('jumlah_dibayar', $payment->jumlah_dibayar ?? '') }}">
+                                        <small class="form-text text-muted">Masukkan jumlah yang diterima (biarkan kosong
+                                            untuk gunakan nilai total).</small>
+                                    </div>
+>>>>>>> daa443248250e63a1f43adc1738ad819d8340ce8
                                     <div class="form-group">
                                         <label class="font-weight-bold">Catatan Admin</label>
                                         <textarea name="catatan_admin" rows="3" class="form-control" placeholder="Catatan untuk pembayaran ini...">{{ $payment->catatan_admin }}</textarea>
