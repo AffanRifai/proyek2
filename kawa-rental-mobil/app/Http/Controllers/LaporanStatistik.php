@@ -10,94 +10,113 @@ class LaporanStatistik extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil bulan & tahun
         $bulan = $request->bulan ?? Carbon::now()->month;
         $tahun = $request->tahun ?? Carbon::now()->year;
 
-        /* ===============================================
+        /* ==========================================================
             1. PENDAPATAN BULAN INI
-        ================================================ */
+            - pakai dibayar_pada
+            - jika dibayar_pada NULL → pakai created_at
+        ========================================================== */
         $pendapatan = DB::table('pembayaran')
-            ->whereMonth('created_at', $bulan)
-            ->whereYear('created_at', $tahun)
-            ->where('status_pembayaran', 'success')
+            ->where(function ($q) use ($bulan, $tahun) {
+                $q->whereMonth('dibayar_pada', $bulan)
+                  ->whereYear('dibayar_pada', $tahun);
+            })
+            ->orWhere(function ($q) use ($bulan, $tahun) {
+                $q->whereNull('dibayar_pada')
+                  ->whereMonth('created_at', $bulan)
+                  ->whereYear('created_at', $tahun);
+            })
+            ->where('status_pembayaran', 'sukses')
             ->sum('jumlah_dibayar');
 
-        /* ===============================================
+        /* ==========================================================
             2. JUMLAH TRANSAKSI BULAN INI
-        ================================================ */
+            - pakai bookings.mulai_tgl (tanggal sewa)
+        ========================================================== */
         $jumlah_transaksi = DB::table('bookings')
-            ->whereMonth('created_at', $bulan)
-            ->whereYear('created_at', $tahun)
+            ->whereMonth('mulai_tgl', $bulan)
+            ->whereYear('mulai_tgl', $tahun)
             ->count();
 
-        /* ===============================================
-            3. REKAP TABEL (untuk Blade: $laporan)
-        ================================================ */
+        /* ==========================================================
+            3. REKAP TABEL BULANAN
+        ========================================================== */
         $rekap = DB::table('bookings')
+            ->join('cars', 'bookings.car_id', '=', 'cars.id')
+            ->leftJoin('pembayaran', 'pembayaran.booking_id', '=', 'bookings.id')
             ->select(
-                'status_mobil',
-                DB::raw('COUNT(id) as transaksi'),
-                DB::raw('COUNT(id) as unit'),
-                DB::raw('SUM(lama_hari) as hari'),
-                DB::raw('AVG(lama_hari) as rata'),
-                DB::raw('SUM(biaya_harian * lama_hari) as pendapatan')
+                'cars.model AS jenis',
+                DB::raw('COUNT(bookings.id) AS transaksi'),
+                DB::raw('COUNT(bookings.id) AS unit'),
+                DB::raw('SUM(bookings.lama_hari) AS total_hari'),
+                DB::raw('AVG(bookings.lama_hari) AS rata_hari'),
+                DB::raw('SUM(pembayaran.jumlah_dibayar) AS pendapatan')
             )
-            ->whereMonth('created_at', $bulan)
-            ->whereYear('created_at', $tahun)
-            ->groupBy('status_mobil')
+            ->whereMonth('bookings.mulai_tgl', $bulan)
+            ->whereYear('bookings.mulai_tgl', $tahun)
+            ->groupBy('cars.model')
             ->get();
 
         $laporan = [];
         foreach ($rekap as $r) {
             $laporan[] = [
-                'jenis' => $r->status_mobil,
+                'jenis' => $r->jenis,
                 'unit' => $r->unit,
                 'transaksi' => $r->transaksi,
-                'hari' => $r->hari,
-                'rata' => round($r->rata, 1),
-                'pendapatan' => $r->pendapatan
+                'hari' => $r->total_hari,
+                'rata' => round($r->rata_hari, 1),
+                'pendapatan' => $r->pendapatan ?? 0
             ];
         }
 
-        /* ===============================================
+        /* ==========================================================
             4. PIE CHART
-        ================================================ */
-        $pieData = DB::table('bookings')
-            ->select('status_mobil', DB::raw('COUNT(*) as total'))
-            ->whereMonth('created_at', $bulan)
-            ->whereYear('created_at', $tahun)
-            ->groupBy('status_mobil')
-            ->pluck('total', 'status_mobil');
+        ========================================================== */
+        $pie_query = DB::table('bookings')
+            ->join('cars', 'bookings.car_id', '=', 'cars.id')
+            ->select('cars.model', DB::raw('COUNT(*) AS total'))
+            ->groupBy('cars.model')
+            ->pluck('total', 'cars.model');
 
-        $pie = [
-            $pieData['SUV'] ?? 0,
-            $pieData['Sedan'] ?? 0,
-            $pieData['Hybrid'] ?? 0,
-            $pieData['Pickup'] ?? 0,
-        ];
+        $pie = array_values($pie_query->toArray());
 
-        /* ===============================================
-            5. LINE CHART
-        ================================================ */
+        /* ==========================================================
+            5. LINE CHART (12 bulan – per model)
+        ========================================================== */
         $bulan_list = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-        // Dummy data contoh (karena belum ada struktur pasti)
-        $chart_suv = array_fill(0,12,0);
-        $chart_sedan = array_fill(0,12,0);
-        $chart_hybrid = array_fill(0,12,0);
-        $chart_pickup = array_fill(0,12,0);
+        $chart_raw = DB::table('bookings')
+            ->join('cars', 'bookings.car_id', '=', 'cars.id')
+            ->select(
+                DB::raw('MONTH(bookings.mulai_tgl) AS bulan'),
+                'cars.model',
+                DB::raw('COUNT(*) AS total')
+            )
+            ->groupBy('bulan', 'cars.model')
+            ->get();
 
-        return view('admin.laporanstatistik.laporan_statistik', compact(
-            'pendapatan',
-            'jumlah_transaksi',
-            'laporan',
-            'pie',
-            'chart_suv',
-            'chart_sedan',
-            'chart_hybrid',
-            'chart_pickup',
-            'bulan_list'
-        ));
+        $models = DB::table('cars')->pluck('model')->toArray();
+
+        $chart = [];
+        foreach ($models as $m) {
+            $chart[$m] = array_fill(0, 12, 0);
+        }
+
+        foreach ($chart_raw as $row) {
+            $index = $row->bulan - 1;
+            $chart[$row->model][$index] = $row->total;
+        }
+
+        return view('admin.laporan_stat.laporan_stat', [
+            'pendapatan' => $pendapatan,
+            'jumlah_transaksi' => $jumlah_transaksi,
+            'laporan' => $laporan,
+            'pie' => $pie,
+            'chart' => $chart,
+            'models' => $models,
+            'bulan_list' => $bulan_list
+        ]);
     }
 }
