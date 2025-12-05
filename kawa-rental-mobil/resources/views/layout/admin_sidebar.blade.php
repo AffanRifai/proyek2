@@ -46,14 +46,15 @@
                           </p>
                       </a>
                   </li>
+                  
                   <li class="nav-item">
-                      <a href="#" class="nav-link">
-                          <i class="nav-icon fa-solid fa-car"></i>
-                          <p>
-                              Manajemen Mobil
-                          </p>
-                      </a>
+                        <a href="{{ route('admin.mobil.index') }}"
+                        class="nav-link {{ request()->is('admin/mobil*') ? 'active' : '' }}">
+                            <i class="nav-icon fa-solid fa-car"></i>
+                            <p>Manajemen Mobil</p>
+                        </a>
                   </li>
+
                   <li class="nav-item">
                       <a href="/admin/bookings" class="nav-link">
                           <i class="nav-icon fa-solid fa-square-poll-vertical"></i>

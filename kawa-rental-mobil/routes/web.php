@@ -19,6 +19,8 @@ use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\LaporanStatistik;
+use App\Http\Controllers\AdminCarController;
+
 
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
@@ -37,7 +39,7 @@ Route::get('/', function () {
 
 Route::get('/AdminDashboardMobil', function () {
     return view('AdminDashboardMobil');
-})->name('admin');
+})->name('admindashboardmobil');
 
 Route::get('DetailMobil', function () {
     return view('AdminDetailMobil');
@@ -49,7 +51,7 @@ Route::get('/laporan', function () {
 
 Route::get('/manajemenmobil', function () {
     return view('AdminManajemenMobil');
-})->name('admin');
+})->name('adminmanajemenmobil');
 Route::get('/manajemenbookingmobil', function () {
     return view('AdminManajemenBookingMobil');
 });
@@ -305,3 +307,21 @@ Route::get('/sync-all-payments', function () {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
+// ============================================================
+// TAMBAHAN: ROUTES CRUD MOBIL ADMIN (TANPA MENGHAPUS ROUTE LAMA)
+// ============================================================
+Route::middleware(['auth', 'check_role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/mobil', [AdminCarController::class, 'index'])->name('mobil.index');
+        Route::get('/mobil/create', [AdminCarController::class, 'create'])->name('mobil.create');
+        Route::post('/mobil/store', [AdminCarController::class, 'store'])->name('mobil.store');
+        Route::get('/mobil/{id}/edit', [AdminCarController::class, 'edit'])->name('mobil.edit');
+        Route::put('/mobil/{id}', [AdminCarController::class, 'update'])->name('mobil.update');
+        Route::delete('/mobil/{id}', [AdminCarController::class, 'destroy'])->name('mobil.destroy');
+
+    });
+
