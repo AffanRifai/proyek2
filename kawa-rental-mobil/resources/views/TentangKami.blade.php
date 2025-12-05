@@ -4,7 +4,6 @@
 <link rel="stylesheet" href="{{ secure_asset('css/tentang-kami.css') }}">
 @endpush
 
-
 @section('title', 'Tentang Kami - KAWA Rental Mobil Indramayu')
 
 @section('content')
@@ -29,7 +28,6 @@
     </div>
   </div>
 </section>
-
 
 <!-- KONTAK & SOSIAL MEDIA -->
 <section id="kontak">
@@ -66,19 +64,29 @@
           frameborder="0" scrolling="no" allowtransparency="true"></iframe>
       </div>
 
+      <!-- 👉 BUTTON YANG DIUBAH HANYA DI SINI -->
       <div class="btn-group">
-        <a href="https://www.instagram.com/kawarentalmobilindramayu" target="_blank" class="btn-detail">Lihat Lebih Detail</a>
-        <a href="https://www.instagram.com/kawarentalmobilindramayu" target="_blank" class="btn-follow">
-          <img src="{{ asset('img/instagram-icon.png') }}" alt="IG"> Follow on Instagram
+        <a 
+          href="https://www.instagram.com/kawarentalmobilindramayu" 
+          target="_blank" 
+          class="btn-detail"
+          style="background:#ffffff; color:#000000; border:1px solid #000;">
+          Lihat Lebih Detail
+        </a>
+
+        <a 
+          href="https://www.instagram.com/kawarentalmobilindramayu" 
+          target="_blank" 
+          class="btn-follow"
+          style="background:#ffffff; color:#000000; border:1px solid #000; display:flex; align-items:center; gap:6px;">
+          <img src="{{ asset('img/instagram-icon.png') }}" alt="IG" style="width:20px; height:20px;">
+          Follow on Instagram
         </a>
       </div>
+      <!-- 👉 SAMPAI DI SINI SAJA YANG DIUBAH -->
     </div>
   </div>
 </section>
-
-
-
-     
 
 <!-- Google Maps -->
 <section id="lokasi" class="py-5">
