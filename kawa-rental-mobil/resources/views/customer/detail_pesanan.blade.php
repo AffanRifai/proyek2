@@ -34,11 +34,40 @@
                 {{-- DETAIL PEMBAYARAN --}}
                 <h5 class="fw-bold">Detail Pembayaran</h5>
 
-                {{-- Countdown untuk DP/full jika perlu --}}
-                @if ($booking->totalDibayar() == 0 && $booking->status !== 'expired' && !is_null($booking->expired_at))
+                {{-- Countdown / Deadline --}}
+                @php
+                    // determine the active pending payment deadline
+                    $deadlineLabel = null;
+                    $deadlineAt = null;
+
+                    // if nothing paid yet -> initial payment (DP or full) uses booking->expired_at
+                    if (
+                        $booking->totalDibayar() == 0 &&
+                        $booking->status !== 'expired' &&
+                        !is_null($booking->expired_at)
+                    ) {
+                        $deadlineLabel = $booking->requiresDp() ? 'Batas Pembayaran DP' : 'Batas Pembayaran Penuh';
+                        $deadlineAt = $booking->expired_at;
+                    } else {
+                        // look for any pending pembayaran of type pelunasan
+                        $pendingPel = $booking->pembayaran
+                            ->where('jenis_pembayaran', 'pelunasan')
+                            ->whereNotIn('status_pembayaran', ['sukses', 'gagal', 'kadaluarsa'])
+                            ->sortByDesc('id')
+                            ->first();
+                        if ($pendingPel && $pendingPel->tanggal_jatuh_tempo) {
+                            $deadlineLabel = 'Batas Pelunasan';
+                            $deadlineAt = $pendingPel->tanggal_jatuh_tempo;
+                        }
+                    }
+                @endphp
+
+                @if ($deadlineAt)
                     <div class="alert alert-warning" id="countdown-wrapper">
-                        <strong>Selesaikan Pembayaran Sebelum:</strong>
+                        <strong>{{ $deadlineLabel }}:</strong>
                         <span id="countdown" class="fw-bold text-danger"></span>
+                        <small class="d-block text-muted">Target:
+                            {{ \Carbon\Carbon::parse($deadlineAt)->format('d M Y H:i') }}</small>
                     </div>
                 @endif
 
@@ -235,11 +264,11 @@
     {{-- COUNTDOWN (untuk expired_at jika ada) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const expiredAt = "{{ $booking->expired_at }}";
-            if (!expiredAt || {{ $booking->totalDibayar() }} > 0) return;
+            const deadlineAt = "{{ isset($deadlineAt) ? $deadlineAt : '' }}";
+            if (!deadlineAt) return;
             const countdownEl = document.getElementById("countdown");
             if (!countdownEl) return;
-            const endTime = new Date(expiredAt).getTime();
+            const endTime = new Date(deadlineAt).getTime();
             const interval = setInterval(() => {
                 const now = new Date().getTime();
                 const diff = endTime - now;

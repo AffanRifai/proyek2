@@ -13,6 +13,7 @@ use Midtrans\Snap;
 use Midtrans\Transaction;
 use Midtrans\Notification;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranController extends Controller
 {
@@ -67,17 +68,58 @@ class PembayaranController extends Controller
         // generate order ID
         $orderId = 'KAWA-' . Str::upper(Str::random(8)) . '-' . $booking->id;
 
-        // buat catatan pembayaran status "menunggu"
-        $pembayaran = Pembayaran::create([
-            'booking_id' => $booking->id,
-            'jenis_pembayaran' => $jenis,
-            'metode_pembayaran' => 'midtrans',
-            'saluran_pembayaran' => 'online',
-            'jumlah' => $jumlah,
-            'jumlah_dibayar' => 0,
-            'midtrans_order_id' => $orderId,
-            'status_pembayaran' => 'menunggu',
-        ]);
+        // buat catatan pembayaran status "menunggu" atau update existing pending payment
+        // Cari pembayaran existing (dp/pelunasan/bayar_penuh) yang belum selesai atau gagal
+        $existing = $booking->pembayaran
+            ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
+            ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
+            ->sortByDesc('id')
+            ->first();
+
+        if ($existing) {
+            // update existing record to requested jenis (dp/pelunasan/bayar_penuh)
+            // determine due date according to booking rules
+            $due = null;
+            if (in_array($jenis, ['dp', 'bayar_penuh'])) {
+                $due = $booking->initialPaymentDeadline();
+            } elseif ($jenis === 'pelunasan') {
+                $due = $booking->pelunasanDeadline();
+            }
+
+            $existing->update([
+                'original_dp_amount' => $existing->original_dp_amount ?? $existing->jumlah,
+                'jenis_pembayaran' => $jenis,
+                'metode_pembayaran' => 'midtrans',
+                'saluran_pembayaran' => 'online',
+                'jumlah' => $jumlah,
+                'jumlah_dibayar' => 0,
+                'midtrans_order_id' => $orderId,
+                'status_pembayaran' => 'menunggu',
+                'tanggal_jatuh_tempo' => $due,
+            ]);
+
+            $pembayaran = $existing;
+        } else {
+            // jika tidak ada existing pending payment, buat baru
+            $due = null;
+            if (in_array($jenis, ['dp', 'bayar_penuh'])) {
+                $due = $booking->initialPaymentDeadline();
+            } elseif ($jenis === 'pelunasan') {
+                $due = $booking->pelunasanDeadline();
+            }
+
+            $pembayaran = Pembayaran::create([
+                'booking_id' => $booking->id,
+                'jenis_pembayaran' => $jenis,
+                'metode_pembayaran' => 'midtrans',
+                'saluran_pembayaran' => 'online',
+                'jumlah' => $jumlah,
+                'jumlah_dibayar' => 0,
+                'midtrans_order_id' => $orderId,
+                'status_pembayaran' => 'menunggu',
+                'tanggal_jatuh_tempo' => $due,
+            ]);
+        }
 
         // payload untuk midtrans
         $params = [
@@ -162,16 +204,17 @@ class PembayaranController extends Controller
                 return response()->json(['success' => false, 'message' => 'Sudah melewati batas waktu pelunasan (telah memasuki hari setelah tanggal mulai).'], 422);
             }
 
-            // Cari pembayaran DP yang belum gagal (status != gagal, jenis_pembayaran = dp)
+            // Cari pembayaran existing (dp/pelunasan/bayar_penuh) yang belum selesai atau gagal
             $pembayaran = $booking->pembayaran
-                ->where('jenis_pembayaran', 'dp')
-                ->where('status_pembayaran', '!=', 'gagal')
+                ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
+                ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
                 ->sortByDesc('id')
                 ->first();
 
             if ($pembayaran) {
-                // Update record DP menjadi pelunasan
+                // Update existing record menjadi pelunasan offline
                 $pembayaran->update([
+                    'original_dp_amount' => $pembayaran->original_dp_amount ?? $pembayaran->jumlah,
                     'jenis_pembayaran' => 'pelunasan',
                     'jumlah' => $jumlah,
                     'jumlah_dibayar' => 0,
@@ -179,10 +222,11 @@ class PembayaranController extends Controller
                     'saluran_pembayaran' => 'offline',
                     'midtrans_order_id' => null,
                     'status_pembayaran' => 'menunggu_verifikasi',
+                    'tanggal_jatuh_tempo' => $booking->pelunasanDeadline(),
                     'catatan_admin' => null,
                 ]);
             } else {
-                // Jika tidak ada DP, buat baru
+                // Jika tidak ada, buat baru
                 $pembayaran = Pembayaran::create([
                     'booking_id' => $booking->id,
                     'jenis_pembayaran' => 'pelunasan',
@@ -192,6 +236,7 @@ class PembayaranController extends Controller
                     'jumlah_dibayar' => 0,
                     'midtrans_order_id' => null,
                     'status_pembayaran' => 'menunggu_verifikasi',
+                    'tanggal_jatuh_tempo' => $booking->pelunasanDeadline(),
                 ]);
             }
 
@@ -199,16 +244,38 @@ class PembayaranController extends Controller
         } elseif ($jenisReq === 'bayar_penuh_offline') {
             $jumlah = (float)$booking->total_pembayaran;
             $jenisDb = 'bayar_penuh';
-            $pembayaran = Pembayaran::create([
-                'booking_id' => $booking->id,
-                'jenis_pembayaran' => $jenisDb,
-                'metode_pembayaran' => 'cash',
-                'saluran_pembayaran' => 'offline',
-                'jumlah' => $jumlah,
-                'jumlah_dibayar' => 0,
-                'midtrans_order_id' => null,
-                'status_pembayaran' => 'menunggu_verifikasi',
-            ]);
+            // reuse existing pending payment if present
+            $pembayaran = $booking->pembayaran
+                ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
+                ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
+                ->sortByDesc('id')
+                ->first();
+
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'original_dp_amount' => $pembayaran->original_dp_amount ?? $pembayaran->jumlah,
+                    'jenis_pembayaran' => $jenisDb,
+                    'metode_pembayaran' => 'cash',
+                    'saluran_pembayaran' => 'offline',
+                    'jumlah' => $jumlah,
+                    'jumlah_dibayar' => 0,
+                    'midtrans_order_id' => null,
+                    'status_pembayaran' => 'menunggu_verifikasi',
+                    'tanggal_jatuh_tempo' => $booking->initialPaymentDeadline(),
+                ]);
+            } else {
+                $pembayaran = Pembayaran::create([
+                    'booking_id' => $booking->id,
+                    'jenis_pembayaran' => $jenisDb,
+                    'metode_pembayaran' => 'cash',
+                    'saluran_pembayaran' => 'offline',
+                    'jumlah' => $jumlah,
+                    'jumlah_dibayar' => 0,
+                    'midtrans_order_id' => null,
+                    'status_pembayaran' => 'menunggu_verifikasi',
+                    'tanggal_jatuh_tempo' => $booking->initialPaymentDeadline(),
+                ]);
+            }
             return response()->json(['success' => true, 'message' => 'Permintaan bayar offline berhasil dikirim. Tunggu konfirmasi admin.', 'pembayaran_id' => $pembayaran->id]);
         } else {
             return response()->json(['success' => false, 'message' => 'Jenis offline tidak valid.'], 422);
@@ -234,17 +301,40 @@ class PembayaranController extends Controller
         $this->initializeMidtrans();
 
         try {
-            // Buat record pembayaran
-            $pembayaran = Pembayaran::create([
-                'booking_id' => $idBooking,
-                'jenis_pembayaran' => $jenis,
-                'metode_pembayaran' => 'midtrans',
-                'saluran_pembayaran' => 'online',
-                'jumlah' => $jumlah,
-                'status_pembayaran' => 'menunggu',
-                'midtrans_order_id' => 'RENT-' . $booking->id_transaksi . '-' . $jenis . '-' . time(),
-                'tanggal_jatuh_tempo' => now()->addDays(1),
-            ]);
+            // Buat record pembayaran atau update DP existing jika pelunasan online
+            $orderId = 'RENT-' . $booking->id_transaksi . '-' . $jenis . '-' . time();
+            // reuse any pending payment record if available
+            $existing = $booking->pembayaran
+                ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
+                ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
+                ->sortByDesc('id')
+                ->first();
+
+            if ($existing) {
+                $existing->update([
+                    'original_dp_amount' => $existing->original_dp_amount ?? $existing->jumlah,
+                    'jenis_pembayaran' => $jenis,
+                    'metode_pembayaran' => 'midtrans',
+                    'saluran_pembayaran' => 'online',
+                    'jumlah' => $jumlah,
+                    'status_pembayaran' => 'menunggu',
+                    'midtrans_order_id' => $orderId,
+                    'tanggal_jatuh_tempo' => now()->addDays(1),
+                ]);
+
+                $pembayaran = $existing;
+            } else {
+                $pembayaran = Pembayaran::create([
+                    'booking_id' => $idBooking,
+                    'jenis_pembayaran' => $jenis,
+                    'metode_pembayaran' => 'midtrans',
+                    'saluran_pembayaran' => 'online',
+                    'jumlah' => $jumlah,
+                    'status_pembayaran' => 'menunggu',
+                    'midtrans_order_id' => $orderId,
+                    'tanggal_jatuh_tempo' => now()->addDays(1),
+                ]);
+            }
 
             // Parameter untuk Midtrans
             $params = $this->buatParameterMidtrans($pembayaran, $booking, $jumlah);
@@ -455,6 +545,7 @@ class PembayaranController extends Controller
                     'jumlah_dp' => $jumlah,
                     'sisa_pembayaran' => $booking->total_pembayaran - $jumlah,
                     'total_dibayar' => $jumlah,
+                    'expired_at' => null,
                 ]);
                 break;
 
@@ -473,28 +564,87 @@ class PembayaranController extends Controller
         }
     }
 
+    /**
+     * Siapkan atau update record pembayaran untuk pelunasan.
+     * Jika ada DP yang belum gagal, update record itu menjadi pelunasan. Kembalikan instance Pembayaran.
+     */
+    public function preparePelunasanRecord($booking, $jumlah, $orderId = null)
+    {
+        // Cari pembayaran DP yang belum gagal
+        $existingDp = $booking->pembayaran
+            ->where('jenis_pembayaran', 'dp')
+            ->where('status_pembayaran', '!=', 'gagal')
+            ->sortByDesc('id')
+            ->first();
+
+        if ($existingDp) {
+            $originalDp = (float) $existingDp->jumlah;
+
+            // compute due date safely (booking may be a mock in tests)
+            $due = method_exists($booking, 'pelunasanDeadline') ? $booking->pelunasanDeadline() : now()->addHours(24);
+
+            $existingDp->update([
+                'original_dp_amount' => $existingDp->original_dp_amount ?? $originalDp,
+                'jenis_pembayaran' => 'pelunasan',
+                'metode_pembayaran' => 'midtrans',
+                'saluran_pembayaran' => 'online',
+                'jumlah' => $jumlah,
+                'jumlah_dibayar' => 0,
+                'midtrans_order_id' => $orderId,
+                'status_pembayaran' => 'menunggu',
+                'tanggal_jatuh_tempo' => $due,
+            ]);
+
+            return $existingDp;
+        }
+
+        $due = method_exists($booking, 'pelunasanDeadline') ? $booking->pelunasanDeadline() : now()->addHours(24);
+
+        return Pembayaran::create([
+            'booking_id' => $booking->id,
+            'jenis_pembayaran' => 'pelunasan',
+            'metode_pembayaran' => 'midtrans',
+            'saluran_pembayaran' => 'online',
+            'jumlah' => $jumlah,
+            'jumlah_dibayar' => 0,
+            'midtrans_order_id' => $orderId,
+            'status_pembayaran' => 'menunggu',
+            'tanggal_jatuh_tempo' => $due,
+        ]);
+    }
+
     public function sukses($idPembayaran)
     {
         try {
             $pembayaran = Pembayaran::findOrFail($idPembayaran);
 
             if ($pembayaran->status_pembayaran !== 'sukses') {
-                $status = \Midtrans\Transaction::status($pembayaran->order_id);
+                // midtrans order id stored in midtrans_order_id
+                $orderRef = $pembayaran->midtrans_order_id ?? $pembayaran->midtrans_order_id ?? null;
+                $status = \Midtrans\Transaction::status($orderRef);
 
-                if ($status->transaction_status === 'settlement' || $status->transaction_status === 'capture') {
+                // normalize transaction status from object/array
+                $txStatus = null;
+                if (is_object($status)) {
+                    $txStatus = $status->transaction_status ?? null;
+                } elseif (is_array($status)) {
+                    $txStatus = $status['transaction_status'] ?? null;
+                }
+
+                if ($txStatus === 'settlement' || $txStatus === 'capture') {
                     $pembayaran->status_pembayaran = 'sukses';
                     $pembayaran->save();
-                } elseif ($status->transaction_status === 'pending') {
+                } elseif ($txStatus === 'pending') {
                     $pembayaran->status_pembayaran = 'menunggu';
                     $pembayaran->save();
-                } elseif ($status->transaction_status === 'expire' || $status->transaction_status === 'cancel') {
+                } elseif ($txStatus === 'expire' || $txStatus === 'cancel') {
                     $pembayaran->status_pembayaran = 'gagal';
                     $pembayaran->save();
                 }
             }
 
             $booking = $pembayaran->booking ?? null;
-            $user = auth()->user();
+            $user = Auth::user();
 
             return view('pembayaran.sukses', compact('pembayaran', 'booking', 'user'));
         } catch (\Exception $e) {

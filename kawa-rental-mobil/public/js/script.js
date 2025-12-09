@@ -1,10 +1,10 @@
 // Smooth scroll
 document.querySelectorAll("nav a").forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-    const target = document.querySelector(link.getAttribute("href"));
-    target.scrollIntoView({ behavior: "smooth" });
-  });
+    link.addEventListener("click", e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute("href"));
+        target.scrollIntoView({ behavior: "smooth" });
+    });
 });
 
 // Modal
@@ -15,11 +15,11 @@ const okBtn = document.querySelector(".btn-ok");
 
 // tombol sewa mobil -> buka modal
 document.querySelectorAll(".btn-sewa").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    const carName = e.target.closest(".car-card").querySelector("h3").innerText;
-    modalText.innerText = `Anda memilih ${carName} untuk disewa.`;
-    modal.style.display = "flex";
-  });
+    btn.addEventListener("click", (e) => {
+        const carName = e.target.closest(".car-card").querySelector("h3").innerText;
+        modalText.innerText = `Anda memilih ${carName} untuk disewa.`;
+        modal.style.display = "flex";
+    });
 });
 
 // tombol close & ok
@@ -28,23 +28,43 @@ okBtn.addEventListener("click", () => modal.style.display = "none");
 
 // klik luar modal -> tutup
 window.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-  }
+    if (e.target === modal) {
+        modal.style.display = "none";
+    }
 });
 
 // Tombol selengkapnya
 document.getElementById("btn-selengkapnya").addEventListener("click", () => {
-  alert("Menuju halaman daftar mobil selengkapnya...");
+    alert("Menuju halaman daftar mobil selengkapnya...");
 });
 
 // Animasi scroll
 const fadeElems = document.querySelectorAll(".fade-in");
 window.addEventListener("scroll", () => {
-  fadeElems.forEach(el => {
-    const pos = el.getBoundingClientRect().top;
-    if (pos < window.innerHeight - 100) {
-      el.classList.add("show");
-    }
-  });
+    fadeElems.forEach(el => {
+        const pos = el.getBoundingClientRect().top;
+        if (pos < window.innerHeight - 100) {
+            el.classList.add("show");
+        }
+    });
 });
+
+// dropdown profil
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     const profileToggle = document.getElementById("profileToggle");
+//     const dropdownMenu = document.getElementById("dropdownMenu");
+
+//     if (profileToggle && dropdownMenu) {
+//         profileToggle.addEventListener("click", function (e) {
+//             e.stopPropagation();
+//             dropdownMenu.style.display =
+//                 dropdownMenu.style.display === "block" ? "none" : "block";
+//         });
+
+//         document.addEventListener("click", function () {
+//             dropdownMenu.style.display = "none";
+//         });
+//     }
+// });
+

@@ -5,7 +5,7 @@
 @section('content')
     <div class="profilepage-container">
         <div class="profile-card">
-            <h2>Profil Saya</h2>
+
 
             @if (session('success'))
                 <div class="alert success">{{ session('success') }}</div>

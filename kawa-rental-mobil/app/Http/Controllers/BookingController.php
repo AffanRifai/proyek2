@@ -124,10 +124,15 @@ class BookingController extends Controller
                 'file_jaminan' => $jaminanPath,
                 'file_stnk_motor' => $stnkPath,
                 'status' => 'pending',
-                'expired_at' => now()->addMinutes(3),
+                // expired_at will be set after creation using booking->initialPaymentDeadline()
+                'expired_at' => null,
 
             ]);
-            AutoCancelBooking::dispatch($booking->id)->delay(now()->addMinutes(3));
+            // compute deadline using booking helper (uses created_at)
+            $deadline = $booking->initialPaymentDeadline();
+            $booking->update(['expired_at' => $deadline]);
+            // dispatch auto-cancel job to run at the deadline
+            AutoCancelBooking::dispatch($booking->id)->delay($deadline);
 
 
             // ✅ Redirect ke halaman pembayaran sesuai tipe

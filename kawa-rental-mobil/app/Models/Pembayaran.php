@@ -18,6 +18,8 @@ class Pembayaran extends Model
         'saluran_pembayaran',
         'jumlah',
         'jumlah_dibayar',
+        'confirmed_by',
+        'confirmed_at',
         'midtrans_order_id',
         'midtrans_transaction_id',
         'status_pembayaran',
@@ -32,6 +34,7 @@ class Pembayaran extends Model
         'jumlah' => 'decimal:2',
         'jumlah_dibayar' => 'decimal:2',
         'dibayar_pada' => 'datetime',
+        'confirmed_at' => 'datetime',
         'tanggal_jatuh_tempo' => 'datetime',
         'data_pembayaran' => 'array'
     ];

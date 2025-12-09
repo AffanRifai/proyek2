@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class Booking extends Model
@@ -303,7 +304,7 @@ class Booking extends Model
                 'tanggal_pengembalian' => $actualSelTgl,
                 'hari_terlambat' => $hariTerlambat,
                 'denda_terlambat' => $dendaTerlambat,
-                'admin' => auth()->user()->name,
+                'admin' => optional(Auth::user())->name,
                 'catatan' => $catatan
             ]);
         });
@@ -659,7 +660,56 @@ class Booking extends Model
     public function pelunasanDeadline()
     {
         if (!$this->mulai_tgl) return null;
-        return \Carbon\Carbon::parse($this->mulai_tgl)->endOfDay();
+
+        $created = $this->created_at ? Carbon::parse($this->created_at) : Carbon::now();
+        $mulaiDate = Carbon::parse($this->mulai_tgl)->startOfDay();
+        // when combining date + time, ensure we use only the date part to avoid double time strings
+        if (isset($this->mulai_pkl) && $this->mulai_pkl) {
+            $mulaiDateTime = Carbon::parse($mulaiDate->toDateString() . ' ' . $this->mulai_pkl);
+        } else {
+            $mulaiDateTime = $mulaiDate->copy()->startOfDay();
+        }
+
+        // If booking created same day as mulai => 2 hours from creation
+        if ($created->isSameDay($mulaiDate)) {
+            return $created->copy()->addHours(2);
+        }
+
+        // If booking created H-1 (one day before mulai) => deadline is until before mulai (mulai datetime)
+        if ($created->copy()->startOfDay()->eq($mulaiDate->copy()->subDay()->startOfDay())) {
+            return $mulaiDateTime;
+        }
+
+        // Default: pelunasan must be paid by H-1 end of day
+        return $mulaiDate->copy()->subDay()->endOfDay();
+    }
+
+    /**
+     * Initial payment deadline (for DP and bayar_penuh) following rules:
+     * - default: 24 hours after booking created
+     * - if booking created H-1 before mulai: 12 hours after booking created
+     * - if booking created same day as mulai: 2 hours after booking created
+     */
+    public function initialPaymentDeadline()
+    {
+        $created = $this->created_at ? Carbon::parse($this->created_at) : Carbon::now();
+        // make sure we compare using date only
+        $mulaiDate = $this->mulai_tgl ? Carbon::parse($this->mulai_tgl)->startOfDay() : null;
+
+        if ($mulaiDate) {
+            // same day
+            if ($created->isSameDay($mulaiDate)) {
+                return $created->copy()->addHours(2);
+            }
+
+            // created H-1 before mulai
+            if ($created->copy()->startOfDay()->eq($mulaiDate->copy()->subDay()->startOfDay())) {
+                return $created->copy()->addHours(12);
+            }
+        }
+
+        // default 24 hours
+        return $created->copy()->addHours(24);
     }
 
     public function canPelunasanOffline()
