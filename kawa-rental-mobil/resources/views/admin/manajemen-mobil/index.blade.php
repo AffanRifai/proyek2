@@ -3,6 +3,7 @@
 @section('admin_content')
 <div class="content-wrapper p-3">
 
+    {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0 font-weight-bold">Manajemen Mobil</h4>
         <a href="{{ route('admin.mobil.create') }}" class="btn btn-primary btn-sm">
@@ -10,7 +11,7 @@
         </a>
     </div>
 
-    {{-- ================= DESKTOP ================= --}}
+    {{-- ================= DESKTOP VIEW ================= --}}
     <div class="d-none d-md-block">
         <table class="table table-hover table-bordered text-center align-middle">
             <thead class="bg-primary text-white">
@@ -25,21 +26,29 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach ($mobil as $item)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
 
                     <td>
-                        <img src="{{ asset($item->gambar) }}"
-                             class="rounded"
-                             width="90"
-                             style="object-fit:cover">
+                        <div style="
+                            width: 120px;
+                            height: 75px;
+                            background-image: url('{{ asset($item->gambar) }}');
+                            background-size: cover;
+                            background-position: center top;
+                            border-radius: 6px;
+                            margin: auto;
+                        "></div>
                     </td>
 
                     <td class="text-left">
                         <strong>{{ $item->merk }} {{ $item->model }}</strong><br>
-                        <small class="text-muted">{{ ucfirst($item->transmisi) }}</small>
+                        <small class="text-muted">
+                            {{ ucfirst($item->transmisi) }}
+                        </small>
                     </td>
 
                     <td>{{ $item->tahun }}</td>
@@ -55,7 +64,7 @@
                     <td>
                         <a href="{{ route('admin.mobil.edit', $item->id) }}"
                            class="btn btn-warning btn-sm mb-1">
-                           Edit
+                            Edit
                         </a>
 
                         <form action="{{ route('admin.mobil.destroy', $item->id) }}"
@@ -74,14 +83,20 @@
         </table>
     </div>
 
-    {{-- ================= MOBILE (CAKEP) ================= --}}
+    {{-- ================= MOBILE VIEW (ANTI KEJEPIT FINAL) ================= --}}
     <div class="d-block d-md-none">
         @foreach ($mobil as $item)
         <div class="card mb-3 shadow-sm border-0">
 
-            <img src="{{ asset($item->gambar) }}"
-                 style="height:180px; object-fit:cover;"
-                 class="card-img-top rounded-top">
+            {{-- FOTO (FINAL FIX) --}}
+            <div style="
+                height: 230px;
+                background-image: url('{{ asset($item->gambar) }}');
+                background-size: cover;
+                background-position: center top;
+                border-top-left-radius: .25rem;
+                border-top-right-radius: .25rem;
+            "></div>
 
             <div class="card-body p-3">
 
@@ -95,8 +110,9 @@
                     </span>
                 </div>
 
-                <small class="text-muted">
-                    {{ $item->tahun }} • {{ ucfirst($item->transmisi) }} • {{ $item->kapasitas_penumpang }} Org
+                <small class="text-muted d-block mt-1">
+                    {{ $item->tahun }} • {{ ucfirst($item->transmisi) }} •
+                    {{ $item->kapasitas_penumpang }} Org
                 </small>
 
                 <div class="mt-2">
@@ -105,6 +121,7 @@
                     </strong>
                 </div>
 
+                {{-- AKSI --}}
                 <div class="row mt-3">
                     <div class="col-6 pr-1">
                         <a href="{{ route('admin.mobil.edit', $item->id) }}"
@@ -112,6 +129,7 @@
                             Edit
                         </a>
                     </div>
+
                     <div class="col-6 pl-1">
                         <form action="{{ route('admin.mobil.destroy', $item->id) }}"
                               method="POST">
