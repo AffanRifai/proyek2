@@ -20,6 +20,8 @@ use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\LaporanStatistik;
 use App\Http\Controllers\AdminCarController;
+use App\Http\Controllers\AdminDashboardController;
+
 
 
 
@@ -163,8 +165,8 @@ Route::post('/pembayaran/offline', [PembayaranController::class, 'offline'])->na
 // ✅ PERBAIKAN: SATU KELOMPOK ROUTE ADMIN YANG BERSIH
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
-    Route::get('/', [AdminController::class, 'index'])->name('index');
-
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('index');
+    
     // Bookings Management - MANUAL PROCESS
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show'])->name('bookings.show');
