@@ -22,8 +22,9 @@ use App\Http\Controllers\LaporanStatistik;
 use App\Http\Controllers\AdminCarController;
 use App\Http\Controllers\AdminDashboardController;
 
-
-
+Route::get('/gps', function () {
+    return view('gps');
+});
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/laporan-bulanan', [LaporanStatistik::class, 'index'])
@@ -166,7 +167,7 @@ Route::post('/pembayaran/offline', [PembayaranController::class, 'offline'])->na
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
     Route::get('/', [AdminDashboardController::class, 'index'])->name('index');
-    
+
     // Bookings Management - MANUAL PROCESS
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show'])->name('bookings.show');
