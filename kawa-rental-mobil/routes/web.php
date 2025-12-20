@@ -31,6 +31,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         ->name('admin.laporan.bulanan');
 });
 
+use App\Models\Car;
+
+Route::get('/', function () {
+    // Pass a small selection of available cars to the landing page (if any)
+    $cars = Car::where('status', 'tersedia')->latest('id')->take(6)->get();
+    return view('landingpage', compact('cars'));
+})->name('home');
+
 // Route for laporan statistik: use controller so view gets required variables
 Route::get('/laporan_stat', [LaporanStatistik::class, 'index'])
     ->middleware(['auth'])
