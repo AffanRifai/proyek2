@@ -30,6 +30,11 @@ Route::get('/tracking', function () {
     return view('tracking.index');
 })->name('tracking.index');
 
+Route::get('/tracking/map', function () {
+    return view('tracking.map');
+})->name('tracking.map');
+
+
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/laporan-bulanan', [LaporanStatistik::class, 'index'])

@@ -1,188 +1,151 @@
 @extends('layout.master')
 
 @section('admin_content')
-
 <div class="content-wrapper">
 
-    {{-- ================= HEADER ================= --}}
+    {{-- HEADER --}}
     <section class="content-header">
         <div class="container-fluid">
-            <h1>
-                <i class="fas fa-map-marked-alt mr-1"></i>
-                Tracking Lokasi
-            </h1>
-            <small class="text-muted">
-                Monitoring lokasi kendaraan secara realtime
-            </small>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-0">
+                        <i class="fas fa-map-marked-alt mr-2"></i>
+                        Tracking Lokasi
+                    </h1>
+                    <small class="text-muted">
+                        Monitoring lokasi kendaraan secara realtime
+                    </small>
+                </div>
+                <span class="badge badge-success px-3 py-2">
+                    <i class="fas fa-satellite-dish mr-1"></i> LIVE
+                </span>
+            </div>
         </div>
     </section>
 
-    {{-- ================= CONTENT ================= --}}
+    {{-- CONTENT --}}
     <section class="content">
         <div class="container-fluid">
+            <div class="row">
 
-            <div class="card card-outline card-primary shadow-sm">
-                <div class="card-header">
-                    <strong>
-                        <i class="fas fa-car mr-1"></i>
-                        Live GPS Kendaraan
-                    </strong>
+                {{-- INFO PANEL KIRI --}}
+                <div class="col-lg-3 col-md-12 mb-3">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-dark text-white">
+                            <strong>
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Informasi GPS
+                            </strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="text-center mb-4">
+                                <i class="fas fa-car fa-3x text-primary"></i>
+                                <h5 class="mt-2 mb-0">Kawa Rental Mobil</h5>
+                                <small class="text-muted">ID: KWA-001</small>
+                            </div>
+
+                            <hr>
+
+                            <p class="mb-1">
+                                <i class="fas fa-map-pin text-danger mr-1"></i>
+                                <strong>Latitude</strong><br>
+                                <span id="lat" class="text-muted">-</span>
+                            </p>
+
+                            <p class="mb-1">
+                                <i class="fas fa-map-pin text-danger mr-1"></i>
+                                <strong>Longitude</strong><br>
+                                <span id="lon" class="text-muted">-</span>
+                            </p>
+
+                            <p class="mb-1">
+                                <i class="fas fa-location-arrow text-primary mr-1"></i>
+                                <strong>Lokasi</strong><br>
+                                <span id="address" class="text-muted">
+                                    Mencari lokasi...
+                                </span>
+                            </p>
+
+                            <p class="mb-1">
+                                <i class="fas fa-clock text-warning mr-1"></i>
+                                <strong>Update</strong><br>
+                                <span id="time" class="text-muted">-</span>
+                            </p>
+
+                            <hr>
+
+                            <span class="badge badge-success">
+                                <i class="fas fa-signal mr-1"></i>
+                                GPS ONLINE
+                            </span>
+
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card-body p-0 position-relative">
-
-                    {{-- STATUS --}}
-                    <div id="status" class="p-2 bg-light border-bottom text-sm">
-                        ⏳ Menghubungkan ke MQTT...
-                    </div>
-
-                    {{-- MAP --}}
-                    <div id="map"></div>
-
-                    {{-- INFO PANEL --}}
-                    <div class="info-panel">
-                        <h6 class="mb-2">
-                            📍 Informasi Lokasi
-                        </h6>
-
-                        <div class="info-item">
-                            Status:
-                            <span class="badge" id="conn">OFFLINE</span>
-                        </div>
-
-                        <div class="info-item">
-                            Latitude: <b id="lat">-</b>
-                        </div>
-
-                        <div class="info-item">
-                            Longitude: <b id="lon">-</b>
-                        </div>
-
-                        <div class="info-item">
-                            Update: <b id="time">-</b>
+                {{-- MAP --}}
+                <div class="col-lg-9 col-md-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <iframe
+                                src="{{ route('tracking.map') }}"
+                                style="width:100%; height:600px; border:0;">
+                            </iframe>
                         </div>
                     </div>
-
                 </div>
+
             </div>
-
         </div>
     </section>
-</div>
 
+</div>
 @endsection
 
-{{-- ================= STYLES ================= --}}
-@push('styles')
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<style>
-#map {
-    width: 100%;
-    height: 550px;
-    min-height: 550px;
-}
-
-.info-panel {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    width: 260px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 16px;
-    z-index: 999;
-    font-size: 13px;
-}
-
-.info-panel h6 {
-    font-weight: 600;
-}
-
-.info-item {
-    margin-bottom: 8px;
-}
-
-.badge {
-    background: #dcfce7;
-    color: #166534;
-    font-weight: 600;
-}
-</style>
-@endpush
-
-{{-- ================= SCRIPTS ================= --}}
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <script>
-let map, marker;
-let lastUpdate = 0;
-
-// =====================
-// INIT MAP LANGSUNG
-// =====================
-function initMap() {
-    map = L.map('map', {
-        zoomControl: true,
-        preferCanvas: true
-    }).setView([-2.5489, 118.0149], 5); // Indonesia
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap & CartoDB',
-        maxZoom: 19
-    }).addTo(map);
-
-    marker = L.marker([-2.5489, 118.0149]).addTo(map);
-
-    // FIX AdminLTE resize
-    setTimeout(() => {
-        map.invalidateSize(true);
-    }, 300);
-}
-
-// =====================
-// JALANKAN MAP SAAT LOAD
-// =====================
-window.addEventListener('load', function () {
-    initMap();
+const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', {
+    clientId: 'admin_info_' + Math.random().toString(16).substr(2, 8)
 });
 
-// =====================
-// MQTT
-// =====================
-const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', {
-    clientId: 'admin_tracking_' + Math.random().toString(16).substr(2, 8),
-    reconnectPeriod: 3000
+let lastGeoRequest = 0;
+
+mqttClient.on('connect', function () {
+    mqttClient.subscribe('kawa/gps');
 });
 
-client.on('connect', function () {
-    document.getElementById("status").innerHTML =
-        "✅ Terhubung ke MQTT (Realtime)";
-    document.getElementById("conn").innerText = "ONLINE";
-    client.subscribe('kawa/gps');
-});
-
-client.on('message', function (topic, message) {
-
-    // throttle 1.5 detik
-    const now = Date.now();
-    if (now - lastUpdate < 1500) return;
-    lastUpdate = now;
-
+mqttClient.on('message', function (topic, message) {
     const data = JSON.parse(message.toString());
-    const pos  = [data.lat, data.lon];
 
-    marker.setLatLng(pos);
-    map.panTo(pos, { animate: true, duration: 0.4 });
-
-    document.getElementById("lat").innerText  = data.lat.toFixed(6);
-    document.getElementById("lon").innerText  = data.lon.toFixed(6);
-    document.getElementById("time").innerText =
+    document.getElementById('lat').innerText = data.lat.toFixed(6);
+    document.getElementById('lon').innerText = data.lon.toFixed(6);
+    document.getElementById('time').innerText =
         new Date().toLocaleTimeString();
+
+    // Batasi request geocoding (biar tidak spam)
+    const now = Date.now();
+    if (now - lastGeoRequest > 10000) {
+        lastGeoRequest = now;
+        getAddress(data.lat, data.lon);
+    }
 });
+
+// Reverse Geocoding (GRATIS)
+function getAddress(lat, lon) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('address').innerText =
+                data.display_name || 'Alamat tidak ditemukan';
+        })
+        .catch(() => {
+            document.getElementById('address').innerText =
+                'Gagal mengambil lokasi';
+        });
+}
 </script>
 @endpush
