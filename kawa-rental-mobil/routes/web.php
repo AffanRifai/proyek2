@@ -31,14 +31,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         ->name('admin.laporan.bulanan');
 });
 
+use App\Models\Car;
+
+Route::get('/', function () {
+    // Pass a small selection of available cars to the landing page (if any)
+    $cars = Car::where('status', 'tersedia')->latest('id')->take(6)->get();
+    return view('landingpage', compact('cars'));
+})->name('home');
+
 // Route for laporan statistik: use controller so view gets required variables
 Route::get('/laporan_stat', [LaporanStatistik::class, 'index'])
     ->middleware(['auth'])
     ->name('laporan.stat');
-
-Route::get('/', function () {
-    return view('landingpage');
-})->name('home');
 
 Route::get('/AdminDashboardMobil', function () {
     return view('AdminDashboardMobil');
@@ -325,6 +329,4 @@ Route::middleware(['auth', 'check_role:admin'])
         Route::get('/mobil/{id}/edit', [AdminCarController::class, 'edit'])->name('mobil.edit');
         Route::put('/mobil/{id}', [AdminCarController::class, 'update'])->name('mobil.update');
         Route::delete('/mobil/{id}', [AdminCarController::class, 'destroy'])->name('mobil.destroy');
-
     });
-

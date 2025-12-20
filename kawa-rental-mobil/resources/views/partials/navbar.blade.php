@@ -837,7 +837,7 @@
             <img src="{{ asset('img/logo-kawa.png') }}" alt="logo mobile">
         </div>
 
-        <a href="/landingpage">Beranda</a>
+        <a href="/">Beranda</a>
         <a href="/daftar-mobil">Daftar Mobil</a>
         <a href="/TentangKami">Tentang Kami</a>
 
@@ -857,7 +857,7 @@
     <nav>
         <ul class="nav-desktop">
             <!-- Navigation Items (hidden on mobile) -->
-            <li><a href="/landingpage">Beranda</a></li>
+            <li><a href="/">Beranda</a></li>
             <li><a href="/daftar-mobil">Daftar Mobil</a></li>
             <li><a href="/TentangKami">Tentang</a></li>
 

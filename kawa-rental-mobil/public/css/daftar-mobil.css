@@ -1,0 +1,377 @@
+    /* Banner Section */
+    .banner {
+        position: relative;
+        width: 100%;
+        min-height: 340px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .banner img {
+        width: 100%;
+        height: auto;
+        display: block;
+        max-width: 100vw;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Modern Page Title */
+    .page-title {
+        max-width: 1100px;
+        margin: 2.5rem auto 0rem;
+        padding: 0 1rem;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        position: relative;
+        line-height: 1.2;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 1rem;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #A62F19, #FF6B4A);
+        border-radius: 2px;
+    }
+
+    /* Cars Container */
+    .cars-container {
+        max-width: 1100px;
+        margin: 8rem auto 3rem;
+        padding: 0 1rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+        gap: 1.5rem;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .cars-container h2 {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.8rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .cars-container .section-header {
+        display: none;
+    }
+
+    .cars-container .cars-content {
+        display: contents;
+    }
+
+    .car-card {
+        height: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 1rem 1.2rem 1.6rem;
+        text-align: center;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .car-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(166, 47, 25, 0.15);
+    }
+
+    .car-card img {
+        width: 135px;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .car-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .car-card h3 {
+        font-weight: 600;
+        font-size: 1.04rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+        width: 100%;
+    }
+
+    .car-card .price {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+        color: #A62F19;
+        width: 100%;
+    }
+
+    .car-card .price small {
+        font-weight: 400;
+        color: #444;
+        display: block;
+        margin-top: 0.1rem;
+        font-size: 0.81rem;
+    }
+
+    .car-card .details {
+        font-size: 0.9rem;
+        margin-bottom: 1.1rem;
+        color: #666;
+        text-align: left;
+        width: 100%;
+    }
+
+    .car-card .details div {
+        margin-top: 0.3rem;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #ddd;
+        padding: 0.25rem 0.7rem;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .car-card .details div span {
+        font-weight: 500;
+    }
+
+    .car-card button {
+        background-color: #A62F19;
+        color: #fff;
+        padding: 0.4rem 1.4rem;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        width: auto;
+        min-width: 160px;
+    }
+
+    .car-card button:hover {
+        background-color: #5d1a1a;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+
+    .status-badge.tersedia {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .status-badge.tidak-tersedia {
+        background: #f44336;
+        color: white;
+    }
+
+    /* No cars message */
+    .no-cars {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    /* WhatsApp Floating Button */
+    .wa-float {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #25D366;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    .wa-float:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+    }
+
+    .wa-float img {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* Tablet dan Mobile Landscape */
+    @media (max-width: 992px) {
+        .page-title {
+            font-size: 2rem;
+            margin: 2rem auto 3.5rem;
+        }
+
+        .cars-container {
+            margin: 2rem auto 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+    }
+
+    /* Tablet Portrait dan Mobile Besar */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 1.8rem;
+            padding: 0 1.5rem;
+            margin: 1.8rem auto 3rem;
+        }
+
+        .page-title::after {
+            left: 1.5rem;
+        }
+
+        .banner {
+            min-height: 280px;
+        }
+
+        .cars-container {
+            padding: 0 1.5rem;
+            margin: 1.5rem auto 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .car-card {
+            padding: 1rem 1.2rem 1.6rem;
+            max-width: 280px;
+        }
+
+        .car-card img {
+            width: 135px;
+        }
+
+        .wa-float {
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+        }
+
+        .wa-float img {
+            width: 30px;
+            height: 30px;
+        }
+    }
+
+    /* Mobile Portrait */
+    @media (max-width: 576px) {
+        .page-title {
+            font-size: 1.6rem;
+            padding: 0 1rem;
+            margin: 1.5rem auto 3rem;
+            text-align: center;
+        }
+
+        .page-title::after {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+        }
+
+        .banner {
+            min-height: 200px;
+        }
+
+        .cars-container {
+            padding: 0 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .car-card {
+            max-width: 280px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .car-card img {
+            width: 135px;
+        }
+
+        .no-cars {
+            padding: 2rem 1rem;
+            font-size: 1rem;
+        }
+
+        .wa-float {
+            bottom: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+        }
+
+        .wa-float img {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    /* Mobile Sangat Kecil */
+    @media (max-width: 400px) {
+
+        .page-title {
+            font-size: 1.4rem;
+        }
+
+        .banner {
+            min-height: 180px;
+        }
+
+        .cars-container {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+
+        .car-card {
+            padding: 0.9rem 1rem 1.2rem;
+        }
+
+        .car-card img {
+            width: 120px;
+        }
+
+        .car-card h3 {
+            font-size: 1rem;
+        }
+
+        .car-card .price {
+            font-size: 1rem;
+        }
+
+        .car-card button {
+            padding: 0.35rem 1.2rem;
+            min-width: 140px;
+            font-size: 0.85rem;
+        }
+    }
