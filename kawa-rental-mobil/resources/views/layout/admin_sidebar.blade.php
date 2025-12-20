@@ -46,7 +46,7 @@
                           </p>
                       </a>
                   </li>
-                  
+
                   <li class="nav-item">
                         <a href="{{ route('admin.mobil.index') }}"
                         class="nav-link {{ request()->is('admin/mobil*') ? 'active' : '' }}">
@@ -92,13 +92,13 @@
                       </ul>
                   </li>
                   <li class="nav-item">
-                      <a href="/admin" class="nav-link">
-                          <i class="nav-icon fa-solid fa-location-dot"></i>
-                          <p>
-                              Track lokasi
-                          </p>
-                      </a>
-                  </li>
+                    <a href="{{ route('tracking.index') }}"
+                    class="nav-link">
+                        <i class="nav-icon fas fa-map-marked-alt"></i>
+                        <p>Tracking Lokasi</p>
+                    </a>
+                </li>
+
                   <li class="nav-item">
                       <a href="/laporan_stat" class="nav-link">
                           <i class="nav-icon fa-solid fa-chart-line"></i>

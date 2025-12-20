@@ -26,6 +26,11 @@ Route::get('/gps', function () {
     return view('gps');
 });
 
+Route::get('/tracking', function () {
+    return view('tracking.index');
+})->name('tracking.index');
+
+
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/laporan-bulanan', [LaporanStatistik::class, 'index'])
         ->name('admin.laporan.bulanan');
