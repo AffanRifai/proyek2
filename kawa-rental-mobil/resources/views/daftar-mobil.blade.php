@@ -3,7 +3,8 @@
 @section('title', 'Daftarmobil - KAWA Rental Mobil')
 
 @push('styles')
-<link rel="stylesheet" href="{{ secure_asset('css/landingpage.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daftar-mobil.css') }}" />
+
 @endpush
 
 @section('content')
@@ -15,84 +16,50 @@
     <!-- Page Title -->
     <h1 class="page-title">Daftar Mobil</h1>
 
-    <!-- Filter Section -->
-    <section class="filter-section">
-        <div class="filter-container">
-            <div class="filter-field">
-                <label for="filterMerk" class="filter-label">Merk</label>
-                <select id="filterMerk" class="filter-select">
-                    <option value="">Semua Merk</option>
-                    @foreach ($cars->pluck('merk')->unique() as $merk)
-                        <option value="{{ $merk }}">{{ $merk }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label for="filterTransmisi" class="filter-label">Transmisi</label>
-                <select id="filterTransmisi" class="filter-select">
-                    <option value="">Semua Transmisi</option>
-                    <option value="manual">Manual</option>
-                    <option value="automatic">Automatic</option>
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label for="filterHarga" class="filter-label">Harga</label>
-                <select id="filterHarga" class="filter-select">
-                    <option value="">Semua Harga</option>
-                    <option value="0-300000">≤ Rp 300.000</option>
-                    <option value="300001-500000">Rp 300.000 - 500.000</option>
-                    <option value="500001-999999999">≥ Rp 500.000</option>
-                </select>
-            </div>
-
-            <button id="resetFilter" type="button" class="reset-btn" aria-label="Reset filter">Reset Filter</button>
-        </div>
-    </section>
-
     <!-- Cars Listing -->
     <section class="cars-container" aria-label="Daftar mobil tersedia" id="daftar-mobil">
-        @if ($cars->count() > 0)
-            @foreach ($cars as $car)
-                {{-- @if ($car->status == 'tersedia') --}}
-                    <article class="car-card" data-merk="{{ strtolower($car->merk) }}"
-                        data-transmisi="{{ strtolower($car->transmisi) }}" data-harga="{{ $car->biaya_harian }}"
-                        aria-label="{{ $car->merk }} {{ $car->model }}, harga {{ number_format($car->biaya_harian, 0, ',', '.') }} per hari">
 
-                        <!-- Status Badge -->
+        @if (isset($cars) && $cars->count() > 0)
 
+            @foreach ($cars as $index => $car)
+                <article class="car-card" data-merk="{{ strtolower($car->merk) }}"
+                    data-transmisi="{{ strtolower($car->transmisi) }}" data-harga="{{ $car->biaya_harian }}"
+                    aria-label="{{ $car->merk }} {{ $car->model }}, harga {{ number_format($car->biaya_harian, 0, ',', '.') }} per hari">
 
-                        <img src="{{ asset($car->gambar) }}"
-                            alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
-                            onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
+                    <!-- Status Badge -->
+                    <div class="status-badge {{ $car->status }}">
+                        {{ ucfirst($car->status) }}
+                    </div>
 
-                        <h3>{{ $car->merk }} {{ $car->model }}</h3>
+                    <img src="{{ asset($car->gambar) }}"
+                        alt="{{ $car->merk }} {{ $car->model }} {{ $car->tahun }}"
+                        onerror="this.src='{{ asset('img/car-placeholder.jpg') }}'" />
 
-                        <div class="price">Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}/hari</div>
+                    <h3>{{ $car->merk }} {{ $car->model }}</h3>
 
-                        <div class="details">
-                            <div><span>Transmisi</span><span>{{ ucfirst($car->transmisi) }}</span></div>
-                            <div><span>Kapasitas</span><span>{{ $car->kapasitas_penumpang }} Penumpang</span></div>
-                            <div><span>Tahun</span><span>{{ $car->tahun }}</span></div>
-                            <div><span>Warna</span><span>{{ $car->warna ?? 'Various' }}</span></div>
-                        </div>
+                    <div class="price">Rp{{ number_format($car->biaya_harian, 0, ',', '.') }}/hari</div>
 
-                        <div class="status-badge {{ $car->status }}">
-                            {{ ucfirst($car->status) }}
-                        </div>
+                    <div class="details">
+                        <div><span>Transmisi</span><span>{{ ucfirst($car->transmisi) }}</span></div>
+                        <div><span>Kapasitas</span><span>{{ $car->kapasitas_penumpang }} Penumpang</span></div>
+                        <div><span>Tahun</span><span>{{ $car->tahun }}</span></div>
+                        <div><span>Warna</span><span>{{ $car->warna ?? 'Various' }}</span></div>
+                    </div>
 
-                        <a href="{{ route('detail.mobil', $car->id) }}">
-                            <button type="button" aria-label="Sewa {{ $car->merk }} {{ $car->model }}">
-                                Sewa Sekarang &gt;&gt;
-                            </button>
-                        </a>
-                    </article>
-                {{-- @endif --}}
+                    <a href="{{ route('detail.mobil', $car->id) }}">
+                        <button type="button" aria-label="Sewa {{ $car->merk }} {{ $car->model }}">
+                            Sewa Sekarang &gt;&gt;
+                        </button>
+                    </a>
+                </article>
             @endforeach
-        @else
-            <div class="no-cars">
+        @elseif(isset($cars) && $cars->count() == 0)
+            <div class="no-cars" data-aos="fade-up" data-aos-once="false">
                 <p>Tidak ada mobil tersedia saat ini.</p>
+            </div>
+        @else
+            <div class="no-cars" data-aos="fade-up" data-aos-once="false">
+                <p>Daftar mobil belum tersedia di halaman ini.</p>
             </div>
         @endif
     </section>

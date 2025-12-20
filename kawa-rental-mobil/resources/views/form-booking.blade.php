@@ -8,15 +8,6 @@
 
 @section('content')
     <div class="wrap">
-        <!-- Header dengan Navigation -->
-        <header class="form-header">
-            <a href="/" class="logo">
-                <img src="{{ asset('img/logo-kawa.png') }}" alt="logo kawa rental mobil" />
-            </a>
-            <nav>
-                <a href="{{ route('detail.mobil', $car->id) }}" class="back-link">&larr; Kembali ke Detail Mobil</a>
-            </nav>
-        </header>
 
         <div class="title-badge">SURAT PERJANJIAN TERIMA SEWA KENDARAAN</div>
 
@@ -139,8 +130,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="mulai_pkl">Mulai Pukul *</label>
-                                    <input id="mulai_pkl" name="mulai_pkl" type="time"
-                                        value="{{ old('mulai_pkl') }}">
+                                    <input id="mulai_pkl" name="mulai_pkl" type="time" value="{{ old('mulai_pkl') }}">
                                 </div>
                             </div>
 
@@ -312,7 +302,7 @@
                             <div class="payment-options">
                                 <h4>KONFIRMASI PEMBAYARAN</h4>
                                 <div class="payment-info">
-                                    <button type="submit" class="btn btn-primary btn-submit">
+                                    <button type="submit">
                                         <span class="submit-text">Kirim Booking Request & lakukan pembayaran</span>
                                     </button>
                                 </div>
@@ -322,13 +312,12 @@
                                 <label class="checkbox-container">
                                     <input type="checkbox" id="agree_terms" required>
                                     <span class="checkmark"></span>
-                                    Saya menyetujui <a href="#" target="_blank">Syarat & Ketentuan</a> yang
-                                    berlaku
+                                    Saya menyetujui Syarat & Ketentuan yang berlaku
                                 </label>
                             </div>
 
                             <div class="actions">
-                                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <button type="button" onclick="resetForm()">
                                     Reset Form
                                 </button>
                             </div>
@@ -339,7 +328,7 @@
                                 <br>
                                 <small>Jika sudah melakukan <strong>booking & pembayaran</strong> booking & pembayaran
                                     data akan diverifikasi oleh admin, silakan
-                                    cek di pesanan saya untuk mengetahui status pesanan</small>
+                                    cek di <strong>pesanan saya</strong> untuk mengetahui status pesanan</small>
                             </div>
 
                         </div>
@@ -354,6 +343,276 @@
         <div class="loading-spinner"></div>
         <p>Memproses permintaan...</p>
     </div>
+
+    <script>
+        // File Upload Preview Functionality
+        function setupFilePreview(inputId, previewId) {
+            const fileInput = document.getElementById(inputId);
+            const previewContainer = document.getElementById(previewId);
+
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                previewContainer.innerHTML = ''; // Clear previous preview
+
+                if (files.length > 0) {
+                    const file = files[0];
+
+                    // Check file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file maksimal 2MB');
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    // Create preview element
+                    const previewElement = document.createElement('div');
+                    previewElement.className = 'file-preview-item';
+                    previewElement.style.border = '2px dashed #ddd';
+                    previewElement.style.borderRadius = '8px';
+                    previewElement.style.padding = '15px';
+                    previewElement.style.textAlign = 'center';
+                    previewElement.style.backgroundColor = '#f9f9f9';
+                    previewElement.style.marginTop = '6px';
+                    previewElement.style.marginBottom = '8px';
+                    previewElement.style.position = 'relative';
+
+                    if (file.type.startsWith('image/')) {
+                        // For image files
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.alt = 'Preview ' + file.name;
+                            img.style.maxWidth = '100%';
+                            img.style.maxHeight = '120px';
+                            img.style.borderRadius = '4px';
+                            img.style.marginBottom = '8px';
+
+                            const fileName = document.createElement('div');
+                            fileName.textContent = truncateFileName(file.name, 20);
+                            fileName.style.fontSize = '0.85rem';
+                            fileName.style.color = '#333';
+                            fileName.style.fontWeight = '500';
+                            fileName.style.marginBottom = '5px';
+
+                            const fileSize = document.createElement('div');
+                            fileSize.textContent = formatFileSize(file.size);
+                            fileSize.style.fontSize = '0.75rem';
+                            fileSize.style.color = '#666';
+                            fileSize.style.marginBottom = '10px';
+
+                            previewElement.appendChild(img);
+                            previewElement.appendChild(fileName);
+                            previewElement.appendChild(fileSize);
+
+                            // Add cancel button
+                            const cancelBtn = createCancelButton(fileInput, previewContainer);
+                            previewElement.appendChild(cancelBtn);
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type === 'application/pdf') {
+                        // For PDF files
+                        const pdfIcon = document.createElement('div');
+                        pdfIcon.innerHTML = `
+                        <div style="background: #ff4444; color: white; width: 60px; height: 80px;
+                              border-radius: 6px; display: flex; flex-direction: column;
+                              align-items: center; justify-content: center; margin: 0 auto 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white">
+                                <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1z"/>
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                            </svg>
+                            <span style="font-size: 0.7rem; margin-top: 5px;">PDF</span>
+                        </div>
+                    `;
+
+                        const fileName = document.createElement('div');
+                        fileName.textContent = truncateFileName(file.name, 20);
+                        fileName.style.fontSize = '0.85rem';
+                        fileName.style.color = '#333';
+                        fileName.style.fontWeight = '500';
+                        fileName.style.marginBottom = '5px';
+
+                        const fileSize = document.createElement('div');
+                        fileSize.textContent = formatFileSize(file.size);
+                        fileSize.style.fontSize = '0.75rem';
+                        fileSize.style.color = '#666';
+                        fileSize.style.marginBottom = '10px';
+
+                        previewElement.appendChild(pdfIcon);
+                        previewElement.appendChild(fileName);
+                        previewElement.appendChild(fileSize);
+
+                        // Add cancel button
+                        const cancelBtn = createCancelButton(fileInput, previewContainer);
+                        previewElement.appendChild(cancelBtn);
+                    } else {
+                        // For other file types
+                        const fileIcon = document.createElement('div');
+                        fileIcon.innerHTML = `
+                        <div style="background: #4CAF50; color: white; width: 60px; height: 80px;
+                              border-radius: 6px; display: flex; flex-direction: column;
+                              align-items: center; justify-content: center; margin: 0 auto 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                            <span style="font-size: 0.7rem; margin-top: 5px;">FILE</span>
+                        </div>
+                    `;
+
+                        const fileName = document.createElement('div');
+                        fileName.textContent = truncateFileName(file.name, 20);
+                        fileName.style.fontSize = '0.85rem';
+                        fileName.style.color = '#333';
+                        fileName.style.fontWeight = '500';
+                        fileName.style.marginBottom = '5px';
+
+                        const fileSize = document.createElement('div');
+                        fileSize.textContent = formatFileSize(file.size);
+                        fileSize.style.fontSize = '0.75rem';
+                        fileSize.style.color = '#666';
+                        fileSize.style.marginBottom = '10px';
+
+                        previewElement.appendChild(fileIcon);
+                        previewElement.appendChild(fileName);
+                        previewElement.appendChild(fileSize);
+
+                        // Add cancel button
+                        const cancelBtn = createCancelButton(fileInput, previewContainer);
+                        previewElement.appendChild(cancelBtn);
+                    }
+
+                    previewContainer.appendChild(previewElement);
+                }
+            });
+        }
+
+        // Helper function to create cancel button
+        function createCancelButton(fileInput, previewContainer) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'cancel-btn';
+            cancelBtn.textContent = 'Batal Upload';
+            cancelBtn.style.background = '#dc3545';
+            cancelBtn.style.color = 'white';
+            cancelBtn.style.border = 'none';
+            cancelBtn.style.borderRadius = '4px';
+            cancelBtn.style.padding = '6px 12px';
+            cancelBtn.style.fontSize = '0.8rem';
+            cancelBtn.style.cursor = 'pointer';
+            cancelBtn.style.marginTop = '5px';
+            cancelBtn.style.width = '100%';
+
+            cancelBtn.onclick = function() {
+                if (confirm('Apakah Anda yakin ingin membatalkan upload file ini?')) {
+                    fileInput.value = '';
+                    previewContainer.innerHTML = '';
+                }
+            };
+
+            return cancelBtn;
+        }
+
+        // Helper function to truncate file name if too long
+        function truncateFileName(name, maxLength) {
+            if (name.length <= maxLength) return name;
+            return name.substring(0, maxLength) + '...' + name.substring(name.lastIndexOf('.'));
+        }
+
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Initialize file previews
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup preview for identity file
+            setupFilePreview('file_identitas', 'preview_identitas');
+
+            // Setup preview for guarantee file
+            setupFilePreview('file_jaminan', 'preview_jaminan');
+
+            // Setup preview for STNK file (if exists)
+            const stnkInput = document.getElementById('file_stnk_motor');
+            if (stnkInput) {
+                setupFilePreview('file_stnk_motor', 'preview_stnk');
+            }
+
+            // Update guarantee info text based on selection
+            document.getElementById('bentuk_jaminan').addEventListener('change', function() {
+                const selected = this.value;
+                const infoText = document.getElementById('jaminan_info');
+                let text = '';
+
+                switch (selected) {
+                    case 'sim':
+                        text = 'SIM A atau SIM C';
+                        break;
+                    case 'stnk_motor':
+                        text = 'STNK Motor (wajib upload foto STNK juga)';
+                        break;
+                    case 'kk':
+                        text = 'Kartu Keluarga';
+                        break;
+                    case 'kartu_pelajar':
+                        text = 'Kartu Pelajar/Mahasiswa';
+                        break;
+                    case 'lain':
+                        text = 'Dokumen jaminan lainnya';
+                        break;
+                    default:
+                        text = 'SIM, STNK, KK, dll sesuai pilihan jaminan';
+                }
+
+                infoText.textContent = text;
+            });
+
+            // Trigger initial update
+            document.getElementById('bentuk_jaminan').dispatchEvent(new Event('change'));
+        });
+
+        // Update form validation to include file preview check
+        const originalValidateForm = window.validateForm;
+        window.validateForm = function() {
+            // Check agreement checkbox
+            const agreeTerms = document.getElementById('agree_terms');
+            if (!agreeTerms.checked) {
+                alert('Anda harus menyetujui Syarat & Ketentuan');
+                return false;
+            }
+
+            // Check file uploads
+            const fileIdentitas = document.getElementById('file_identitas');
+            const fileJaminan = document.getElementById('file_jaminan');
+            const bentukJaminan = document.getElementById('bentuk_jaminan').value;
+
+            if (!fileIdentitas.files[0]) {
+                alert('File Identitas (KTP/Kartu Pelajar) harus diupload');
+                return false;
+            }
+
+            if (!fileJaminan.files[0]) {
+                alert('File Jaminan harus diupload');
+                return false;
+            }
+
+            // Check STNK motor if selected
+            if (bentukJaminan === 'stnk_motor') {
+                const fileStnk = document.getElementById('file_stnk_motor');
+                if (!fileStnk || !fileStnk.files[0]) {
+                    alert('Foto STNK Motor harus diupload karena Anda memilih STNK sebagai jaminan');
+                    return false;
+                }
+            }
+
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            return true;
+        };
+    </script>
 
     <script>
         // Real-time date calculation

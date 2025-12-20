@@ -33,10 +33,6 @@ Route::get('/laporan_stat', [LaporanStatistik::class, 'index'])
     ->middleware(['auth'])
     ->name('laporan.stat');
 
-Route::get('/', function () {
-    return view('landingpage');
-})->name('home');
-
 Route::get('/AdminDashboardMobil', function () {
     return view('AdminDashboardMobil');
 })->name('admindashboardmobil');
@@ -322,6 +318,4 @@ Route::middleware(['auth', 'check_role:admin'])
         Route::get('/mobil/{id}/edit', [AdminCarController::class, 'edit'])->name('mobil.edit');
         Route::put('/mobil/{id}', [AdminCarController::class, 'update'])->name('mobil.update');
         Route::delete('/mobil/{id}', [AdminCarController::class, 'destroy'])->name('mobil.destroy');
-
     });
-

@@ -16,7 +16,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-
         :root {
             --primary-bg-color: #ff0000a4;
             --secondary-bg-color: #471a1a;
@@ -41,7 +40,6 @@
             background-size: cover;
             background-position: center;
             position: relative;
-            overflow: hidden;
         }
 
         .background {
@@ -58,7 +56,7 @@
         .register-container {
             width: 90%;
             max-width: 400px;
-            padding: 40px;
+            padding: 30px 25px;
             border-radius: 15px;
             background: transparent;
             border: 2px solid rgba(255, 255, 255, .5);
@@ -67,40 +65,97 @@
             color: #fff;
             text-align: center;
             position: relative;
-            z-index:
+            z-index: 1;
+            margin: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 25px 20px;
+                width: 85%;
+                max-width: 350px;
+            }
         }
 
         .register-container h2 {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 600;
             color: white;
-            font-size: 36px;
+            font-size: 28px;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
+        @media (max-width: 480px) {
+            .register-container h2 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+        }
+
         .input-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .input-group input {
             background: transparent;
             width: 100%;
             font-size: 16px;
-            padding: 12px 15px;
+            padding: 14px 45px 14px 15px;
             border: 2px solid rgba(255, 255, 255, 0.4);
             border-radius: 40px;
             box-sizing: border-box;
-            transition: border-color 0.3s
+            transition: border-color 0.3s ease;
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .input-group input {
+                padding: 13px 40px 13px 15px;
+                font-size: 15px;
+            }
+        }
+
+        /* Fix untuk iOS agar tidak zoom */
+        @media screen and (max-width: 480px) {
+            .input-group input {
+                font-size: 16px !important;
+            }
         }
 
         .input-group input::placeholder {
-            color: rgba(255, 255, 255, 50);
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .input-group input:focus {
             outline: none;
             border-color: var(--button-bg-color);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            .password-toggle {
+                right: 12px;
+                font-size: 16px;
+            }
         }
 
         .error-message {
@@ -122,11 +177,13 @@
             margin-top: 4px;
             margin-right: 10px;
             cursor: pointer;
+            width: 16px;
+            height: 16px;
         }
 
         .terms-group label {
-            font-size: 0.8em;
-            color: #555;
+            font-size: 0.85em;
+            color: white;
             line-height: 1.4;
         }
 
@@ -137,11 +194,19 @@
             border-radius: 8px;
             background-color: var(--primary-bg-color);
             color: white;
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
             margin: 10px 0;
             transition: background-color 0.3s ease;
+        }
+
+        @media (max-width: 480px) {
+            .btn-register {
+                width: 60%;
+                padding: 11px;
+                font-size: 0.95em;
+            }
         }
 
         .btn-register:hover {
@@ -160,26 +225,44 @@
             border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             cursor: pointer;
             border: 1px solid #ccc;
             background-color: white;
-            font-size: 0.85em;
-            font-weight: 500;
+            font-size: 0.9rem;
+            font-weight: 550;
+            text-decoration: none;
+            height: 40px;
+        }
+
+        @media (max-width: 480px) {
+            .social-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                height: 38px;
+            }
         }
 
         .social-btn img {
-            width: 18px;
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .social-btn img {
+                width: 22px;
+                height: 22px;
+            }
         }
 
         .link-group {
-            margin-top: 15px;
-            font-size: 0.8em;
-            color: #777;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: white;
         }
 
         .link-group a {
-            color: var(--link-color);
+            color: #a3d5ff;
             text-decoration: none;
             transition: color 0.3s ease;
         }
@@ -188,17 +271,10 @@
             text-decoration: underline;
         }
 
-        .error-message {
-            color: red;
-            font-size: 0.85em;
-            margin-bottom: 10px;
-        }
-
-
-        @media (max-width: 480px) {
-            .register-container {
-                padding: 25px;
-            }
+        p {
+            color: white;
+            margin: 12px 0;
+            font-size: 0.95em;
         }
     </style>
 </head>
@@ -206,7 +282,6 @@
 <body>
     <div class="background"></div>
     <div class="register-container">
-
         <h2>DAFTAR</h2>
         <form action="/register" method="POST">
             @csrf
@@ -228,40 +303,76 @@
                 <div class="error-message">{{ $message }}</div>
             @enderror
             <div class="input-group">
-                <input type="password" name="password" placeholder="masukan password" required id="confirm_password">
+                <input type="password" name="password" placeholder="masukan password" required id="password">
+                <button type="button" class="password-toggle" id="togglePassword">
+                    <i class="fas fa-lock"></i>
+                </button>
             </div>
 
             @error('confirm_password')
                 <div class="error-message">{{ $message }}</div>
             @enderror
             <div class="input-group">
-                <input type="password" name="confirm_password" placeholder="masukan ulang password" required
-                    id="confirm_password">
+                <input type="password" name="confirm_password" placeholder="masukan ulang password" required id="confirm_password">
+                <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                    <i class="fas fa-lock"></i>
+                </button>
             </div>
 
             <div class="terms-group">
                 <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms" style="color: white;">Dengan mendaftar, saya menyetujui Syarat & ketentuan dan
-                    kebijakan privasi</label>
+                <label for="terms">Dengan mendaftar, saya menyetujui Syarat & ketentuan dan kebijakan privasi</label>
             </div>
 
             <button type="submit" class="btn-register">Daftar</button>
-
         </form>
+
         <p>- atau -</p>
 
         <div class="social-buttons">
             <a href="{{ route('google.login') }}" style="text-decoration: none;">
                 <div class="social-btn" style="color: black;">
                     <img src="{{ asset('img/google.png') }}" alt="Google Logo">
-                    Daftar dengan Goggle
+                    Daftar dengan Google
                 </div>
             </a>
         </div>
-        <div class="link-group" style="color: white;">
+
+        <div class="link-group">
             Sudah punya akun? <a href="/login">masuk</a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+            const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+            const confirmPassword = document.querySelector('#confirm_password');
+
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+
+                if (type === 'text') {
+                    this.innerHTML = '<i class="fas fa-lock-open"></i>';
+                } else {
+                    this.innerHTML = '<i class="fas fa-lock"></i>';
+                }
+            });
+
+            toggleConfirmPassword.addEventListener('click', function() {
+                const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                confirmPassword.setAttribute('type', type);
+
+                if (type === 'text') {
+                    this.innerHTML = '<i class="fas fa-lock-open"></i>';
+                } else {
+                    this.innerHTML = '<i class="fas fa-lock"></i>';
+                }
+            });
+        });
+    </script>
 
     @if (session('success'))
         <script>
