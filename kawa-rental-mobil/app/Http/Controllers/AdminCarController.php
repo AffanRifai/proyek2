@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class AdminCarController extends Controller
 {
-    // LIST MOBIL ADMIN
+    // LIST MOBIL
     public function index()
     {
         $mobil = Car::all();
@@ -20,7 +20,7 @@ class AdminCarController extends Controller
         return view('admin.manajemen-mobil.create');
     }
 
-    // PROSES SIMPAN
+    // SIMPAN
     public function store(Request $request)
     {
         $request->validate([
@@ -34,10 +34,12 @@ class AdminCarController extends Controller
             'gambar' => 'required|image|max:2048',
         ]);
 
-        // Upload gambar
+        $path = null;
+
         if ($request->hasFile('gambar')) {
             $filename = time() . '.' . $request->gambar->extension();
             $request->gambar->storeAs('public/mobil', $filename);
+            $path = 'storage/mobil/' . $filename;
         }
 
         Car::create([
@@ -47,20 +49,21 @@ class AdminCarController extends Controller
             'tahun' => $request->tahun,
             'transmisi' => $request->transmisi,
             'kapasitas_penumpang' => $request->kapasitas_penumpang,
+            'biaya_harian' => $request->biaya_harian,
             'no_rangka' => $request->no_rangka,
             'no_mesin' => $request->no_mesin,
             'no_polisi' => $request->no_polisi,
             'stnk_atas_nama' => $request->stnk_atas_nama,
-            'biaya_harian' => $request->biaya_harian,
-            'gambar' => $filename,
-            'status' => 'tersedia',
             'deskripsi' => $request->deskripsi,
             'fasilitas' => $request->fasilitas,
             'syarat' => $request->syarat,
             'kebijakan' => $request->kebijakan,
+            'gambar' => $path,
+            'status' => 'tersedia',
         ]);
 
-        return redirect()->route('admin.mobil.index')->with('success', 'Mobil berhasil ditambahkan');
+        return redirect()->route('admin.mobil.index')
+            ->with('success', 'Mobil berhasil ditambahkan');
     }
 
     // FORM EDIT
@@ -70,7 +73,7 @@ class AdminCarController extends Controller
         return view('admin.manajemen-mobil.edit', compact('mobil'));
     }
 
-    // PROSES UPDATE
+    // UPDATE
     public function update(Request $request, $id)
     {
         $mobil = Car::findOrFail($id);
@@ -86,26 +89,25 @@ class AdminCarController extends Controller
             'gambar' => 'image|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->except('gambar');
 
-        // Bila upload gambar baru
         if ($request->hasFile('gambar')) {
             $filename = time() . '.' . $request->gambar->extension();
             $request->gambar->storeAs('public/mobil', $filename);
-            $data['gambar'] = $filename;
-        } else {
-            unset($data['gambar']); // agar tidak menimpa gambar lama
+            $data['gambar'] = 'storage/mobil/' . $filename;
         }
 
         $mobil->update($data);
 
-        return redirect()->route('admin.mobil.index')->with('success', 'Mobil berhasil diperbarui');
+        return redirect()->route('admin.mobil.index')
+            ->with('success', 'Mobil berhasil diperbarui');
     }
 
-    // HAPUS MOBIL
+    // HAPUS
     public function destroy($id)
     {
         Car::destroy($id);
-        return redirect()->back()->with('success', 'Mobil berhasil dihapus');
+        return redirect()->back()
+            ->with('success', 'Mobil berhasil dihapus');
     }
 }
