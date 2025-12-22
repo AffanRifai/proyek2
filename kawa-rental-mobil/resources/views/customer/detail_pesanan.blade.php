@@ -11,14 +11,14 @@
                     <h1 class="page-title">Detail Pesanan</h1>
                     <p class="page-subtitle">ID Transaksi: {{ $booking->id_transaksi }}</p>
                 </div>
-                <div class="action-buttons">
+                {{-- <div class="action-buttons">
                     <a href="{{ route('pesanan.index') }}" class="btn-back">
                         <i class="fas fa-arrow-left me-2"></i>Kembali
                     </a>
                     <a href="{{ url('/nota/' . $booking->id) }}" class="btn-print" target="_blank">
                         <i class="fas fa-print me-2"></i>Cetak Nota
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -128,74 +128,6 @@
 
         <!-- Main Content Grid -->
         <div class="detail-grid">
-            <!-- Left Column: Rental Information -->
-            <div class="detail-card">
-                <div class="detail-card-header">
-                    <h3 class="detail-card-title">
-                        <i class="fas fa-calendar-alt me-2"></i>Detail Sewa
-                    </h3>
-                </div>
-                <div class="detail-card-body">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-calendar-day"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Tanggal Mulai</p>
-                                <p class="info-value">{{ \Carbon\Carbon::parse($booking->mulai_tgl)->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Tanggal Selesai</p>
-                                <p class="info-value">{{ \Carbon\Carbon::parse($booking->sel_tgl)->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Durasi Sewa</p>
-                                <p class="info-value">{{ $booking->lama_hari }} hari</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Tujuan</p>
-                                <p class="info-value">{{ $booking->tujuan ?? 'Belum ditentukan' }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Harga Mobil per Hari</p>
-                                <p class="info-value">Rp {{ number_format($booking->car->biaya_harian, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-user-clock"></i>
-                            </div>
-                            <div class="info-content">
-                                <p class="info-label">Total Biaya</p>
-                                <p class="info-value">Rp {{ number_format($booking->total_pembayaran, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
             <!-- Right Column: Car & Renter Information -->
             <div class="detail-card">
                 <div class="detail-card-header">
@@ -287,6 +219,75 @@
                                 <p class="info-value">{{ $booking->alamat ?? '-' }}</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Left Column: Rental Information -->
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <h3 class="detail-card-title">
+                        <i class="fas fa-calendar-alt me-2"></i>Detail Sewa
+                    </h3>
+                </div>
+                <div class="detail-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Tanggal Mulai</p>
+                                <p class="info-value">{{ \Carbon\Carbon::parse($booking->mulai_tgl)->format('d M Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Tanggal Selesai</p>
+                                <p class="info-value">{{ \Carbon\Carbon::parse($booking->sel_tgl)->format('d M Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Durasi Sewa</p>
+                                <p class="info-value">{{ $booking->lama_hari }} hari</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Tujuan</p>
+                                <p class="info-value">{{ $booking->tujuan ?? 'Belum ditentukan' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Harga Mobil per Hari</p>
+                                <p class="info-value">Rp {{ number_format($booking->car->biaya_harian, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Total Biaya</p>
+                                <p class="info-value">Rp {{ number_format($booking->total_pembayaran, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -429,9 +430,9 @@
                 @endif
 
                 <!-- Debug Section - Hanya tampil jika countdown tidak muncul -->
-                @if (!$showCountdown && Auth::user()->hasRole('admin'))
-                    <div class="alert alert-info debug-info">
-                        <h6><i class="fas fa-bug me-2"></i>Debug Information</h6>
+                {{-- @if (!$showCountdown)
+                    <div>
+
                         <div style="font-size: 12px; font-family: monospace;">
                             <strong>Booking ID:</strong> {{ $booking->id }}<br>
                             <strong>Status Pembayaran:</strong> {{ $booking->status_pembayaran }}<br>
@@ -447,7 +448,7 @@
                             <strong>Booking Expired At:</strong> {{ $booking->expired_at ?? 'NULL' }}
                         </div>
                     </div>
-                @endif
+                @endif --}}
 
                 <div class="payment-summary">
                     <div class="payment-item">
@@ -1871,7 +1872,7 @@
                                     // Tampilkan konfirmasi
                                     Swal.fire({
                                         title: 'Pembayaran Berhasil!',
-                                        html: 'Transaksi Anda berhasil diproses.<br><br><strong>Countdown pelunasan akan muncul setelah halaman direfresh.</strong>',
+                                        html: 'Transaksi Anda berhasil diproses.<br></strong>',
                                         icon: 'success',
                                         confirmButtonColor: '#A62F19',
                                         confirmButtonText: 'Refresh Halaman'
@@ -1932,7 +1933,7 @@
                             // Pembayaran berhasil
                             Swal.fire({
                                 title: 'Pembayaran Dikonfirmasi!',
-                                html: 'Pembayaran Anda telah dikonfirmasi.<br><br><strong>Halaman akan direfresh untuk menampilkan countdown pelunasan.</strong>',
+                                html: 'Pembayaran Anda telah dikonfirmasi.<br></strong>',
                                 icon: 'success',
                                 confirmButtonColor: '#A62F19',
                                 confirmButtonText: 'Refresh Sekarang'
@@ -2031,7 +2032,7 @@
 
                                 if (res.success) {
                                     Swal.fire('Terdaftar!',
-                                        'Permintaan bayar offline berhasil dikirim. Countdown pelunasan akan aktif setelah halaman refresh.',
+                                        'Permintaan bayar offline berhasil dikirim. ',
                                         'success'
                                     ).then(() => {
                                         window.location.reload();
@@ -2074,7 +2075,7 @@
                     // Tampilkan loading dan auto-refresh
                     Swal.fire({
                         title: 'Memuat Data Terbaru',
-                        text: 'Memperbarui informasi pembayaran dan countdown...',
+                       
                         icon: 'info',
                         showConfirmButton: false,
                         allowOutsideClick: false,

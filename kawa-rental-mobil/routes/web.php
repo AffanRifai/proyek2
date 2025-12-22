@@ -20,7 +20,15 @@ use App\Http\Controllers\StatusPembayaranController;
 use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\LaporanStatistik;
 use App\Http\Controllers\AdminCarController;
+use App\Http\Controllers\AdminDashboardController;
 
+Route::get('/gps', function () {
+    return view('gps');
+});
+
+Route::get('/tracking', function () {
+    return view('tracking.index');
+})->name('tracking.index');
 
 Route::get('/tracking/map', function () {
     return view('tracking.map');
@@ -33,11 +41,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         ->name('admin.laporan.bulanan');
 });
 
-// Route for laporan statistik: use controller so view gets required variables
-Route::get('/laporan_stat', [LaporanStatistik::class, 'index'])
-    ->middleware(['auth'])
-    ->name('laporan.stat');
-
 use App\Models\Car;
 
 Route::get('/', function () {
@@ -45,6 +48,11 @@ Route::get('/', function () {
     $cars = Car::where('status', 'tersedia')->latest('id')->take(6)->get();
     return view('landingpage', compact('cars'));
 })->name('home');
+
+// Route for laporan statistik: use controller so view gets required variables
+Route::get('/laporan_stat', [LaporanStatistik::class, 'index'])
+    ->middleware(['auth'])
+    ->name('laporan.stat');
 
 Route::get('/AdminDashboardMobil', function () {
     return view('AdminDashboardMobil');
@@ -172,7 +180,7 @@ Route::post('/pembayaran/offline', [PembayaranController::class, 'offline'])->na
 // ✅ PERBAIKAN: SATU KELOMPOK ROUTE ADMIN YANG BERSIH
 Route::middleware(['auth', 'check_role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Admin
-    Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('index');
 
     // Bookings Management - MANUAL PROCESS
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');

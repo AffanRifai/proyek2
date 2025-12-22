@@ -392,9 +392,18 @@ class Booking extends Model
     {
         $this->update(['status' => 'approved']);
 
-        // Update status mobil menjadi disewa
+        // ✅ PERBAIKAN: Hanya ubah status mobil jadi 'disewa' jika tanggal sewa sudah mulai
         if ($this->car) {
-            $this->car->update(['status' => 'disewa']);
+            $mulaiTgl = Carbon::parse($this->mulai_tgl);
+            $today = Carbon::today();
+
+            if ($mulaiTgl->lte($today)) {
+                // Jika tanggal sewa sudah dimulai (hari ini atau sebelumnya), ubah status jadi 'disewa'
+                $this->car->update(['status' => 'disewa']);
+            } else {
+                // Jika tanggal sewa masih mendatang, status mobil tetap 'tersedia'
+                $this->car->update(['status' => 'tersedia']);
+            }
         }
 
         return $this;
@@ -423,9 +432,9 @@ class Booking extends Model
             'catatan_admin' => $alasan
         ]);
 
-        // Kembalikan status mobil menjadi tersedia
+        // ✅ PERBAIKAN: Selalu update status mobil
         if ($this->car) {
-            $this->car->update(['status' => 'tersedia']);
+            $this->car->updateStatusBasedOnBookings();
         }
 
         return $this;
@@ -434,7 +443,6 @@ class Booking extends Model
     // Method untuk complete booking (tanpa denda - untuk pengembalian tepat waktu)
     public function complete()
     {
-        // Safety check - hanya bisa complete booking yang approved
         if ($this->status !== 'approved') {
             throw new \Exception('Hanya booking dengan status approved yang bisa diselesaikan.');
         }
@@ -445,13 +453,15 @@ class Booking extends Model
             'keterangan_terlambat' => 'Mobil dikembalikan tepat waktu.'
         ]);
 
-        // Update status mobil menjadi tersedia kembali
+        // ✅ PERBAIKAN: Selalu update status mobil
         if ($this->car) {
-            $this->car->update(['status' => 'tersedia']);
+            $this->car->updateStatusBasedOnBookings();
         }
 
         return $this;
     }
+
+
 
     // ✅ METHOD BARU: Cek apakah booking sedang berjalan (dalam rentang tanggal)
     public function getIsSedangDisewaAttribute()

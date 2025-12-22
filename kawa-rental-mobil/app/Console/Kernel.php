@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Jobs\UpdateCarStatusJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -23,6 +24,8 @@ class Kernel extends ConsoleKernel
         // // ✅ Clean up old logs daily
         // $schedule->command('payment:sync-cleanup')->daily();
 
+        // Jalankan setiap hari tengah malam
+        $schedule->job(new UpdateCarStatusJob)->daily();
     }
 
 
