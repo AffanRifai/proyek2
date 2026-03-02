@@ -18,4 +18,4 @@ RUN composer install --optimize-autoloader --no-dev
 
 EXPOSE 8080
 
-CMD php -S 0.0.0.0:8080 -t public
+CMD php artisan migrate --force || true && php -S 0.0.0.0:8080 -t public
