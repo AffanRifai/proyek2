@@ -167,8 +167,6 @@ class PembayaranController extends Controller
 
     // ===================================================================
     // Endpoint untuk mendaftar pembayaran offline (pelunasan/offline)
-    // - Membuat record pembayaran dengan saluran_pembayaran = 'offline'
-    // - status_pembayaran = 'menunggu_verifikasi' (butuh konfirmasi admin)
     // ===================================================================
     public function offline(Request $request)
     {
@@ -193,8 +191,7 @@ class PembayaranController extends Controller
                 return response()->json(['success' => false, 'message' => 'Tidak ada sisa pembayaran.'], 422);
             }
 
-            // **Aturan deadline pelunasan yang kamu minta:**
-            // boleh sampai akhir hari mulai_tgl (mulai_tgl 1 = sampai 23:59:59 hari itu).
+            // Aturan deadline pelunasan
             if (!$booking->mulai_tgl) {
                 return response()->json(['success' => false, 'message' => 'Tanggal mulai sewa tidak tersedia.'], 422);
             }
@@ -244,7 +241,7 @@ class PembayaranController extends Controller
         } elseif ($jenisReq === 'bayar_penuh_offline') {
             $jumlah = (float)$booking->total_pembayaran;
             $jenisDb = 'bayar_penuh';
-            // reuse existing pending payment if present
+
             $pembayaran = $booking->pembayaran
                 ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
                 ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
@@ -282,7 +279,7 @@ class PembayaranController extends Controller
         }
     }
 
-    // ======================= PEMBUATAN PEMBAYARAN (view/prosesOnline etc) ==========================
+    // ======================= PEMBUATAN PEMBAYARAN ==========================
     public function buat($idBooking, $jenis)
     {
         $booking = Booking::with('car', 'user')->findOrFail($idBooking);
@@ -303,7 +300,7 @@ class PembayaranController extends Controller
         try {
             // Buat record pembayaran atau update DP existing jika pelunasan online
             $orderId = 'RENT-' . $booking->id_transaksi . '-' . $jenis . '-' . time();
-            // reuse any pending payment record if available
+
             $existing = $booking->pembayaran
                 ->whereIn('jenis_pembayaran', ['dp', 'pelunasan', 'bayar_penuh'])
                 ->whereNotIn('status_pembayaran', ['gagal', 'sukses'])
@@ -353,6 +350,90 @@ class PembayaranController extends Controller
         }
     }
 
+    // ======================= AUTO-CREATE PELUNASAN ==========================
+    /**
+     * AUTO-CREATE PELUNASAN setelah pembayaran DP sukses
+     * Method ini akan dipanggil setelah pembayaran DP berhasil
+     */
+    private function createAutoPelunasan($booking)
+    {
+        try {
+            Log::info('=== AUTO-CREATE PELUNASAN DIPANGGIL ===', [
+                'booking_id' => $booking->id,
+                'total_pembayaran' => $booking->total_pembayaran,
+                'total_dibayar' => $booking->total_dibayar,
+                'sisa_bayar' => $booking->sisaBayar(),
+            ]);
+
+            // Hitung sisa pembayaran yang harus dibayar
+            $sisaBayar = $booking->sisaBayar();
+
+            if ($sisaBayar <= 0) {
+                Log::info('Tidak ada sisa pembayaran untuk booking: ' . $booking->id);
+                return null;
+            }
+
+            // Cek apakah sudah ada pembayaran pelunasan yang pending/menunggu
+            $existingPelunasan = Pembayaran::where('booking_id', $booking->id)
+                ->where('jenis_pembayaran', 'pelunasan')
+                ->whereIn('status_pembayaran', ['menunggu', 'menunggu_verifikasi', 'pending'])
+                ->first();
+
+            if ($existingPelunasan) {
+                Log::info('Sudah ada pelunasan pending untuk booking: ' . $booking->id, [
+                    'pelunasan_id' => $existingPelunasan->id,
+                    'status' => $existingPelunasan->status_pembayaran
+                ]);
+                return $existingPelunasan;
+            }
+
+            // Generate order ID untuk pelunasan
+            $orderId = 'KAWA-PLN-' . Str::upper(Str::random(8)) . '-' . $booking->id;
+
+            // Tentukan deadline pelunasan (2 hari dari sekarang atau sesuai aturan bisnis)
+            $deadline = null;
+            if (method_exists($booking, 'pelunasanDeadline')) {
+                $deadline = $booking->pelunasanDeadline();
+            } else {
+                // Fallback: 2 hari dari sekarang
+                $deadline = now()->addDays(2);
+            }
+
+            // Buat record pembayaran pelunasan
+            $pelunasan = Pembayaran::create([
+                'booking_id' => $booking->id,
+                'jenis_pembayaran' => 'pelunasan',
+                'metode_pembayaran' => 'midtrans',
+                'saluran_pembayaran' => 'online',
+                'jumlah' => $sisaBayar,
+                'jumlah_dibayar' => 0,
+                'midtrans_order_id' => $orderId,
+                'status_pembayaran' => 'menunggu',
+                'tanggal_jatuh_tempo' => $deadline,
+                'catatan' => 'Pelunasan otomatis dibuat setelah pembayaran DP berhasil',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            Log::info('=== PELUNASAN BERHASIL DIBUAT ===', [
+                'pelunasan_id' => $pelunasan->id,
+                'booking_id' => $booking->id,
+                'jumlah' => $sisaBayar,
+                'deadline' => $deadline,
+                'order_id' => $orderId
+            ]);
+
+            return $pelunasan;
+        } catch (\Exception $e) {
+            Log::error('Gagal membuat pelunasan otomatis: ' . $e->getMessage(), [
+                'booking_id' => $booking->id,
+                'error' => $e->getTraceAsString()
+            ]);
+            return null;
+        }
+    }
+
+    // ======================= NOTIFICATION HANDLER ==========================
     // Notification / webhook endpoint dari midtrans
     public function notification(Request $request)
     {
@@ -417,6 +498,12 @@ class PembayaranController extends Controller
                     // update status_pembayaran: jika masih ada sisa -> dp_dibayar, jika lunas -> lunas
                     if ($booking->sisa_pembayaran > 0 && $booking->requiresDp()) {
                         $booking->status_pembayaran = 'dp_dibayar';
+
+                        // ===== AUTO-CREATE PELUNASAN =====
+                        Log::info('DP berhasil dibayar, membuat pelunasan otomatis...');
+                        $this->createAutoPelunasan($booking);
+                        // ================================
+
                     } elseif ($booking->sisa_pembayaran <= 0) {
                         $booking->status_pembayaran = 'lunas';
                     }
@@ -437,7 +524,7 @@ class PembayaranController extends Controller
         }
     }
 
-    // Callback dan helper lainnya tetap sama...
+    // ======================= CALLBACK HANDLER ==========================
     public function handleCallback(Request $request)
     {
         Log::info('=== MIDTRANS CALLBACK RECEIVED ===');
@@ -485,11 +572,19 @@ class PembayaranController extends Controller
                             ]);
                         } else {
                             $this->prosesPembayaranSukses($pembayaran, $booking, $gross, $notification);
+                            // ===== AUTO-CREATE PELUNASAN =====
+                            if ($pembayaran->jenis_pembayaran == 'dp') {
+                                $this->createAutoPelunasan($booking);
+                            }
                         }
                         break;
 
                     case 'settlement':
                         $this->prosesPembayaranSukses($pembayaran, $booking, $gross, $notification);
+                        // ===== AUTO-CREATE PELUNASAN =====
+                        if ($pembayaran->jenis_pembayaran == 'dp') {
+                            $this->createAutoPelunasan($booking);
+                        }
                         break;
 
                     case 'pending':
@@ -523,11 +618,13 @@ class PembayaranController extends Controller
         return redirect()->route('transaksi.nota', ['id' => $pembayaran->id]);
     }
 
+    // ======================= PROSES PEMBAYARAN SUKSES ==========================
     private function prosesPembayaranSukses($pembayaran, $booking, $jumlah, $notification)
     {
         Log::info('=== PEMBAYARAN SUKSES ===', [
             'pembayaran_id' => $pembayaran->id,
             'booking_id' => $booking->id,
+            'jenis' => $pembayaran->jenis_pembayaran,
         ]);
 
         $pembayaran->update([
@@ -547,6 +644,11 @@ class PembayaranController extends Controller
                     'total_dibayar' => $jumlah,
                     'expired_at' => null,
                 ]);
+
+                // ===== AUTO-CREATE PELUNASAN =====
+                Log::info('Pembayaran DP sukses, memulai auto-create pelunasan...');
+                $this->createAutoPelunasan($booking);
+                // ================================================
                 break;
 
             case 'pelunasan':
@@ -564,6 +666,55 @@ class PembayaranController extends Controller
         }
     }
 
+    // ======================= CHECK PAYMENT STATUS ==========================
+    /**
+     * Check payment status for polling dari frontend
+     */
+    public function checkPaymentStatus(Booking $booking)
+    {
+        try {
+            $latestPayment = $booking->pembayaran()
+                ->latest()
+                ->first();
+
+            if (!$latestPayment) {
+                return response()->json(['status' => 'not_found']);
+            }
+
+            $response = [
+                'status' => $latestPayment->status_pembayaran,
+                'jenis' => $latestPayment->jenis_pembayaran,
+                'message' => 'Status pembayaran: ' . $latestPayment->status_pembayaran,
+                'has_pelunasan' => false,
+                'pelunasan_deadline' => null
+            ];
+
+            // Jika pembayaran terakhir adalah DP yang sukses, cek apakah ada pelunasan
+            if ($latestPayment->jenis_pembayaran == 'dp' && $latestPayment->status_pembayaran == 'sukses') {
+                $pelunasanPending = Pembayaran::where('booking_id', $booking->id)
+                    ->where('jenis_pembayaran', 'pelunasan')
+                    ->whereIn('status_pembayaran', ['menunggu', 'pending', 'menunggu_verifikasi'])
+                    ->first();
+
+                if ($pelunasanPending) {
+                    $response['has_pelunasan'] = true;
+                    $response['pelunasan_deadline'] = $pelunasanPending->tanggal_jatuh_tempo;
+                    $response['pelunasan_status'] = $pelunasanPending->status_pembayaran;
+                    $response['pelunasan_order_id'] = $pelunasanPending->midtrans_order_id;
+                }
+            }
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            Log::error('Error checking payment status: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ======================= PREPARE PELUNASAN RECORD ==========================
     /**
      * Siapkan atau update record pembayaran untuk pelunasan.
      * Jika ada DP yang belum gagal, update record itu menjadi pelunasan. Kembalikan instance Pembayaran.
@@ -613,6 +764,7 @@ class PembayaranController extends Controller
         ]);
     }
 
+    // ======================= SUKSES PAGE ==========================
     public function sukses($idPembayaran)
     {
         try {
@@ -663,7 +815,7 @@ class PembayaranController extends Controller
         ]);
     }
 
-    // helper parsing dan signature validation (tetap seperti semula)
+    // ======================= HELPER METHODS ==========================
     private function parseMidtransNotification(Request $request)
     {
         $raw = $request->getContent();

@@ -16,7 +16,7 @@
                 </div>
                 <h3>Belum ada pesanan</h3>
                 <p class="text-muted">Mulai sewa mobil impian Anda sekarang!</p>
-                <a href="{{ route('cars.index') }}" class="btn-primary">
+                <a href="#" class="btn-primary">
                     <i class="fas fa-car me-2"></i>Sewa Mobil
                 </a>
             </div>
